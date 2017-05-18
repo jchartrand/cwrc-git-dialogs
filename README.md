@@ -146,13 +146,19 @@ Now we've code code coverage information, but we have one more step to convert i
 npm generate-coverage 
 ```
 
-which for now is invoked in test:single after running test:electron:
+which for now is invoked in test:single after running test:electron
 
 ```
 "test:single": "npm run test:electron && npm generate-coverage",
 ```
 
-test-single is what we ask Travis to run when checking our build.  Note that Travis can only run the test against the headless browser electron.
+test-single is what we ask Travis to run when checking our build.  Note that Travis can only run the test against the headless browser Electron.
+
+Finally we publish the coverage at codecov.io:
+
+```
+"report-coverage": "cat ./coverage/lcov.info | codecov"
+```
 
 
 
