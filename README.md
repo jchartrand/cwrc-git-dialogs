@@ -48,22 +48,14 @@ The test directory contains [TAPE](https://github.com/substack/tape) tests that 
 
 This module exports a javascript object with three methods:
 
-```
-    /**
-     * Spawns a popup prompting the user to save the current document to a GitHub repository.
-     */
-    save(writer)
+###### save(writer)
+*Spawns a popup prompting the user to save the current document to a GitHub repository.*
 
-    /**
-     * Spawns a popup prompting the user to load a document from a GitHub repository.
-     */
-    load(writer)
+###### load(writer)
+*Spawns a popup prompting the user to load a document from a GitHub repository.*
 
-   /**
-    * Returns true if the user is authenticated.  Redirects to Github OAuth url if not.
-    */
-    authenticate()
-```
+###### authenticate()
+*Returns true if the user is authenticated.  Redirects to Github OAuth url if not.*
 
 where the *writer* is an instance of the [CWRC-WriterBase](https://github.com/jchartrand/CWRC-WriterBase).  
 
