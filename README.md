@@ -22,11 +22,11 @@
 
 ### Overview
 
-Spawns dialogs for file listing, loading, and saving.  Meant to be used with [CWRC-GitWriter](https://github.com/jchartrand/CWRC-GitWriter).  Makes calls to [CWRC-GitServerClient](https://github.com/jchartrand/CWRC-GitServerClient), which in turn makes the actual calls to the [CWRC-GitServer](https://github.com/jchartrand/CWRC-GitServer), which then calls out to GitHub itself.
+Spawns dialogs for file listing, loading, and saving.  Meant to be used by [CWRC-GitWriter](https://github.com/jchartrand/CWRC-GitWriter).  Uses [CWRC-GitServerClient](https://github.com/jchartrand/CWRC-GitServerClient), which in turn makes the actual HTTP calls to the [CWRC-GitServer](https://github.com/jchartrand/CWRC-GitServer), which then calls out to GitHub itself, through the [GitHub API](https://developer.github.com/v3/).
 
 ### Demo 
 
-The [CWRC-GitWriter](https://github.com/jchartrand/CWRC-GitWriter) code bundles together the code in this repository together with the [CWRC-WriterBase](https://github.com/jchartrand/CWRC-WriterBase) and the [CWRC-GitServerClient](https://github.com/jchartrand/CWRC-GitServerClient) to make up the portion of the CWRC-Writer that runs in the web browser.  The server side code is handled by [CWRC-GitServer](https://github.com/jchartrand/CWRC-GitServer), which is an Express.js server.  Both parts are demonstrated in the [CWRC GitHub Sandbox](http://208.75.74.217/editor_github.html). The same code can be installed on any server to run your own instance.
+The [CWRC-GitWriter](https://github.com/jchartrand/CWRC-GitWriter) code bundles together the code in this repository together with the [CWRC-WriterBase](https://github.com/jchartrand/CWRC-WriterBase) and the [CWRC-GitServerClient](https://github.com/jchartrand/CWRC-GitServerClient) to make up the portion of the CWRC-Writer that runs in the web browser.  The server side code is handled by [CWRC-GitServer](https://github.com/jchartrand/CWRC-GitServer), which is an Express.js server.  Both parts are demonstrated in the [CWRC GitHub Sandbox](http://208.75.74.217/editor_github.html). The same code can be installed on your own server to run your own instance.
 
 ### Installation
 
@@ -80,6 +80,8 @@ and then symlink the test directory from this project into the apache home direc
 
 Browser-run is another way to work with the dialogs while developing, by running browser-run on a simple js file that loads the dialogs.  See [Testing](#testing) for more information about browser-run.
 
+When you've got some changes to commit, please use `npm run cm` rather than `git commit`.  `npm run cm` will invoke [Commitizen](https://github.com/commitizen) to structure the commit messages using this standard: [conventional-changelog-angular](https://github.com/conventional-changelog-archived-repos/conventional-changelog-angular/blob/master/index.js).
+
 ### Testing
 
 There are [TAPE](https://github.com/substack/tape) tests in the test directory that can be browserified and run in a spawned web browser via [browser-run](https://github.com/juliangruber/browser-run).  The following npm script, defined in package.json, will run browser-run with the Electron headless web browser that is packaged with browser-run:
@@ -130,7 +132,7 @@ test.onFinish(()=>{
 
 By sending the coverage data to the console, the coverage data is attached to the output from our TAPE tests, but delineated with '# coverage:'  so that we can pull it out later.
 
-Just after logging the coverage, we close the browser window, which takes us back to our test:browser script, just after the browser-run command, where we now pipe the output to 'node test/extract-coverage.js'.  extract-coverage is gratefully borrowed from https://github.com/davidguttman/cssify/blob/master/test/extract-coverage.js.  It simply separates the code coverage information from the TAPE output (using the '# coverage;' marker we inserted earlier), writes the code coverage data to coverage/coverage.json, and sends the TAPE output along the pipe.
+Just after logging the coverage, we close the browser window (window.close()), which takes us back to our test:browser script, just after the browser-run command, where we now pipe the output to 'node test/extract-coverage.js'.  extract-coverage is gratefully borrowed from https://github.com/davidguttman/cssify/blob/master/test/extract-coverage.js.  It simply separates the code coverage information from the TAPE output (using the '# coverage;' marker we inserted earlier), writes the code coverage data to coverage/coverage.json, and sends the TAPE output along the pipe.
 
 Now we've code code coverage information, but we have one more step to convert it to the lcov format that we can send to codecov.io (and that we can also browse in our own local web browser using the nice formatted version in coverage/lcov/index.html).  We convert with:
 

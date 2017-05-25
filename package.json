@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "commit": "git-cz",
+    "cm": "git-cz",
     "precommit": "npm run test:single && npm run check-coverage",
     "browserify": "mkdirp build && browserify test/development.js -o build/development.js --debug -t [ babelify --presets [ es2015 ] ]",
     "watch": "watchify test/development.js -o build/development.js --debug --verbose -t [ babelify --presets [ es2015 ] ]",

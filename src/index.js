@@ -32,8 +32,8 @@ function setDocInEditor(writer, result) {
     writer.parentCommitSHA = result.parentCommitSHA;
     writer.baseTreeSHA = result.baseTreeSHA;
     var xmlDoc = $.parseXML(result.doc);
-   // writer.fileManager.loadDocumentFromXml(xmlDoc);
-   writer.loadDocument(xmlDoc);
+    writer.fileManager.loadDocumentFromXml(xmlDoc);
+  // writer.loadDocument(xmlDoc);
 }
 
 function setBlankDocumentInEditor(writer) {
@@ -61,7 +61,7 @@ function createRepoForCurrentDoc(writer, repoName, repoDesc, isPrivate) {
     writer.event('savingDocument').publish();
     var annotations = "some annotations";
     var versionTimestamp = Math.floor(Date.now() / 1000);
-    var docText = w.converter.getDocumentContent(true);
+    var docText = writer.converter.getDocumentContent(true);
     return cwrcGit.createCWRCRepo(repoName, repoDesc, isPrivate, docText, annotations, versionTimestamp)
         .done(function(result){
             setDocInEditor(writer, result);

@@ -14,9 +14,9 @@
 	ProxyPass /delegatortest/github http://localhost:3000/github
 	ProxyPassReverse /delegatortest/github http://localhost:3000/github
 
-	and then also symlink the test directory from this project into the apache home directory:
+	and then also symlink the test directory from this project into the apache home directory (which on OSX is /Library/WebServer/Documents)
 
-	sudo ln -s /Users/jc/Dropbox/cwrc/github/CWRC-GitDelegator delegatortest
+	sudo ln -s /Users/jc/Dropbox/cwrc/github/cwrc-git-dialogs delegatortest
 	--> 
 	<div  style="text-align:center;margin-top:5em">
 	 <button id="load-pop" type="button" class="btn btn-default">Open File Load Popup</button>
