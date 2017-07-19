@@ -90,13 +90,11 @@ There are [TAPE](https://github.com/substack/tape) tests in the test directory t
 npm run test:browser
 ```
 
-or use:
+or to rebuild the browserify build when source files change:
 
 ```
 npm run watch:browse
 ```
-
-to rebuild the browserify build when source files change.
 
 You can force browser-run to use specific browsers (chrome, firefox, ie, phantom, safari  [default: "electron"]) with the b switch, like in the test:firefox script in package.json with:
 

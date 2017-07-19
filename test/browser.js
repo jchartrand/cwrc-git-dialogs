@@ -3,8 +3,18 @@
 const test = require('tape')
 const Cookies = require('js-cookie')
 const sinon = require('sinon')
+let dialogs = require('../src/index.js')
+let server = sinon.fakeServer.create({respondImmediately:true});
+setupServerMocks()
 
 addBootstrapCSS();
+
+// append the test coverage output to the TAPE console output, for later extraction by
+// the node test/extract-coverage.js command, used in the test scripts in package.json
+test.onFinish(()=>{
+        console.log('# coverage:', JSON.stringify(window.__coverage__))
+        window.close()
+    })
 
 const testDoc = `
     <?xml version="1.0" encoding="UTF-8"?>
@@ -72,8 +82,8 @@ let writerMock = {
     event: (eventId)=>{return {publish: ()=>true}},
     baseUrl: 'http://localhost/cwrc',
     editor: {isNotDirty:1, getContent: ()=>'  oh'},
-    repoName: '',
-    repoOwner: '',
+    //repoName: '',
+    //repoOwner: '',
     parentCommitSHA: '',
     baseTreeSHA: '',
     loadDocument: (xml)=>{console.log(xml);console.log('loadDocument called')}
@@ -84,23 +94,19 @@ let writerMock = {
 //ADD TESTS THAT TRIGGER THE SAVE() METHOD AND VERIFY THINGS OPENED CORRECTLY IN THAT DIALOG, E.G., THE MESSAGE THAT THE
 //    DOC IS ALREADY ASSOCIATED WITH A REPO, OR THAT IT'S NOT, 
 
+function setTestCookie(){
+    if (!Cookies.get('cwrc-token')) {
+        Cookies.set('cwrc-token', 'test')
+    }
+}
 
+function removeTestCookie(){
+    if (Cookies.get('cwrc-token') === 'test') {
+        Cookies.remove('cwrc-token')
+    }
+}
 
-
-
-
-
-test('A passing test', (assert) => {
-    test.onFinish(()=>{
-        console.log('# coverage:', JSON.stringify(window.__coverage__))
-        window.close()
-    })
-
-    assert.plan(2);
-    let gitDelegator = require('../src/index.js');
-    if (!Cookies.get('cwrc-token')) Cookies.set('cwrc-token', 'test');
-    var server = sinon.fakeServer.create();
-    server.autoRespond = true;
+function setupServerMocks() {
     const usersReply = JSON.stringify(require('./httpResponseMocks/users.json'))
     const templatesReply = JSON.stringify(require('./httpResponseMocks/templates.json'))
     const searchReply = JSON.stringify(require('./httpResponseMocks/search.json'))
@@ -113,18 +119,144 @@ test('A passing test', (assert) => {
     server.respondWith("GET", "/github/search?q=CWRC-GitWriter-web-app+user:jchartrand",
                 [200, { "Content-Type": "application/json" },
                  searchReply]);
+}
+
+function resetDOM() {
+    document.write('<html><body><b>hello</b></body</html>')  
+}
+
+
+function setup() {
+    setTestCookie()
+}
+
+function tearDown() {
+    resetDOM()
+    removeTestCookie()
+    delete writerMock.repoName 
+}
+
+
+
+// sinon.assert.calledWith(callback, [{ id: 12, comment: "Hey there" }]);
+//server.restore();  // use this to remove any mocks and allow the http requests to go out
+//assert.pass('This test will pass.');
+/*
+test('an existing document', (assert) => {
+    assert.plan(2)  // two assertions should be run
+    setup()
+    writerMock.repoName = 'some name'
+    dialogs.load()
+    assert.ok(($("#existing-doc-dialog").data('bs.modal') || {}).isShown, 'should trigger a prompt on load')
+    $("#cancel-load-existing-btn").click()
+    assert.ok(!($("#existing-doc-dialog").data('bs.modal') || {}).isShown, 'and should close load dialog when cancelled')
+    delete writerMock.repoName
+})
+
+test('an existing document with ok', (assert) => {
+    assert.plan(2)  // two assertions should be run
+    setup()
+    writerMock.repoName = 'some name'
+    dialogs.load()
+    assert.ok(($("#existing-doc-dialog").data('bs.modal') || {}).isShown, 'should trigger a prompt on load')
+    $("#ok-load-existing-btn").click()
+    assert.ok(!($("#existing-doc-dialog").data('bs.modal') || {}).isShown, 'and should call load dialog for ok')
+    delete writerMock.repoName
+})
+
+test('an unsaved document with ok', (assert)=>{
+    assert.plan(2)
+    setup()
+    writerMock.editor.isNotDirty = 0
+    sinon.spy(dialogs, "save")
+    dialogs.load()
+    assert.ok(($("#unsaved-dialog").data('bs.modal') || {}).isShown, 'should prompt on load')
+    $("#save-unsaved-btn").click()
+    assert.ok(dialogs.save.calledOnce, 'and should call save for ok')
+    writerMock.editor.isNotDirty = 1
+})
+
+*/
+
+test('load with existing document', (assert)=>{
+    setup()
+    assert.plan(1)
+    writerMock.repoName = 'some name'
+    dialogs.load(writerMock)
+    assert.ok(($("#existing-doc-modal").data('bs.modal') || {}).isShown, 'should open confirm dialog')
+    tearDown()
+})
+
+function isDialogOpen(dialogId) {
+    return ($(dialogId).data('bs.modal') || {}).isShown
+}
+
+test('clicking continue in dialog to confirm load with existing document', (assert)=>{
+    setup()
+    writerMock.repoName = 'some name'
+    assert.plan(4)
+    sinon.spy(dialogs, 'save')
+    dialogs.load(writerMock)
+    sinon.spy(dialogs, 'load')
+    $("#existing-doc-continue-btn").click()
+    assert.ok(dialogs.save.notCalled, 'should not call save')
+    assert.notOk(isDialogOpen("#unsaved-dialog"), 'should close dialog')
+    assert.ok(!writerMock.hasOwnProperty('repoName'), 'should remove repoName from writer')
+    assert.ok(dialogs.load.calledOnce, 'should call load')
+    dialogs.save.restore()
+    dialogs.load.restore()
+    tearDown()
+})
+
+test('clicking cancel in dialog to confirm load with existing document', (assert)=>{
+    // arrange
+    setup()
+    assert.plan(2)
+    writerMock.repoName = 'some name'
+    dialogs.load(writerMock)
+    sinon.spy(dialogs, 'load')
+     // act
+    $("#existing-doc-cancel-btn").click()
+    // assert
+    assert.notOk(isDialogOpen("#unsaved-dialog"), 'should close dialog')
+    assert.ok(dialogs.load.notCalled, 'should not call save')
+    dialogs.load.restore()
+    tearDown()
+})
+
+test('authentication', (t)=>{
+    t.test('authenticate method', (assert)=>{
+            setup()
+            assert.plan(1)
+            sinon.spy(dialogs, 'authenticate')
+            dialogs.load(writerMock)
+            assert.ok(dialogs.authenticate.calledOnce, 'should be called on load')
+            dialogs.authenticate.restore()
+            tearDown()
+    })
+    t.test('authentication modal', (assert)=>{
+            setup()
+            removeTestCookie()
+            assert.plan(1)
+            dialogs.load(writerMock)
+            assert.ok(($("#githubAuthenticateModal").data('bs.modal') || {}).isShown, ' should open')
+            tearDown()
+    })
+    t.end()  
+})
+
+test('load', (assert) => {
+    assert.plan(3)
+    // arrange
+    setup()
+    // act
+    let serverRequestsBeforeLoad = server.requests.length
+    dialogs.load(writerMock)
+    // assert
+    assert.ok(server.requests.length > serverRequestsBeforeLoad, "should make server requests")
+    assert.ok(($("#githubLoadModal").data('bs.modal') || {}).isShown, 'should open load modal')
+    assert.equal(document.querySelector('h4').textContent, 'Load From a CWRC-enabled Github Repository',  'with correct title')
+    // cleanup
+    tearDown()
     
-    gitDelegator.load()
-    if (Cookies.get('cwrc-token') === 'test') Cookies.remove('cwrc-token');
-   // sinon.assert.calledWith(callback, [{ id: 12, comment: "Hey there" }]);
-    assert.ok(server.requests.length > 0, "server requests should have been made")
-   //console.log(server.requests);
-    //server.restore();
-    let titleElem = document.querySelector('h4');
-
-    assert.equal('Load From a CWRC-enabled Github Repository', document.querySelector('h4').textContent, 'popup should have opened with modal title')
-
-  //assert.pass('This test will pass.');
-
-  
 });
