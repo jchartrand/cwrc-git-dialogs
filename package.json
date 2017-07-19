@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jchartrand/cwrc-git-dialogs.git"
+    "url": "https://github.com/cwrc/cwrc-git-dialogs.git"
   },
   "keywords": [
     "cwrc",
@@ -28,12 +28,12 @@
     "xml",
     "annotation"
   ],
-  "author": "“James <“jc.chartrand@gmail.com”> (http://openskysolutions.ca)",
+  "author": "“James <“jc.chartrand@gmail.com”>",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/jchartrand/cwrc-git-dialogs/issues"
+    "url": "https://github.com/cwrc/cwrc-git-dialogs/issues"
   },
-  "homepage": "https://github.com/jchartrand/cwrc-git-dialogs#readme",
+  "homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
   "devDependencies": {
     "babel-preset-es2015": "6.24.1",
     "babelify": "7.3.0",

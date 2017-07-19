@@ -2,8 +2,8 @@
 
 # cwrc-git-dialogs
 
-[![Travis](https://img.shields.io/travis/jchartrand/cwrc-git-dialogs.svg)](https://travis-ci.org/jchartrand/cwrc-git-dialogs)
-[![Codecov](https://img.shields.io/codecov/c/github/jchartrand/cwrc-git-dialogs.svg)](https://codecov.io/gh/jchartrand/cwrc-git-dialogs)
+[![Travis](https://img.shields.io/travis/cwrc/cwrc-git-dialogs.svg)](https://travis-ci.org/cwrc/cwrc-git-dialogs)
+[![Codecov](https://img.shields.io/codecov/c/github/cwrc/cwrc-git-dialogs.svg)](https://codecov.io/gh/cwrc/cwrc-git-dialogs)
 [![version](https://img.shields.io/npm/v/cwrc-git-dialogs.svg)](http://npm.im/cwrc-git-dialogs)
 [![downloads](https://img.shields.io/npm/dm/cwrc-git-dialogs.svg)](http://npm-stat.com/charts.html?package=cwrc-git-dialogs&from=2015-08-01)
 [![GPL-2.0](https://img.shields.io/npm/l/cwrc-git-dialogs.svg)](http://opensource.org/licenses/GPL-2.0)
@@ -22,11 +22,11 @@
 
 ### Overview
 
-Spawns dialogs for file listing, loading, and saving.  Meant to be used by [CWRC-GitWriter](https://github.com/jchartrand/CWRC-GitWriter).  Uses [CWRC-GitServerClient](https://github.com/jchartrand/CWRC-GitServerClient), which in turn makes the actual HTTP calls to the [CWRC-GitServer](https://github.com/jchartrand/CWRC-GitServer), which then calls out to GitHub itself, through the [GitHub API](https://developer.github.com/v3/).
+Spawns dialogs for file listing, loading, and saving.  Meant to be used by [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter).  Uses [CWRC-GitServerClient](https://github.com/cwrc/CWRC-GitServerClient), which in turn makes the actual HTTP calls to the [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which then calls out to GitHub itself, through the [GitHub API](https://developer.github.com/v3/).
 
 ### Demo 
 
-The [CWRC-GitWriter](https://github.com/jchartrand/CWRC-GitWriter) code bundles together the code in this repository together with the [CWRC-WriterBase](https://github.com/jchartrand/CWRC-WriterBase) and the [CWRC-GitServerClient](https://github.com/jchartrand/CWRC-GitServerClient) to make up the portion of the CWRC-Writer that runs in the web browser.  The server side code is handled by [CWRC-GitServer](https://github.com/jchartrand/CWRC-GitServer), which is an Express.js server.  Both parts are demonstrated in the [CWRC GitHub Sandbox](http://208.75.74.217/editor_github.html). The same code can be installed on your own server to run your own instance.
+The [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) code bundles together the code in this repository together with the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) and the [CWRC-GitServerClient](https://github.com/cwrc/CWRC-GitServerClient) to make up the portion of the CWRC-Writer that runs in the web browser.  The server side code is handled by [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which is an Express.js server.  Both parts are demonstrated in the [CWRC GitHub Sandbox](http://208.75.74.217/editor_github.html). The same code can be installed on your own server to run your own instance.
 
 ### Installation
 
@@ -42,7 +42,7 @@ or in short form:
 
 ### Use
 
-The test directory contains [TAPE](https://github.com/substack/tape) tests that can help better understand the API. Also see [CWRC-GitWriter](https://github.com/jchartrand/CWRC-GitWriter) which fully uses the API.
+The test directory contains [TAPE](https://github.com/substack/tape) tests that can help better understand the API. Also see [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) which fully uses the API.
 
 ### API
 
@@ -57,7 +57,7 @@ This module exports a javascript object with three methods:
 ###### authenticate()
 *Returns true if the user is authenticated.  Redirects to Github OAuth url if not.*
 
-where the *writer* is an instance of the [CWRC-WriterBase](https://github.com/jchartrand/CWRC-WriterBase).  
+where the *writer* is an instance of the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase).  
 
 ### Development
 
