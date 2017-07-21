@@ -59,6 +59,14 @@ This module exports a javascript object with three methods:
 
 where the *writer* is an instance of the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase).  
 
+### Use
+
+When setting up a new CWRC-Writer, you 'register' this object (i.e., the object returned when you 'require' the NPM package associated with this repository) with a CWRC-Writer instance by passing the object in on a 'config' object when instantating a CWRC-Writer using the javascript 'new' operator.  See [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
+
+The [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) will assume that the save and load methods are available, and will make calls to them when the 'save' and 'load' buttons in the editor are clicked.
+
+The 'authenticate' method is called separately wherever it makes most sense.  In the [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) it is called before instantating the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase).  Again, look at [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
+
 ### Development
 
 An index.html and test/manual.js are provided along with a browserify/watchify script in the package.json to allow working with the dialogs in a local browser.  Browserify bundles up the manual.js script (and all code that it references) and puts the result in build/test.js which the index.html file loads.  
@@ -115,7 +123,7 @@ Generating code coverage reports when running tests in the browser is slightly t
 
 "test:browser": "browserify -t browserify-istanbul test/browser.js | browser-run  -p 2222 --static .  | node test/extract-coverage.js | faucet",
 
-You can see that we've inserted a browserify transform called [browserify-istanbul](https://www.npmjs.com/package/browserify-istanbul) which invokes the code coverage tool [Istanbul](https://www.npmjs.com/package/istanbul) to 'instrument' the code we're browserifying.  [Instrumentation](https://en.wikipedia.org/wiki/Instrumentation_(computer_programming)) adds inscructions to the original source. In this case to allow the code coverage tool to determine which parts of the original source code are called by the tests, and which aren't.
+You can see that we've inserted a browserify transform called [browserify-istanbul](https://www.npmjs.com/package/browserify-istanbul) which invokes the code coverage tool [Istanbul](https://www.npmjs.com/package/istanbul) to 'instrument' the code we're browserifying.  [Instrumentation](https://en.wikipedia.org/wiki/Instrumentation_(computer_programming)) adds instcructions to the original source code. In this case to allow the code coverage tool to determine which parts of the original source code are called by the tests, and which aren't.
 
 After the tests run (in a browser via [browser-run](https://github.com/juliangruber/browser-run)), browserify-istanbul has put the code coverage information in a propery of the global window object of the browser:
 
