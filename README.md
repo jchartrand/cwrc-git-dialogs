@@ -14,8 +14,8 @@
 1. [Overview](#overview)
 1. [Demo](#demo)
 1. [Installation](#installation)
-1. [Use](#use)
 1. [API](#api)
+1. [Use](#use)
 1. [Development](#development)
 1. [Testing](#testing)
 
@@ -40,10 +40,6 @@ or in short form:
 
 `npm i -S cwrc-git-delegator`
 
-### Use
-
-The test directory contains [TAPE](https://github.com/substack/tape) tests that can help better understand the API. Also see [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) which fully uses the API.
-
 ### API
 
 This module exports a javascript object with three methods:
@@ -61,11 +57,13 @@ where the *writer* is an instance of the [CWRC-WriterBase](https://github.com/cw
 
 ### Use
 
-When setting up a new CWRC-Writer, you 'register' this object (i.e., the object returned when you 'require' the NPM package associated with this repository) with a CWRC-Writer instance by passing the object in on a 'config' object when instantating a CWRC-Writer using the javascript 'new' operator.  See [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
+When setting up a new CWRC-Writer, you 'register' this object (i.e., the object returned when you 'require' the NPM package associated with this repository) with a CWRC-Writer instance by passing the object in on a 'config' object when instantiating a CWRC-Writer using the javascript 'new' operator.  See [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
 
-The [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) will assume that the save and load methods are available, and will make calls to them when the 'save' and 'load' buttons in the editor are clicked.
+The [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) will assume that the save and load methods are available, and will invoke them when the 'save' and 'load' buttons in the editor are clicked.
 
 The 'authenticate' method is called separately wherever it makes most sense.  In the [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) it is called before instantating the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase).  Again, look at [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
+
+The test directory contains [TAPE](https://github.com/substack/tape) tests that can help better understand the API. Also see [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) which fully uses the API.
 
 ### Development
 
