@@ -16,7 +16,7 @@ test.onFinish(()=>{
         window.close()
     })
 
-const testDoc = `
+let testDoc = `
     <?xml version="1.0" encoding="UTF-8"?>
 <?xml-model href="http://cwrc.ca/schemas/cwrc_tei_lite.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
 <?xml-stylesheet type="text/css" href="http://cwrc.ca/templates/css/tei.css"?>
@@ -122,7 +122,7 @@ function setupServerMocks() {
 }
 
 function resetDOM() {
-    document.write('<html><body><b>hello</b></body</html>')  
+    document.write('<html><body><b>hello</b></body></html>')
 }
 
 
@@ -203,6 +203,7 @@ test('clicking continue in dialog to confirm load with existing document', (asse
     assert.notOk(isDialogOpen("#unsaved-dialog"), 'should close dialog')
     assert.ok(!writerMock.hasOwnProperty('repoName'), 'should remove repoName from writer')
     assert.ok(dialogs.load.calledOnce, 'should call load')
+    // remove the spies
     dialogs.save.restore()
     dialogs.load.restore()
     tearDown()
@@ -260,3 +261,13 @@ test('load', (assert) => {
     tearDown()
     
 });
+
+test('missing description shows (no description)', (assert) => {
+    assert.plan(1)
+    setup()
+    dialogs.load(writerMock)
+    setTimeout(function(){
+        assert.equal(document.getElementById('gh_88569839').querySelector('p').textContent, '(no description)');
+        tearDown()}, 1000);
+
+})

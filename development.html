@@ -5,18 +5,18 @@
    
 </head>
 <body>
-	<!-- index.html for testing the popups locally.
-	For this to work, the gitServer has to be running at http://localhost/delegatortest, and this file
-	also has to be served from http://localhost/delegatortest.
+	<!-- development.html for testing the popups locally.
+	For this to work, the gitServer has to be running at http://localhost/dialogstest, and this file
+	also has to be served from http://localhost/dialogstest.
 	One way to do that is to start the gitserver at localhost:3000 using 'npm run start' and then 
 	add the following to the local apache config:
 	
-	ProxyPass /delegatortest/github http://localhost:3000/github
-	ProxyPassReverse /delegatortest/github http://localhost:3000/github
+	ProxyPass /dialogstest/github http://localhost:3000/github
+	ProxyPassReverse /dialogstest/github http://localhost:3000/github
 
 	and then also symlink the test directory from this project into the apache home directory (which on OSX is /Library/WebServer/Documents)
 
-	sudo ln -s /Users/jc/Dropbox/cwrc/github/cwrc-git-dialogs delegatortest
+	sudo ln -s /Users/jc/Dropbox/cwrc/github/cwrc-git-dialogs dialogstest
 	--> 
 	<div  style="text-align:center;margin-top:5em">
 	 <button id="load-pop" type="button" class="btn btn-default">Open File Load Popup</button>

@@ -4,7 +4,7 @@
 if (!window.$) {
     window.jQuery = window.$ = require('jquery');
 }
-let gitDelegator = require('../src/index.js');
+let gitDialogs = require('../src/index.js');
 let testDoc = `
     <?xml version="1.0" encoding="UTF-8"?>
 <?xml-model href="http://cwrc.ca/schemas/cwrc_tei_lite.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
@@ -67,13 +67,13 @@ let writerMock = {
 
  
 $('#load-pop').on('click', function() {	
-	gitDelegator.load(writerMock)
+	gitDialogs.load(writerMock)
 	
 })
 
 $('#save-pop').on('click', function() {	
 	console.log("trigger the test save.  about to call delegator.save")
-	gitDelegator.save(writerMock)
+	gitDialogs.save(writerMock)
 	//cD.popSearchPerson({query:'twain', success: result=>console.log(result)});
 })
 

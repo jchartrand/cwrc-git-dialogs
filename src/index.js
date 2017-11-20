@@ -177,7 +177,7 @@ function loadTemplate(writer, templateName) {
             var htmlForResultRow =
                 `<a id="gh_${result.repository.id}" href="#" data-ghrepo="${result.repository.full_name}" data-ghrepoid="${result.repository.id}" class="list-group-item git-repo">
                     <h4 class="list-group-item-heading">${result.repository.full_name}</h4>
-                    <p class="list-group-item-text">${result.repository.description}</p>`;
+                    <p class="list-group-item-text">${result.repository.description?result.repository.description:'(no description)'}</p>`;
             for (var textMatch of result.text_matches) {
                 if (! textMatch.fragment.includes(cwrcAppName)) {
                     var fragment = textMatch.fragment;

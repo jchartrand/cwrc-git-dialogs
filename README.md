@@ -19,7 +19,6 @@
 1. [Development](#development)
 1. [Testing](#testing)
 
-
 ### Overview
 
 Spawns dialogs for file listing, loading, and saving.  Meant to be used by [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter).  Uses [CWRC-GitServerClient](https://github.com/cwrc/CWRC-GitServerClient), which in turn makes the actual HTTP calls to the [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which then calls out to GitHub itself, through the [GitHub API](https://developer.github.com/v3/).
@@ -57,7 +56,7 @@ where the *writer* is an instance of the [CWRC-WriterBase](https://github.com/cw
 
 ### Use
 
-When setting up a new CWRC-Writer, you 'register' this object (i.e., the object returned when you 'require' the NPM package associated with this repository) with a CWRC-Writer instance by passing the object in on a 'config' object when instantiating a CWRC-Writer using the javascript 'new' operator.  See [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
+When setting up a new CWRC-Writer, you 'register' this object (i.e., the object returned when you 'require' the NPM package associated with this repository) with a CWRC-Writer instance by passing the object in on a 'config' object when instantiating the CWRC-Writer instance (using the javascript 'new' operator).  See [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
 
 The [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) will assume that the save and load methods are available, and will invoke them when the 'save' and 'load' buttons in the editor are clicked.
 
@@ -67,10 +66,12 @@ The test directory contains [TAPE](https://github.com/substack/tape) tests that 
 
 ### Development
 
-An index.html and test/manual.js are provided along with a browserify/watchify script in the package.json to allow working with the dialogs in a local browser.  Browserify bundles up the manual.js script (and all code that it references) and puts the result in build/test.js which the index.html file loads.  
+A development.html and test/development.js are provided along with a browserify/watchify script (called 'browserify') in the package.json to allow working with the dialogs in a local browser.  Browserify bundles up the development.js script (and all code that it references) and puts the result in build/development.js which the development.html file loads. 
 
-The gitServer has to be running at http://localhost/delegatortest, and the index.html
-also has to be served from http://localhost/delegatortest.
+Run ```npm run browserify``` to trigger the browserify build. 
+
+The gitServer has to be running at http://localhost/dialogstest, and the development.html
+also has to be served from http://localhost/dialogstest.
     
 One way to do that is to start the gitserver at localhost:3000 using `npm run start` and 
 add the following to the local apache config:
@@ -83,6 +84,8 @@ add the following to the local apache config:
 and then symlink the test directory from this project into the apache home directory,for example:
 
 `sudo ln -s /Users/jc/cwrc/github/cwrc-git-dialogs dialogstest`
+
+Now you can hit ```http://localhost/dialogstest/development.html``` in your browser and code away.
 
 Browser-run is another way to work with the dialogs while developing, by running browser-run on a simple js file that loads the dialogs.  See [Testing](#testing) for more information about browser-run.
 
@@ -121,9 +124,9 @@ Generating code coverage reports when running tests in the browser is slightly t
 
 "test:browser": "browserify -t browserify-istanbul test/browser.js | browser-run  -p 2222 --static .  | node test/extract-coverage.js | faucet",
 
-You can see that we've inserted a browserify transform called [browserify-istanbul](https://www.npmjs.com/package/browserify-istanbul) which invokes the code coverage tool [Istanbul](https://www.npmjs.com/package/istanbul) to 'instrument' the code we're browserifying.  [Instrumentation](https://en.wikipedia.org/wiki/Instrumentation_(computer_programming)) adds instcructions to the original source code. In this case to allow the code coverage tool to determine which parts of the original source code are called by the tests, and which aren't.
+You can see that we've inserted a browserify transform called [browserify-istanbul](https://www.npmjs.com/package/browserify-istanbul) which invokes the code coverage tool [Istanbul](https://www.npmjs.com/package/istanbul) to 'instrument' the code we're browserifying.  [Instrumentation](https://en.wikipedia.org/wiki/Instrumentation_(computer_programming)) adds instcructions to the original source code. In this case to allow the code coverage tool to determine which parts of the original source code are called by the tests, and which aren't (which leds us then calculate percentages of lines covered by tests).
 
-After the tests run (in a browser via [browser-run](https://github.com/juliangruber/browser-run)), browserify-istanbul has put the code coverage information in a propery of the global window object of the browser:
+After the tests run (in a browser via [browser-run](https://github.com/juliangruber/browser-run)), browserify-istanbul has put the code coverage information in a property of the global window object of the browser:
 
 ``` window.__coverage__```
 
@@ -138,7 +141,7 @@ By sending the coverage data to the console, the coverage data is attached to th
 
 Just after logging the coverage, we close the browser window (window.close()), which takes us back to our test:browser script, just after the browser-run command, where we now pipe the output to 'node test/extract-coverage.js'.  extract-coverage is gratefully borrowed from https://github.com/davidguttman/cssify/blob/master/test/extract-coverage.js.  It simply separates the code coverage information from the TAPE output (using the '# coverage;' marker we inserted earlier), writes the code coverage data to coverage/coverage.json, and sends the TAPE output along the pipe.
 
-Now we've code code coverage information, but we have one more step to convert it to the lcov format that we can send to codecov.io (and that we can also browse in our own local web browser using the nice formatted version in coverage/lcov/index.html).  We convert with:
+Now we've got code coverage information, but we have one more step to convert it to the lcov format that we can send to codecov.io (and that we can also browse in our own local web browser using the nice formatted version in coverage/lcov/index.html).  We convert with:
 
 ``` 
 npm generate-coverage 
@@ -147,10 +150,10 @@ npm generate-coverage
 which for now is invoked in test:single after running test:electron
 
 ```
-"test:single": "npm run test:electron && npm generate-coverage",
+"test": "npm run test:electron && npm generate-coverage",
 ```
 
-test-single is what we ask Travis to run when checking our build.  Note that Travis can only run the test against the headless browser Electron.
+`test` is what we ask Travis to run when checking our build.  Note that Travis can only run the test against the headless browser Electron.
 
 Finally we publish the coverage at codecov.io:
 
