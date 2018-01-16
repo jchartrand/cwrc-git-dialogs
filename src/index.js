@@ -49,7 +49,7 @@ function removeDocFromEditor(writer) {
 function setBlankDocumentInEditor(writer) {
     var defaultxmlDoc = $.parseXML(blankTEIDoc);
    // writer.fileManager.loadDocumentFromXml(defaultxmlDoc);
-   writer.loadDocument(defaultxmlDoc);
+   writer.fileManager.loadDocumentFromXml(defaultxmlDoc);
 }
 
 function isCurrentDocValid(writer) {
