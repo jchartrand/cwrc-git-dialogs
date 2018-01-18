@@ -1,8 +1,11 @@
 'use strict';
-if (typeof window !== 'undefined' && !window.$) {
-    window.jQuery = window.$ = require('jquery');
-} 
+
+var prevJQuery = window.jQuery;
+var $ = require('jquery');
+window.jQuery = $;
 require('bootstrap');
+window.jQuery = prevJQuery;
+
 var Cookies = require('js-cookie');
 var cwrcGit = require('cwrc-git-server-client');
 
