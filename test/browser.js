@@ -1,10 +1,12 @@
 'use strict';
 
+let $ = require('jquery')
 const test = require('tape')
 const Cookies = require('js-cookie')
 const sinon = require('sinon')
 let dialogs = require('../src/index.js')
 let server = sinon.fakeServer.create({respondImmediately:true});
+
 setupServerMocks()
 
 addBootstrapCSS();
