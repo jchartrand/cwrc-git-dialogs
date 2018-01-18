@@ -21,7 +21,7 @@
 
 ### Overview
 
-Spawns dialogs for file listing, loading, and saving.  Meant to be used by [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter).  Uses [CWRC-GitServerClient](https://github.com/cwrc/CWRC-GitServerClient), which in turn makes the actual HTTP calls to the [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which then calls out to GitHub itself, through the [GitHub API](https://developer.github.com/v3/).
+Spawns dialogs for file listing, loading, and saving.  Meant to be used by [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter).  Uses [CWRC-GitServerClient](https://github.com/cwrc/CWRC-GitServerClient), which in turn makes the actual HTTP calls to the [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which then calls out to GitHub itself, through the [GitHub REST API](https://developer.github.com/v3/).
 
 ### Demo 
 
