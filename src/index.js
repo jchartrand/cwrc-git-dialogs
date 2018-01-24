@@ -233,7 +233,7 @@ dialogs.save = function(writer){
                                     <div class="form-group">
                                         <label for="save-git-doc-name">Document Name</label>
                                         <small id="new-document-name-help" class="text-muted" style="margin-left:1em">
-                                          The name to give the new Github repository that will be created for the document.
+                                        The name for the document and also for the new Github repository that will be created for the document.
                                         </small>
                                         <input id="save-git-doc-name" type="text" class="form-control" aria-describedby="new-document-name-help"/>
                                     </div><!-- /form-group -->
