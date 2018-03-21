@@ -224,7 +224,8 @@ function loadTemplate(writer, templateName) {
 }
 
 dialogs.save = function(writer){
-    $(document.body).append($.parseHTML(
+    var el = writer.dialogManager.getDialogWrapper();
+    $(el).append($.parseHTML(
         
     `<div id="githubSaveModal" class="modal fade">
         <div class="modal-dialog modal-lg">
@@ -338,6 +339,9 @@ dialogs.save = function(writer){
     $('#githubSaveModal').modal({backdrop: 'static', keyboard: false}).on('hidden.bs.modal', function() {
             $(this).remove()
         });
+        
+    var data = $('#githubSaveModal').data('bs.modal');
+    data.$backdrop.detach().appendTo(el);
     
     if (!writer.repoName) {
         $('#save-doc-btn').hide();
@@ -359,7 +363,8 @@ dialogs.save = function(writer){
 };
 
 function showLoadModal(writer) {
-    $(document.body).append($.parseHTML(
+    var el = writer.dialogManager.getDialogWrapper();
+    $(el).append($.parseHTML(
             
         `<div id="githubLoadModal" class="modal fade">
             <div class="modal-dialog modal-lg">
@@ -522,10 +527,14 @@ function showLoadModal(writer) {
         $('#githubLoadModal').modal({backdrop: 'static', keyboard: false}).on('hidden.bs.modal', function() {
             $(this).remove()
         });
+        
+        var data = $('#githubLoadModal').data('bs.modal');
+        data.$backdrop.detach().appendTo(el);
 }
 
 function showExistingDocModal(writer) {
-     $(document.body).append($.parseHTML(  
+    var el = writer.dialogManager.getDialogWrapper();
+     $(el).append($.parseHTML(  
             `<div id="existing-doc-modal" class="modal fade">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -566,8 +575,9 @@ function showExistingDocModal(writer) {
         on('hidden.bs.modal', function() {
             $(this).remove()
         })
-
-
+        
+        var data = $('#existing-doc-modal').data('bs.modal');
+        data.$backdrop.detach().appendTo(el);
 }
 
 dialogs.load = function(writer) {  

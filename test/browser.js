@@ -76,7 +76,8 @@ let writerMock = {
         }
     },
     dialogManager:{
-        show: (nameOfDialogToShow, detailsObject)=>{true} //detailsObject: {title: '', message: '', type: ''}
+        show: (nameOfDialogToShow, detailsObject)=>{true}, //detailsObject: {title: '', message: '', type: ''}
+        getDialogWrapper: ()=>{return document.body}
     },
     fileManager:{
         loadDocumentFromXml: (xmlDoc)=>{testDoc=xmlDoc}
