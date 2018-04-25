@@ -283,7 +283,7 @@ dialogs.save = function(writer){
 
                 </div><!-- /.modal-body -->
                 <div class="modal-footer">
-                    <form id="github-save-form"  style="margin-top:1em">
+                    <form id="github-save-form" style="margin-top:1em">
                             <div class="form-group">
                                 <button id="save-doc-btn" class="btn btn-default">Save</button>
                                 <button id="open-save-new-doc-btn" href="#github-save-new-form" class="btn btn-default"  data-toggle="collapse">Save to a new repository</button>
@@ -300,6 +300,9 @@ dialogs.save = function(writer){
         $('[data-toggle="popover"]').popover()
     });
 
+    $('#github-save-form').submit(function(event){
+        event.preventDefault();
+    });
 
     $('#github-save-new-form').submit(function(event){
       event.preventDefault();
