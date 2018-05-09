@@ -53,9 +53,7 @@ function setDocInEditor(writer, result) {
     writer.parentCommitSHA = result.parentCommitSHA;
     writer.baseTreeSHA = result.baseTreeSHA;
     var xmlDoc = $.parseXML(result.doc);
-    writer.fileManager.loadDocumentFromXml(xmlDoc);
-    //writer.editor.isNotDirty = 1;
-  // writer.loadDocument(xmlDoc);
+    writer.loadDocumentXML(xmlDoc);
 }
 
 function removeDocFromEditor(writer) {
@@ -66,8 +64,7 @@ function removeDocFromEditor(writer) {
 
 function setBlankDocumentInEditor(writer) {
     var defaultxmlDoc = $.parseXML(blankTEIDoc);
-   // writer.fileManager.loadDocumentFromXml(defaultxmlDoc);
-   writer.fileManager.loadDocumentFromXml(defaultxmlDoc);
+    writer.loadDocumentXML(defaultxmlDoc);
 }
 
 function isCurrentDocValid(writer) {
@@ -101,7 +98,6 @@ function createRepoForCurrentDoc(writer, repoName, repoDesc, isPrivate) {
 }
 
 function processSuccessfulSave(writer) {
-    writer.editor.isNotDirty = 1; // force clean state
     writer.dialogManager.show('message', {
         title: 'Document Save',
         msg: 'Saved successfully.'
@@ -179,7 +175,7 @@ function populateTemplateList(writer, templates, listGroupId) {
 function loadTemplate(writer, templateName) {
     cwrcGit.getTemplate(templateName)
         .done(function( result ) {
-            writer.fileManager.loadDocumentFromXml(result);
+            writer.loadDocumentXML(result);
         }).fail(function(errorMessage) {
             console.log("in the getTemplate fail");
             console.log(errorMessage);
