@@ -1,10 +1,16 @@
 'use strict';
 
-var prevJQuery = window.jQuery;
-var $ = require('jquery');
-window.jQuery = $;
-require('bootstrap');
-window.jQuery = prevJQuery;
+// shared instance of bootstraped jquery for entity and git dialogs
+let $ = window.cwrcQuery
+if ($ === undefined) {
+    let prevJQuery = window.jQuery
+    $ = require('jquery')
+    window.jQuery = $
+    require('bootstrap')
+    window.jQuery = prevJQuery
+    window.cwrcQuery = $
+}
+
 
 var Cookies = require('js-cookie');
 var cwrcGit = require('cwrc-git-server-client');
