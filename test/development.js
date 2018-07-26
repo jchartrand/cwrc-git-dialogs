@@ -4,7 +4,8 @@
 if (!window.$) {
     window.jQuery = window.$ = require('jquery');
 }
-let gitDialogs = require('../src/index.js');
+import gitDialogs from '../src/index.js';
+
 let testDoc = `
     <?xml version="1.0" encoding="UTF-8"?>
 <?xml-model href="http://cwrc.ca/schemas/cwrc_tei_lite.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
@@ -13,7 +14,7 @@ let testDoc = `
     <teiHeader>
         <fileDesc>
             <titleStmt>
-                <title>Sample Document Title</title>
+                <title>Sample Document Title b</title>
             </titleStmt>
             <publicationStmt>
                 <p></p>
@@ -72,10 +73,8 @@ $('#load-pop').on('click', function() {
 	
 })
 
-$('#save-pop').on('click', function() {	
-	console.log("trigger the test save.  about to call delegator.save")
+$('#save-pop').on('click', function() {
 	gitDialogs.save(writerMock)
-	//cD.popSearchPerson({query:'twain', success: result=>console.log(result)});
 })
 
 
