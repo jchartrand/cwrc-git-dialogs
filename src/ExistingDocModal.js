@@ -10,6 +10,11 @@ if ($ === undefined) {
     window.cwrcQuery = $
 }
 
+function removeDocFromEditor(writer) {
+	delete writer.repoName
+	delete writer.filePathInGithub
+}
+
 function showExistingDocModal(writer) {
 	var el = writer.dialogManager.getDialogWrapper();
 	$(el).append($.parseHTML(

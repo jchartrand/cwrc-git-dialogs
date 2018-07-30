@@ -38,21 +38,9 @@ var blankTEIDoc = `<?xml version="1.0" encoding="UTF-8"?>
 	</text>
 </TEI>`;
 
-/* TODO: might want to set the github details somewhere else, like maybe here in the object exported from the module.*/
-
 function setDocInEditor(writer, result) {
-	writer.repoName = result.repo;
-	writer.repoOwner = result.owner;
-	writer.parentCommitSHA = result.parentCommitSHA;
-	writer.baseTreeSHA = result.baseTreeSHA;
 	var xmlDoc = $.parseXML(result.doc);
 	writer.loadDocumentXML(xmlDoc);
-}
-
-function removeDocFromEditor(writer) {
-	delete writer.repoName
-	delete writer.parentCommitSHA
-	delete writer.baseTreeSHA
 }
 
 function setBlankDocumentInEditor(writer) {
