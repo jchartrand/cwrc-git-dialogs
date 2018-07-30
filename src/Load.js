@@ -1,10 +1,15 @@
 'use strict';
 
-var prevJQuery = window.jQuery;
-var $ = require('jquery');
-window.jQuery = $;
-require('bootstrap');
-window.jQuery = prevJQuery;
+let $ = window.cwrcQuery
+if ($ === undefined) {
+    let prevJQuery = window.jQuery
+    $ = require('jquery')
+    window.jQuery = $
+    require('bootstrap')
+    window.jQuery = prevJQuery
+    window.cwrcQuery = $
+}
+
 import initializeReactResultComponent from "./ResultList.js";
 import showPagination from "./Paginator.js";
 import showExistingDocModal from "./ExistingDocModal.js";

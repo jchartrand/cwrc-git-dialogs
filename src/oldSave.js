@@ -1,10 +1,14 @@
 'use strict';
 
-var prevJQuery = window.jQuery;
-var $ = require('jquery');
-window.jQuery = $;
-require('bootstrap');
-window.jQuery = prevJQuery;
+let $ = window.cwrcQuery
+if ($ === undefined) {
+    let prevJQuery = window.jQuery
+    $ = require('jquery')
+    window.jQuery = $
+    require('bootstrap')
+    window.jQuery = prevJQuery
+    window.cwrcQuery = $
+}
 
 var Cookies = require('js-cookie');
 const parseLinks = require('parse-link-header');
