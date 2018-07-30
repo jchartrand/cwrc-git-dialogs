@@ -48,7 +48,7 @@ function showExistingDocModal(writer) {
 	$('#existing-doc-continue-btn').click(function(event){
 		$('#existing-doc-modal').modal('hide');
 		removeDocFromEditor(writer)
-		dialogs.load(writer)
+		writer.storageDialogs.load(writer)
 	})
 
 	$('#existing-doc-modal').modal('show').
