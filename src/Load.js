@@ -135,8 +135,8 @@ function showReposForAuthenticatedUser(writer, pagingContainerId, requestedPage,
 	})
 }
 
-function showReposForGithubUser(writer, user, listContainerId, pagingContainerId, requestedPage, resultComponent) {
-	cwrcGit.getReposForGithubUser(requestedPage, 20).then(results=>{
+function showReposForGithubUser(writer, user, pagingContainerId, requestedPage, resultComponent) {
+	cwrcGit.getReposForGithubUser(user, requestedPage, 20).then(results=>{
 		const pagingCB = (requestedPage, resultComponent)=>showReposForGithubUser(writer, user, 'public-pagination', requestedPage, resultComponent)
 		populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, resultComponent)
 	})
