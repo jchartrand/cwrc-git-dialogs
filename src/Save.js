@@ -1,4 +1,15 @@
 'use strict';
+
+let $ = window.cwrcQuery
+if ($ === undefined) {
+	let prevJQuery = window.jQuery
+	$ = require('jquery')
+	window.jQuery = $
+	require('bootstrap')
+	window.jQuery = prevJQuery
+	window.cwrcQuery = $
+}
+
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom';
 import { Modal, Button, Form, HelpBlock, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
