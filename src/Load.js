@@ -102,15 +102,21 @@ function createTargetElement(elementName) {
 function initializePrivatePanel(writer) {
 	createTargetElement('github-private-doc-list')
 	const resultListComponent = initializeReactResultComponent('github-private-doc-list', fileSelectCB.bind(null, writer));
-	// const pivatePagingComponent = initializePagingComponent('')
 	getInfoForAuthenticatedUser(writer);
-	showReposForAuthenticatedUser(writer,'private-pagination', 1, resultListComponent)
+	showReposForAuthenticatedUser(writer,'private-pagination', 1, resultListComponent, 'owner')
+
+	$('#private-repo-owner').prop('checked', true);
 
 	$('#github-private-form').submit(function(event){
 		event.preventDefault();
 		var privateSearchTerms = $('#private-search-terms').val();
 		showSearchResults(writer, writer.githubUser.login, privateSearchTerms, 'private-pagination', 1, resultListComponent);
 	});
+
+	$('#private-repo-owner, #private-repo-collaborator, #private-repo-member').change(function() {
+		let affiliation = $('input[name=repo-filter]:checked').val();
+		showReposForAuthenticatedUser(writer, 'private-pagination', 1, resultListComponent, affiliation)
+	})
 }
 
 function initializePublicPanel(writer) {
@@ -128,9 +134,9 @@ function initializePublicPanel(writer) {
 	});
 }
 
-function showReposForAuthenticatedUser(writer, pagingContainerId, requestedPage, resultComponent) {
-	cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, 20).then(results=>{
-		const pagingCB = (requestedPage, resultComponent)=>showReposForAuthenticatedUser(writer, 'private-pagination', requestedPage, resultComponent)
+function showReposForAuthenticatedUser(writer, pagingContainerId, requestedPage, resultComponent, affiliation) {
+	cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, 20, affiliation).then(results=>{
+		const pagingCB = (requestedPage, resultComponent)=>showReposForAuthenticatedUser(writer, 'private-pagination', requestedPage, resultComponent, affiliation)
 		populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, resultComponent)
 	})
 }
@@ -254,13 +260,25 @@ function showLoadModal(writer) {
                                             </div>  
                                         </div>
                                         <div class="col-xs-4">
-                                            
+                                        	
                                         </div>
                                         <div class="col-xs-4">
                                             <!--button id="open-new-doc-btn" href="#github-new-form"  class="btn btn-default"  style="float:right" data-toggle="collapse" >Blank Document</button-->
                                             <button id="blank-doc-btn" class="btn btn-default"  style="float:right" >Blank Document</button>
                                         </div>
                                     </div>
+                                    <div style="margin-top:1em">
+	                                    <label style="padding-right:1em">Show repositories for which I am: </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" id="private-repo-owner" name="repo-filter" value="owner"/> Owner
+										</label>
+										<label class="radio-inline">
+                                            <input type="radio" id="private-repo-collaborator" name="repo-filter" value="collaborator"/> Collaborator
+										</label>
+										<label class="radio-inline">
+                                            <input type="radio" id="private-repo-member" name="repo-filter" value="organization_member"/> Organization Member
+										</label>
+									</div>
                                 </form>
                           
                                 <div id="github-private-doc-list" class="list-group" style="padding-left:4em;padding-right:4em;padding-top:1em;padding-bottom:3em"></div>
