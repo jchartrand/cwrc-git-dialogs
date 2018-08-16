@@ -68,7 +68,7 @@ class SaveToPath extends Component {
 
 	componentDidMount() {
 		this.setState({checkingPath: true})
-		cwrcGit.getDoc(`${this.props.repo}`, 'master', this.props.path).then(
+		cwrcGit.getDoc(this.props.repo, 'master', this.props.path).then(
 			(result)=>{
 				this.setState({
 					checkingPath: false,

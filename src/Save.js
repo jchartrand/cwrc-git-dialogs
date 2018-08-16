@@ -31,7 +31,7 @@ const SaveForm = ({handleRepoChangeCB, handlePathChangeCB, saveFileCB, saveFileA
 						type="text"
 						value={repo}
 						onChange={handleRepoChangeCB}/>
-					<HelpBlock>The repository to which to save (e.g., jchartrand/cheese)</HelpBlock>
+					<HelpBlock>The repository to which to save in your github account (e.g., jchartrand/cheeses)</HelpBlock>
 				</FormGroup>
 				<FormGroup controlId="path" validationState={null}>
 					<ControlLabel>Path</ControlLabel>
@@ -110,7 +110,7 @@ class SaveCmp extends Component {
 	}
 
 	render() {
-		const {repo, path, usePR, message, submitted, repoVerified} = this.state
+		const {repo, path, user, usePR, message, submitted, repoVerified} = this.state
 		if (!submitted) {
 			return (
 				<SaveForm
@@ -166,11 +166,13 @@ async function save(writer) {
 		const repo = writer.repoName || ''
 		const path = writer.filePathInGithub || ''
 		const content = writer.converter.getDocumentContent(true);
+		const user = writer.githubUser.login
 
 		const component = ReactDOM.render(
 			<SaveCmp
 				repo={repo}
 				path={path}
+				user={user}
 				content={content}/>,
 			document.getElementById('file-save'))
 		component.resetState()

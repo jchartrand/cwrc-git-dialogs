@@ -55,7 +55,7 @@ class VerifyRepo extends Component {
 	}
 
 	resetComponent = () => this.setState({
-		repoHasBeenSaved: false,
+		repoHasBeenChecked: false,
 		doesRepoExist: null,
 		error: null,
 		checkingRepo: null,
@@ -65,11 +65,10 @@ class VerifyRepo extends Component {
 
 	componentDidMount() {
 		this.setState({checkingRepo: true})
-		cwrcGit.getRepoContents(`${this.props.repo}`).then(
+		cwrcGit.getRepoContents(this.props.repo).then(
 			(result)=>{
 				this.setState({
 					checkingRepo: false,
-					repoHasBeenSaved: true,
 					doesRepoExist: true
 				})
 				return result;
@@ -77,7 +76,7 @@ class VerifyRepo extends Component {
 			(error)=>{
 				error.status === 404 ? this.setState({
 					checkingRepo: false,
-					repoHasBeenSaved: true,
+					repoHasBeenChecked: true,
 					doesRepoExist: false
 				}): this.displayError(error)
 				return error
@@ -101,7 +100,8 @@ class VerifyRepo extends Component {
 	}
 
 	createRepo = () => {
-		cwrcGit.createRepo(this.props.repo, this.state.repoDesc, this.state.isPrivate).then(
+		let repoNameWithoutUserName = this.props.repo.split('/')[1]
+		cwrcGit.createRepo(repoNameWithoutUserName, this.state.repoDesc, this.state.isPrivate).then(
 			(result) => this.complete(),
 			(error) => this.displayError(error)
 		)
@@ -136,19 +136,4 @@ class VerifyRepo extends Component {
 		}
 	}
 }
-
-/*function verifyRepo(userName, repoName, repoDesc, isPrivate) {
-	return new Promise((resolve, reject)=> {
-		const component = ReactDOM.render(
-			<VerifyRepoCmp
-				promiseResolve={resolve}
-				promiseReject={reject}
-				userName={userName}
-				repoName={repoName}
-				repoDesc={repoDesc}
-				isPrivate={isPrivate}/>,
-			document.getElementById('repo-verify'))
-	})
-}*/
-
 export default VerifyRepo
