@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom';
 const cwrcGit = require('cwrc-git-server-client');
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, FormGroup, Checkbox, ControlLabel, FormControl, HelpBlock} from 'react-bootstrap';
 
 const ErrorModal = ({cancel, error}) => (
 	<Modal
@@ -14,12 +14,12 @@ const ErrorModal = ({cancel, error}) => (
 			<Button
 				onClick={cancel}
 				bsStyle="success"
-			>Yes</Button>
+			>OK</Button>
 		</Modal.Footer>
 	</Modal>
 )
 
-const ConfirmModal = ({cancel, title, body, ok}) => (
+const ConfirmModal = ({cancel, title, body, ok, buttonText}) => (
 	<Modal
 	show={true}>
 		<Modal.Header>{title}</Modal.Header>
@@ -33,7 +33,40 @@ const ConfirmModal = ({cancel, title, body, ok}) => (
 			<Button
 				onClick={ok}
 				bsStyle="success"
-			>Yes</Button>
+			>{buttonText}</Button>
+		</Modal.Footer>
+	</Modal>
+)
+
+const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handleDescriptionChange}) => (
+	<Modal
+		show={true}>
+		<Modal.Header>Create Repository</Modal.Header>
+		<Modal.Body>
+			<p>This repository doesn't yet exist, would you like to create it?</p>
+			<FormGroup controlId='repoDesc'>
+				<ControlLabel>Description</ControlLabel>
+				<FormControl
+					type="text"
+					placeholder="A short description of your repository."
+					value={repoDesc}
+					onChange={handleDescriptionChange}
+				/>
+				<HelpBlock>The description will appear in the Github page for your new repository.</HelpBlock>
+			</FormGroup>
+			<Checkbox checked={isPrivate} onChange={handlePrivateChange}>
+				Make Private
+				<HelpBlock>You must have a paid Github account to create private repositories.</HelpBlock>
+			</Checkbox>
+		</Modal.Body>
+		<Modal.Footer>
+			<Button onClick={cancel} bsStyle="danger">
+				Cancel
+			</Button>
+			<Button
+				onClick={ok}
+				bsStyle="success"
+			>Create</Button>
 		</Modal.Footer>
 	</Modal>
 )
@@ -107,6 +140,15 @@ class VerifyRepo extends Component {
 		)
 	}
 
+	// handles changes passed up from children
+	handleDescriptionChange(e) {
+		this.setState({repoDesc: e.target.value});
+	}
+
+	handlePrivateChange(e) {
+		this.setState({isPrivate: e.target.checked})
+	}
+
 	render() {
 		const {repoHasBeenChecked, doesRepoExist, error, checkingRepo} = this.state
 
@@ -125,12 +167,14 @@ class VerifyRepo extends Component {
 				cancel = {this.cancel.bind(this)}
 			/>
 		} else if (repoHasBeenChecked) {
-			return <ConfirmModal
-				title='Create Repository'
-				body="This repository doesn't yet exist, would you like to create it?"
-				buttonText='Create'
-				ok ={this.createRepo.bind(this)}
-			/>
+			return <CreateModal
+				ok = {this.createRepo.bind(this)}
+				cancel = {this.cancel.bind(this)}
+				handlePrivateChange = {this.handlePrivateChange.bind(this)}
+				handleDescriptionChange = {this.handleDescriptionChange.bind(this)}
+				isPrivate = {this.state.isPrivate}
+				repoDesc={this.state.repoDesc}
+				/>
 		} else {
 			return null;
 		}

@@ -82,7 +82,7 @@ class SaveCmp extends Component {
 
 	// action on button click in form
 	saveFile() {
-		this.setState({submitted:true, userPR: false})
+		this.setState({submitted:true, usePR: false})
 	}
 
 	// action on button click in form
