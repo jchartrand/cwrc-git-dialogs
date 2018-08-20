@@ -68,6 +68,7 @@ class SaveCmp extends Component {
 			usePR: false,
 			submitted: false,
 			repoVerified: false,
+			cancelled: false,
 			message: 'file commit or pr message'
 		})
 	}
@@ -92,6 +93,7 @@ class SaveCmp extends Component {
 
 	// action on button click in form
 	cancel() {
+		this.setState({cancelled: true})
 	}
 
 	// callback passed to VerifyRepo
@@ -110,8 +112,10 @@ class SaveCmp extends Component {
 	}
 
 	render() {
-		const {repo, path, user, usePR, message, submitted, repoVerified} = this.state
-		if (!submitted) {
+		const {repo, path, user, usePR, message, submitted, repoVerified, cancelled} = this.state
+		if (cancelled) {
+			return null
+		} else if (!submitted) {
 			return (
 				<SaveForm
 					handleRepoChangeCB={this.handleChange.bind(this, 'repo')}
