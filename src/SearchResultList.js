@@ -8,8 +8,10 @@ class SearchResultList extends Component {
 
 	showResultList = (results) => {
 		return results.map(result=> {
+			console.log('the result in the search result list:')
+			console.log(result)
 			const repoDetails = result.repository ? result.repository : result
-			return <Panel key={result.url} onClick={()=>this.props.selectCB(repoDetails.fullName, result.path)}>
+			return <Panel key={result.url} onClick={()=>this.props.selectCB(repoDetails.full_name, result.path)}>
 				<Panel.Heading>
 					<Panel.Title>
 						<h4>{result.path}</h4>
