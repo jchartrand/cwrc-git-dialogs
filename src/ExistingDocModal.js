@@ -45,7 +45,6 @@ function showExistingDocModal(writer) {
 	})
 
 	$('#existing-doc-cancel-btn').click(function(event){
-		console.log("in the click event for the cancel btn in existing doc")
 		$('#existing-doc-modal').modal('hide').data('bs.modal', null).remove();
 		$(document.body).removeClass("modal-open");
 		$(".modal-backdrop").remove();

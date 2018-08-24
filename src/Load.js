@@ -19,25 +19,6 @@ var Cookies = require('js-cookie');
 const parseLinks = require('parse-link-header');
 var cwrcGit = require('cwrc-git-server-client');
 
-const cwrcAppName = "CWRC-GitWriter" + "-web-app";
-
-var blankTEIDoc = `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-model href="https://cwrc.ca/schemas/cwrc_tei_lite.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
-<?xml-stylesheet type="text/css" href="https://cwrc.ca/templates/css/tei.css"?>
-<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:cw="http://cwrc.ca/ns/cw#" xmlns:w="http://cwrctc.artsrn.ualberta.ca/#">
-	<text>
-		<body>
-			<div>
-				<head>
-					<title>Replace with your title</title>
-				</head>
-				<p>Replace with your text</p>
-			</div>
-		</body>
-	</text>
-</TEI>`;
-
 function loadIntoWriter(writer, xmlDoc) {
 	writer.loadDocumentXML(xmlDoc);
 	writer.isDocLoaded = true;
@@ -48,8 +29,7 @@ function setDocInEditor(writer, result) {
 }
 
 function setBlankDocumentInEditor(writer) {
-	var defaultxmlDoc = $.parseXML(blankTEIDoc);
-	loadIntoWriter(writer, defaultxmlDoc);
+	loadTemplate(writer, 'TEI blank template.xml')
 }
 
 function loadTemplate(writer, templateName) {
@@ -221,9 +201,7 @@ function populateTemplateList(writer, templates, listGroupId) {
 function showLoadModal(writer) {
 	if ($('#githubLoadModal').length) {
 		$('#githubLoadModal').modal('show');
-		console.log("an existing load modal was detected when trying to show it.")
 	} else {
-		console.log("about to show the load modal")
 		var el = writer.dialogManager.getDialogWrapper();
 		$(el).append($.parseHTML(
 			`<div id="githubLoadModal" class="modal fade">
@@ -373,7 +351,6 @@ function showLoadModal(writer) {
 			var repoName = $('#git-doc-name').val();
 			var repoDesc = $('#git-doc-description').val();
 			var isPrivate = $('#git-doc-private').checked;
-			// console.log("should be about to close the repo");
 			$('#githubLoadModal').modal('hide');
 			createRepoWithBlankDoc(writer, repoName, repoDesc, isPrivate);
 		});
@@ -401,7 +378,6 @@ function showLoadModal(writer) {
 
 function load(writer, shouldOverwrite = false) {
 	if (authenticate()) {
-		console.log('in the load metnhod of Load.js, about to check if doc is loaded.');
 		(shouldOverwrite || ! writer.isDocLoaded)? showLoadModal(writer) : showExistingDocModal(writer)
 	}
 }
