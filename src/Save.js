@@ -19,6 +19,17 @@ import VerifyRepo from './VerifyRepo.js'
 import SaveToPath from './SaveToPath.js'
 import authenticate from "./authenticate";
 
+const SavedDialog = ({closedCB})=> (
+	<Modal show={true}>
+		<Modal.Header>Saved</Modal.Header>
+		<Modal.Body>Your document has been saved.</Modal.Body>
+		<Modal.Footer>
+			<Button onClick={closedCB} bsStyle="success">
+				OK
+			</Button>
+		</Modal.Footer>
+	</Modal>
+)
 const SaveForm = ({handleRepoChangeCB, handlePathChangeCB, saveFileCB, saveFileAsPullRequestCB, cancelCB, repo, path}) => (
 	<Modal
 		show={true}>
@@ -68,8 +79,9 @@ class SaveCmp extends Component {
 			usePR: false,
 			submitted: false,
 			repoVerified: false,
-			cancelled: false,
-			message: 'file commit or pr message'
+			message: 'file commit or pr message',
+			closed: false,
+			saved: false
 		})
 	}
 	componentWillMount() {
@@ -92,8 +104,12 @@ class SaveCmp extends Component {
 	}
 
 	// action on button click in form
-	cancel() {
-		this.setState({cancelled: true})
+	close() {
+		this.setState({closed: true})
+	}
+
+	saved() {
+		this.setState({saved: true})
 	}
 
 	// callback passed to VerifyRepo
@@ -106,16 +122,15 @@ class SaveCmp extends Component {
 		this.setState({repoVerified: false, submitted:false})
 	}
 
-	// callback passed to SaveToPath
-	// could use this to show a message
-	done() {
-	}
-
 	render() {
-		const {repo, path, user, usePR, message, submitted, repoVerified, cancelled} = this.state
-		if (cancelled) {
+		const {repo, path, user, usePR, message, submitted, repoVerified, closed, saved} = this.state
+		if (closed) {
 			return null
-		} else if (!submitted) {
+		} else if (saved) {
+			return (
+				<SavedDialog closedCB={this.close.bind(this)}/>
+			)
+		}   else if (!submitted) {
 			return (
 				<SaveForm
 					handleRepoChangeCB={this.handleChange.bind(this, 'repo')}
@@ -124,7 +139,7 @@ class SaveCmp extends Component {
 					path={path}
 					saveFileCB={this.saveFile.bind(this)}
 					saveFileAsPullRequestCB={this.saveFileAsPR.bind(this)}
-					cancelCB={this.cancel.bind(this)}
+					cancelCB={this.close.bind(this)}
 				/>
 			)
 		} else if (submitted && ! repoVerified) {
@@ -144,7 +159,7 @@ class SaveCmp extends Component {
 					content={this.props.content}
 					message={message}
 					usePR={usePR}
-					savedCB={this.done.bind(this)}
+					savedCB={this.saved.bind(this)}
 					cancelCB={this.repoOrPathCancelled.bind(this)}
 				/>
 			)
