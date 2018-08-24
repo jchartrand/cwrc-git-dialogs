@@ -38,20 +38,33 @@ var blankTEIDoc = `<?xml version="1.0" encoding="UTF-8"?>
 	</text>
 </TEI>`;
 
+function loadIntoWriter(writer, xmlDoc) {
+	writer.loadDocumentXML(xmlDoc);
+	writer.isDocLoaded = true;
+}
 function setDocInEditor(writer, result) {
 	var xmlDoc = $.parseXML(result.doc);
-	writer.loadDocumentXML(xmlDoc);
+	loadIntoWriter(writer, xmlDoc);
 }
 
 function setBlankDocumentInEditor(writer) {
 	var defaultxmlDoc = $.parseXML(blankTEIDoc);
-	writer.loadDocumentXML(defaultxmlDoc);
+	loadIntoWriter(writer, defaultxmlDoc);
+}
+
+function loadTemplate(writer, templateName) {
+	cwrcGit.getTemplate(templateName)
+		.done(function( result ) {
+			loadIntoWriter(writer, result);
+		}).fail(function(errorMessage) {
+			console.log("in the getTemplate fail");
+			console.log(errorMessage);
+		});
 }
 
 function isCurrentDocValid(writer) {
 	return writer && writer.getDocRawContent && writer.getDocRawContent().includes('_tag')
 }
-
 function loadDoc(writer, repo, path) {
 	return cwrcGit.getDoc(repo, 'master', path)
 		.done(function( result ) {
@@ -203,21 +216,17 @@ function populateTemplateList(writer, templates, listGroupId) {
 	});
 }
 
-function loadTemplate(writer, templateName) {
-	cwrcGit.getTemplate(templateName)
-		.done(function( result ) {
-			writer.loadDocumentXML(result);
-		}).fail(function(errorMessage) {
-		console.log("in the getTemplate fail");
-		console.log(errorMessage);
-	});
-}
+
 
 function showLoadModal(writer) {
-	var el = writer.dialogManager.getDialogWrapper();
-	$(el).append($.parseHTML(
-
-		`<div id="githubLoadModal" class="modal fade">
+	if ($('#githubLoadModal').length) {
+		$('#githubLoadModal').modal('show');
+		console.log("an existing load modal was detected when trying to show it.")
+	} else {
+		console.log("about to show the load modal")
+		var el = writer.dialogManager.getDialogWrapper();
+		$(el).append($.parseHTML(
+			`<div id="githubLoadModal" class="modal fade">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
      
@@ -339,57 +348,61 @@ function showLoadModal(writer) {
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->`));
 
-	// enable popover functionality - bootstrap requires explicit enabling
-	$(function () {
-		$('[data-toggle="popover"]').popover()
-	});
+		// enable popover functionality - bootstrap requires explicit enabling
+		$(function () {
+			$('[data-toggle="popover"]').popover()
+		});
 
-	$('#close-load-btn').add('#cancel-load-btn').click(function(event){
-		// if the load popup window has been triggered then don't allow it to close unless we have
-		// a valid document in the editor.
-		if (isCurrentDocValid(writer)) {
+		$('#close-load-btn').add('#cancel-load-btn').click(function (event) {
+			// if the load popup window has been triggered then don't allow it to close unless we have
+			// a valid document in the editor.
+			if (isCurrentDocValid(writer)) {
+				$('#githubLoadModal').modal('hide');
+			} else {
+				$('#cwrc-message').text('You must either load a document from GitHub or choose "Blank Document"').show()
+			}
+		});
+
+		$('#blank-doc-btn').click(function (event) {
 			$('#githubLoadModal').modal('hide');
-		} else {
-			$('#cwrc-message').text('You must either load a document from GitHub or choose "Blank Document"').show()
-		}
-	});
+			setBlankDocumentInEditor(writer);
+		});
 
-	$('#blank-doc-btn').click(function(event){
-		$('#githubLoadModal').modal('hide');
-		setBlankDocumentInEditor(writer);
-	});
+		$('#github-new-form').submit(function (event) {
+			event.preventDefault();
+			var repoName = $('#git-doc-name').val();
+			var repoDesc = $('#git-doc-description').val();
+			var isPrivate = $('#git-doc-private').checked;
+			// console.log("should be about to close the repo");
+			$('#githubLoadModal').modal('hide');
+			createRepoWithBlankDoc(writer, repoName, repoDesc, isPrivate);
+		});
 
-	$('#github-new-form').submit(function(event){
-		event.preventDefault();
-		var repoName = $('#git-doc-name').val();
-		var repoDesc = $('#git-doc-description').val();
-		var isPrivate = $('#git-doc-private').checked;
-		// console.log("should be about to close the repo");
-		$('#githubLoadModal').modal('hide');
-		createRepoWithBlankDoc(writer, repoName, repoDesc, isPrivate);
-	});
+		initializePrivatePanel(writer);
 
-	initializePrivatePanel(writer);
+		initializePublicPanel(writer);
 
-	initializePublicPanel(writer);
+		showTemplates(writer);
 
-	showTemplates(writer);
+		$('#open-new-doc-btn').show();
+		$('#cwrc-message').hide();
+		$('#private-tab').tab('show')
+		$('#githubLoadModal').modal({backdrop: 'static', keyboard: false}).on('hidden.bs.modal', function () {
+			$(this).data('bs.modal', null);
+			$(this).remove()
+			$(".modal-backdrop").remove();
+		});
 
-	$('#open-new-doc-btn').show();
-	$('#cwrc-message').hide();
-	$('#private-tab').tab('show')
-	$('#githubLoadModal').modal({backdrop: 'static', keyboard: false}).on('hidden.bs.modal', function() {
-		$(this).remove()
-	});
-
-	var data = $('#githubLoadModal').data('bs.modal');
-	data.$backdrop.detach().appendTo(el);
+		var data = $('#githubLoadModal').data('bs.modal');
+		data.$backdrop.detach().appendTo(el);
+	}
 }
 
 
-function load(writer) {
+function load(writer, shouldOverwrite = false) {
 	if (authenticate()) {
-		writer.repoName?showExistingDocModal(writer):showLoadModal(writer)
+		console.log('in the load metnhod of Load.js, about to check if doc is loaded.');
+		(shouldOverwrite || ! writer.isDocLoaded)? showLoadModal(writer) : showExistingDocModal(writer)
 	}
 }
 

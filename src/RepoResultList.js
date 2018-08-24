@@ -90,7 +90,7 @@ class RepoResultList extends Component {
 	render() {
 		const {selectCB} = this.props
 		return (
-			<PanelGroup accordion id="accordion-example" onSelect={this.handlePanelSelect.bind(this)}>
+			<PanelGroup accordion id="repoList" onSelect={this.handlePanelSelect.bind(this)}>
 				{this.showRepoList(this.props.repositories)}
 			</PanelGroup>
 		)

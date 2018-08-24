@@ -10,11 +10,6 @@ if ($ === undefined) {
     window.cwrcQuery = $
 }
 
-function removeDocFromEditor(writer) {
-	delete writer.repoName
-	delete writer.filePathInGithub
-}
-
 function showExistingDocModal(writer) {
 	var el = writer.dialogManager.getDialogWrapper();
 	$(el).append($.parseHTML(
@@ -23,7 +18,6 @@ function showExistingDocModal(writer) {
                     <div class="modal-content">
                         <div id="menu" class="modal-body">
                             <div style="margin-bottom:2em">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="float:right"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
                                 <h4 id="gh-modal-title' class="modal-title" style="text-align:center">Existing Document</h4>
                             </div>
                             <div style="margin-top:1em">
@@ -34,7 +28,7 @@ function showExistingDocModal(writer) {
                             </div>
                             <div style="text-align:center;margin-top:3em;margin-bottom:3em" id="git-oath-btn-grp">
                                 <div class="input-group" >
-                                        <button type="button" class="btn btn-default" data-dismiss="modal" id="existing-doc-cancel-btn">Return to Existing Document</button>                                
+                                        <button type="button" data-dismiss="modal" class="btn btn-default" id="existing-doc-cancel-btn">Return to Existing Document</button>                                
                                         <button type="button" class="btn btn-default" id="existing-doc-continue-btn" >Continue to Load New Document</button>
                                     </div>
                                 </div> <!--input group -->
@@ -46,17 +40,20 @@ function showExistingDocModal(writer) {
 	))
 
 	$('#existing-doc-continue-btn').click(function(event){
-		$('#existing-doc-modal').modal('hide');
-		removeDocFromEditor(writer)
-		writer.storageDialogs.load(writer)
+		$('#existing-doc-modal').modal('hide').data('bs.modal', null).remove();
+		writer.storageDialogs.load(writer, true)
+	})
+
+	$('#existing-doc-cancel-btn').click(function(event){
+		console.log("in the click event for the cancel btn in existing doc")
+		$('#existing-doc-modal').modal('hide').data('bs.modal', null).remove();
+		$(document.body).removeClass("modal-open");
+		$(".modal-backdrop").remove();
 	})
 
 	$('#existing-doc-modal').modal('show').
 	on('shown.bs.modal', function () {
 		$(".modal").css('display', 'block');
-	}).
-	on('hidden.bs.modal', function() {
-		$(this).remove()
 	})
 
 	var data = $('#existing-doc-modal').data('bs.modal');
