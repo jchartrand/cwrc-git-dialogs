@@ -1,9 +1,6 @@
 import React, {Component} from 'react'
 import {Panel, PanelGroup,} from 'react-bootstrap';
 
-
-const cwrcAppName = "CWRC-GitWriter" + "-web-app";
-
 class SearchResultList extends Component {
 
 	showResultList = (results) => {
@@ -23,23 +20,25 @@ class SearchResultList extends Component {
 		})
 	}
 
-
 	highlightedMatches(result) {
-		return result.text_matches.map((match, i)=><h5 key={i}>{match.fragment}</h5>)
-
-
-		//let highlightedFragment = ''
-		/*for (var textMatch of result.text_matches) {
-			if (! textMatch.fragment.includes(cwrcAppName)) {
-				var fragment = textMatch.fragment;
-				//var searchString = textMatch.matches[0].text;
-				//var boldSearchString = `<b>${searchString}</b>`;
-				//var regex = new RegExp(searchString,"gi");
-				//.var boldFragment = fragment.replace(regex, boldSearchString);
-
-			}
-		}
-		return <p>{fragment}</p>*/
+		return result.text_matches.map((text_match)=>(
+			<p>
+				<span>{text_match.fragment.slice(0, text_match.matches[0].indices[0])}</span>
+				{
+					text_match.matches.map((currentMatch, currentIndex, allMatches)=> {
+						const startOfNextMatch = currentIndex + 1 == allMatches.length ? text_match.fragment.length : allMatches[currentIndex + 1].indices[0]
+						const endOfThisMatch = currentMatch.indices[1]
+						return	<span>
+								<span style={{fontWeight:'900', fontSize:'1.3em'}}>{currentMatch.text}</span>
+								{`${text_match.fragment.slice(
+									endOfThisMatch,
+									startOfNextMatch
+								)}`}
+							</span>
+					})
+				}
+			</p>
+		))
 	}
 
 	render() {
