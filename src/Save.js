@@ -183,7 +183,8 @@ async function save(writer) {
 			$(writer.dialogManager.getDialogWrapper()).append('<div id="file-save"/>')
 		}
 		const repo = writer.repoName || ''
-		const path = writer.filePathInGithub || ''
+		const path = writer.filePathInGithub?writer.filePathInGithub.replace(/^\/+/g, ''):''
+
 		const content = writer.converter.getDocumentContent(true);
 		const user = writer.githubUser.login
 
