@@ -63,14 +63,14 @@ class RepoResultList extends Component {
 			const repoDetails = result.repository ? result.repository : result
 			return <Panel key={i} eventKey={repoDetails.full_name} >
 				<Panel.Heading>
-					<Panel.Title toggle>
-						<h4>{repoDetails.fullName || repoDetails.full_name}</h4>
-						<h5>{repoDetails.description && repoDetails.description}</h5>
+					<Panel.Title toggle >
+						<span style={{fontWeight: '900'}}>{repoDetails.fullName || repoDetails.full_name}</span>
+						<span >{repoDetails.description && ` ︱ ${repoDetails.description}`}</span>
 					</Panel.Title>
 				</Panel.Heading>
 				<Panel.Collapse>
 					<Panel.Body>
-						{repoDetails.full_name === this.state.selectedRepo?this.showRepoStructure(repoDetails.full_name):''}
+						{repoDetails.full_name === this.state.selectedRepo && this.showRepoStructure(repoDetails.full_name)}
 					</Panel.Body>
 				</Panel.Collapse>
 			</Panel>
