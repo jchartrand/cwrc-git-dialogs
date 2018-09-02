@@ -11,6 +11,7 @@ if ($ === undefined) {
 }
 
 import initializeReactResultComponent from "./ResultList.js";
+import initializeFileUploadComponent from "./FileUpload.js";
 import showPagination from "./Paginator.js";
 import showExistingDocModal from "./ExistingDocModal.js";
 import authenticate from './authenticate.js'
@@ -23,8 +24,8 @@ function loadIntoWriter(writer, xmlDoc) {
 	writer.loadDocumentXML(xmlDoc);
 	writer.isDocLoaded = true;
 }
-function setDocInEditor(writer, result) {
-	var xmlDoc = $.parseXML(result.doc);
+function setDocInEditor(writer, doc) {
+	var xmlDoc = $.parseXML(doc);
 	loadIntoWriter(writer, xmlDoc);
 }
 
@@ -48,7 +49,7 @@ function isCurrentDocValid(writer) {
 function loadDoc(writer, repo, path) {
 	return cwrcGit.getDoc(repo, 'master', path)
 		.done(function( result ) {
-			setDocInEditor(writer, result)
+			setDocInEditor(writer, result.doc)
 			writer.repoName = repo;
 			writer.filePathInGithub = path;
 		}).fail(function(errorMessage) {
@@ -73,6 +74,11 @@ function fileSelectCB(writer, repo, path){
 	$('#githubLoadModal').modal('hide');
 }
 
+function fileCB(writer, textContents){
+	loadIntoWriter(writer, textContents)
+	$('#githubLoadModal').modal('hide');
+}
+
 function getInfoForAuthenticatedUser(writer) {
 	cwrcGit.getInfoForAuthenticatedUser()
 		.then((info) => {
@@ -86,14 +92,14 @@ function getInfoForAuthenticatedUser(writer) {
 		});
 }
 
-function createTargetElement(elementName) {
+function createTargetElement(writer, elementName) {
 	if ($(`#${elementName}`).length == 0) {
 		$(writer.dialogManager.getDialogWrapper()).append(`<div id="${elementName}"/>`)
 	}
 }
 
 function initializePrivatePanel(writer) {
-	createTargetElement('github-private-doc-list')
+	createTargetElement(writer, 'github-private-doc-list')
 	const resultListComponent = initializeReactResultComponent('github-private-doc-list', fileSelectCB.bind(null, writer));
 	getInfoForAuthenticatedUser(writer);
 	showReposForAuthenticatedUser(writer,'private-pagination', 1, resultListComponent, 'owner')
@@ -113,7 +119,7 @@ function initializePrivatePanel(writer) {
 }
 
 function initializePublicPanel(writer) {
-	createTargetElement('github-public-doc-list')
+	createTargetElement(writer, 'github-public-doc-list')
 	const resultListComponent = initializeReactResultComponent('github-public-doc-list', fileSelectCB.bind(null, writer));
 	$('#github-public-form').submit(function(event){
 		event.preventDefault();
@@ -125,6 +131,11 @@ function initializePublicPanel(writer) {
 			showSearchResults(writer, gitName, publicSearchTerms, 'public-pagination', 1, resultListComponent);
 		}
 	});
+}
+
+function initializeUploadPanel(writer) {
+	createTargetElement(writer, 'github-upload-form')
+	const uploadComponent = initializeFileUploadComponent('github-upload-form', fileCB.bind(null, writer));
 }
 
 function showReposForAuthenticatedUser(writer, pagingContainerId, requestedPage, resultComponent, affiliation) {
@@ -229,6 +240,9 @@ function showLoadModal(writer) {
                           <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#templates" role="tab">CWRC Templates</a>
                           </li>
+                          <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#upload" role="tab">Load File or Text</a>
+                          </li>
                           
                         </ul>
 
@@ -317,6 +331,11 @@ function showLoadModal(writer) {
                                 <div id="template-list" class="list-group" style="padding-top:1em"></div>
                             </div><!-- /tab-pane -->                     
 
+							 <!-- UPLOAD PANE -->
+                            <div class="tab-pane" id="upload" role="tabpanel">
+                                <div id="github-upload-form" class="list-group" style="padding-top:1em"></div>
+                            </div><!-- /tab-pane -->  
+                            
                         </div> <!-- /tab-content -->
                     </div><!-- /.modal-body -->
                     <div class="modal-footer">
@@ -358,6 +377,8 @@ function showLoadModal(writer) {
 		initializePrivatePanel(writer);
 
 		initializePublicPanel(writer);
+
+		initializeUploadPanel(writer);
 
 		showTemplates(writer);
 
