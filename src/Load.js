@@ -22,7 +22,6 @@ var cwrcGit = require('cwrc-git-server-client');
 
 function loadIntoWriter(writer, xmlDoc) {
 	writer.loadDocumentXML(xmlDoc);
-	writer.isDocLoaded = true;
 }
 function setDocInEditor(writer, doc) {
 	var xmlDoc = $.parseXML(doc);
