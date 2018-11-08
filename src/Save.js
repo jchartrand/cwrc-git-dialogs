@@ -37,20 +37,20 @@ const SaveForm = ({handleRepoChangeCB, handlePathChangeCB, saveFileCB, saveFileA
 		<Modal.Body>
 			<Form>
 				<FormGroup controlId="repo" validationState={null}>
-					<ControlLabel>Repository Name</ControlLabel>
+					<ControlLabel>Repository Path</ControlLabel>
 					<FormControl
 						type="text"
 						value={repo}
 						onChange={handleRepoChangeCB}/>
-					<HelpBlock>The repository to which to save in your github account (e.g., jchartrand/cheeses)</HelpBlock>
+					<HelpBlock>[GitHub-user-ID]/[GitHub-repository] (e.g., jchartrand/cheeses)</HelpBlock>
 				</FormGroup>
 				<FormGroup controlId="path" validationState={null}>
-					<ControlLabel>Path</ControlLabel>
+					<ControlLabel>File Path</ControlLabel>
 					<FormControl
 						type="text"
 						value={path}
 						onChange={handlePathChangeCB} />
-					<HelpBlock>The path to which to save (e.g., french/basque/SaintSauveur.xml)</HelpBlock>
+					<HelpBlock>The repository path to which to save (e.g., french/basque/SaintSauveur.xml)</HelpBlock>
 				</FormGroup>
 			</Form>
 		</Modal.Body>
