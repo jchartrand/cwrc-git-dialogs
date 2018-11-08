@@ -14,7 +14,7 @@ const ErrorModal = ({cancel, error}) => (
 			<Button
 				onClick={cancel}
 				bsStyle="success"
-			>Yes</Button>
+			>Ok</Button>
 		</Modal.Footer>
 	</Modal>
 )
@@ -107,11 +107,21 @@ class SaveToPath extends Component {
 		this.props.usePR ?
 			cwrcGit.saveAsPullRequest(this.props.repo, this.props.path, this.props.content, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
 				(result) => this.complete(),
-				(error) => this.displayError(error)
+				(error) => {
+					if (error.statusText === 'Internal Server Error') {
+						error.statusText = 'You do not have pull request permissions for the selected repository. Try saving to another repository you have pull request privileges for.'
+					}
+					this.displayError(error)
+				}
 			) :
 			cwrcGit.saveDoc(this.props.repo, this.props.path, this.props.content, this.state.branch, this.state.commitMessage).then(
 				(result) => this.complete(),
-				(error) => this.displayError(error)
+				(error) => {
+					if (error.statusText === 'Not Found') {
+						error.statusText = 'You do not have writing permissions for the selected repository. Try saving as a pull request or save to another repository you have writing privileges for.'
+					}
+					this.displayError(error)
+				}
 			)
 
 	}
