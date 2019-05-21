@@ -14,43 +14,51 @@ import initializeReactResultComponent from "./ResultList.js";
 import initializeFileUploadComponent from "./FileUpload.js";
 import showPagination from "./Paginator.js";
 import showExistingDocModal from "./ExistingDocModal.js";
-import authenticate from './authenticate.js'
 
 var Cookies = require('js-cookie');
 const parseLinks = require('parse-link-header');
 var cwrcGit = require('cwrc-git-server-client');
 
-function loadIntoWriter(writer, xmlDoc) {
+// TODO
+let writer;
+let state;
+
+function loadIntoWriter(xmlDoc) {
 	writer.loadDocumentXML(xmlDoc);
 }
-function setDocInEditor(writer, doc) {
+function setDocInEditor(doc) {
 	var xmlDoc = $.parseXML(doc);
-	loadIntoWriter(writer, xmlDoc);
+	loadIntoWriter(xmlDoc);
 }
 
-function setBlankDocumentInEditor(writer) {
-	loadTemplate(writer, 'TEI blank template.xml')
+function setBlankDocumentInEditor() {
+	loadTemplate('TEI blank template.xml')
 }
 
-function loadTemplate(writer, templateName) {
+function loadTemplate(templateName) {
+	state.repo = undefined;
+	state.path = undefined;
 	cwrcGit.getTemplate(templateName)
 		.done(function( result ) {
-			loadIntoWriter(writer, result);
+			loadIntoWriter(result);
 		}).fail(function(errorMessage) {
 			console.log("in the getTemplate fail");
 			console.log(errorMessage);
 		});
 }
 
-function isCurrentDocValid(writer) {
+function isCurrentDocValid() {
 	return writer && writer.getDocRawContent && writer.getDocRawContent().includes('_tag')
 }
-function loadDoc(writer, repo, path) {
+function loadDoc(repo, path) {
+	state.repo = undefined;
+	state.path = undefined;
 	return cwrcGit.getDoc(repo, 'master', path)
 		.done(function( result ) {
-			setDocInEditor(writer, result.doc)
-			writer.repoName = repo;
-			writer.filePathInGithub = path;
+			setDocInEditor(result.doc)
+			state.repo = repo;
+			state.path = path;
+			console.log(state);
 		}).fail(function(errorMessage) {
 			console.log("in the getDoc fail");
 			console.log(errorMessage);
@@ -68,120 +76,107 @@ function displayPaging(pagingContainerId, results, requestedPage, pagingCB, reac
 	showPagination(pagingContainerId, requestedPage, lastPage, pagingCB, reactResultComponentReference)
 }
 
-function fileSelectCB(writer, repo, path){
-	loadDoc(writer, repo, path);
+function fileSelectCB(repo, path){
+	loadDoc(repo, path);
 	$('#githubLoadModal').modal('hide');
 }
 
-function fileCB(writer, textContents){
-	loadIntoWriter(writer, textContents)
+function fileCB(textContents){
+	loadIntoWriter(textContents)
 	$('#githubLoadModal').modal('hide');
 }
 
-function getInfoForAuthenticatedUser(writer) {
-	cwrcGit.getInfoForAuthenticatedUser()
-		.then((info) => {
-			writer.githubUser = info
-			$('#private-tab').text(`${writer.githubUser.login} repositories`)
-		}, (errorMessage) => {
-			console.log("in the fail in getInfoAndReposForAuthenticatedUser")
-			var message = (errorMessage == 'login')?`You must first authenticate with Github.`:`Couldn't find anything for that id.  Please try again.`
-			console.log(message)
-			$('#cwrc-message').text(message).show()
-		});
-}
-
-function createTargetElement(writer, elementName) {
+function createTargetElement(elementName) {
 	if ($(`#${elementName}`).length == 0) {
 		$(writer.dialogManager.getDialogWrapper()).append(`<div id="${elementName}"/>`)
 	}
 }
 
-function initializePrivatePanel(writer) {
-	createTargetElement(writer, 'github-private-doc-list')
-	const resultListComponent = initializeReactResultComponent('github-private-doc-list', fileSelectCB.bind(null, writer));
-	getInfoForAuthenticatedUser(writer);
-	showReposForAuthenticatedUser(writer,'private-pagination', 1, resultListComponent, 'owner')
+function initializePrivatePanel() {
+	createTargetElement('github-private-doc-list')
+	const resultListComponent = initializeReactResultComponent('github-private-doc-list', fileSelectCB);
+	$('#private-tab').text(`${state.userId} repositories`)
+	showReposForAuthenticatedUser('private-pagination', 1, resultListComponent, 'owner')
 
 	$('#private-repo-owner').prop('checked', true);
 
 	$('#github-private-form').submit(function(event){
 		event.preventDefault();
 		var privateSearchTerms = $('#private-search-terms').val();
-		showSearchResults(writer, writer.githubUser.login, privateSearchTerms, 'private-pagination', 1, resultListComponent);
+		showSearchResults(writer.githubUser.login, privateSearchTerms, 'private-pagination', 1, resultListComponent);
 	});
 
 	$('#private-repo-owner, #private-repo-collaborator, #private-repo-member').change(function() {
 		let affiliation = $('input[name=repo-filter]:checked').val();
-		showReposForAuthenticatedUser(writer, 'private-pagination', 1, resultListComponent, affiliation)
+		showReposForAuthenticatedUser('private-pagination', 1, resultListComponent, affiliation)
 	})
 }
 
-function initializePublicPanel(writer) {
-	createTargetElement(writer, 'github-public-doc-list')
-	const resultListComponent = initializeReactResultComponent('github-public-doc-list', fileSelectCB.bind(null, writer));
+function initializePublicPanel() {
+	createTargetElement('github-public-doc-list')
+	const resultListComponent = initializeReactResultComponent('github-public-doc-list', fileSelectCB);
 	$('#github-public-form').submit(function(event){
 		event.preventDefault();
 		var gitName = $('#git-user').val();
 		var publicSearchTerms = $('#public-search-terms').val();
 		if (gitName && !publicSearchTerms) {
-			showReposForGithubUser(writer, gitName, 'public-pagination', 1, resultListComponent)
+			showReposForGithubUser(gitName, 'public-pagination', 1, resultListComponent)
 		} else {
-			showSearchResults(writer, gitName, publicSearchTerms, 'public-pagination', 1, resultListComponent);
+			showSearchResults(gitName, publicSearchTerms, 'public-pagination', 1, resultListComponent);
 		}
 	});
 }
 
-function initializeUploadPanel(writer) {
-	createTargetElement(writer, 'github-upload-form')
-	const uploadComponent = initializeFileUploadComponent('github-upload-form', fileCB.bind(null, writer));
+function initializeUploadPanel() {
+	createTargetElement('github-upload-form')
+	const uploadComponent = initializeFileUploadComponent('github-upload-form', fileCB);
 }
 
-function showReposForAuthenticatedUser(writer, pagingContainerId, requestedPage, resultComponent, affiliation) {
+function showReposForAuthenticatedUser(pagingContainerId, requestedPage, resultComponent, affiliation) {
 	cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, 20, affiliation).then(results=>{
-		const pagingCB = (requestedPage, resultComponent)=>showReposForAuthenticatedUser(writer, 'private-pagination', requestedPage, resultComponent, affiliation)
-		populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, resultComponent)
+		const pagingCB = (requestedPage, resultComponent)=>showReposForAuthenticatedUser('private-pagination', requestedPage, resultComponent, affiliation)
+		populateResultList(results, requestedPage, pagingContainerId, pagingCB, resultComponent)
 	})
 }
 
-function showReposForGithubUser(writer, user, pagingContainerId, requestedPage, resultComponent) {
+function showReposForGithubUser(user, pagingContainerId, requestedPage, resultComponent) {
 	cwrcGit.getReposForGithubUser(user, requestedPage, 20).then(results=>{
-		const pagingCB = (requestedPage, resultComponent)=>showReposForGithubUser(writer, user, 'public-pagination', requestedPage, resultComponent)
-		populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, resultComponent)
+		const pagingCB = (requestedPage, resultComponent)=>showReposForGithubUser(user, 'public-pagination', requestedPage, resultComponent)
+		populateResultList(results, requestedPage, pagingContainerId, pagingCB, resultComponent)
 	})
 }
 
-function populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, reactResultComponentReference) {
+function populateResultList(results, requestedPage, pagingContainerId, pagingCB, reactResultComponentReference) {
 	$('#cwrc-message').hide();
 	reactResultComponentReference.updateList(results)
 	if (pagingContainerId) displayPaging(pagingContainerId, results, requestedPage, pagingCB, reactResultComponentReference)
 }
 
-function showSearchResults(writer, gitName, searchTerms, pagingContainerId, requestedPage, resultComponent) {
+function showSearchResults(gitName, searchTerms, pagingContainerId, requestedPage, resultComponent) {
 	// var queryString = cwrcAppName;
 	var queryString = 'language:xml ';
 	if (searchTerms) queryString += '"' + searchTerms + '" ';
 	if (gitName) queryString += "user:" + gitName;
-	const pagingCB = (requestedPage)=>showSearchResults(writer, gitName, searchTerms, pagingContainerId, requestedPage, resultComponent)
+	const pagingCB = (requestedPage)=>showSearchResults(gitName, searchTerms, pagingContainerId, requestedPage, resultComponent)
 	cwrcGit.search(queryString, 20, requestedPage)
 		.done(function (results) {
-			populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, resultComponent)
+			populateResultList(results, requestedPage, pagingContainerId, pagingCB, resultComponent)
 		}).fail(function(errorMessage) {
 		console.log('in the fail of the call to search in showRepos')
 		$('#cwrc-message').text(`Couldn't find anything for your query.  Please try again.`).show()
 	})
 }
 
-function showTemplates(writer) {
+function showTemplates() {
 	cwrcGit.getTemplates()
 		.done(function( templates ) {
-			populateTemplateList(writer, templates, '#template-list')
+			populateTemplateList(templates, '#template-list')
 		}).fail(function(errorMessage) {
 		$('#cwrc-message').text(`Couldn't find the templates. Please check your connection or try again.`).show();
 	});
 }
 
-function populateTemplateList(writer, templates, listGroupId) {
+function populateTemplateList(templates, listGroupId) {
 	$(function () {
 		const listContainer = $(listGroupId);
 		listContainer.empty()
@@ -198,7 +193,7 @@ function populateTemplateList(writer, templates, listGroupId) {
 		$(`${listGroupId} .list-group-item`).on('click', function() {
 			var $this = $(this);
 			var $templateName = $this.data('template');
-			loadTemplate(writer, $templateName);
+			loadTemplate($templateName);
 
 			$('#githubLoadModal').modal('hide');
 		});
@@ -208,7 +203,7 @@ function populateTemplateList(writer, templates, listGroupId) {
 
 
 
-function showLoadModal(writer) {
+function showLoadModal() {
 	if ($('#githubLoadModal').length) {
 		$('#githubLoadModal').modal('show');
 	} else {
@@ -352,7 +347,7 @@ function showLoadModal(writer) {
 		$('#close-load-btn').add('#cancel-load-btn').click(function (event) {
 			// if the load popup window has been triggered then don't allow it to close unless we have
 			// a valid document in the editor.
-			if (isCurrentDocValid(writer)) {
+			if (isCurrentDocValid()) {
 				$('#githubLoadModal').modal('hide');
 			} else {
 				$('#cwrc-message').text('You must either load a document from GitHub or choose "Blank Document"').show()
@@ -361,7 +356,7 @@ function showLoadModal(writer) {
 
 		$('#blank-doc-btn').click(function (event) {
 			$('#githubLoadModal').modal('hide');
-			setBlankDocumentInEditor(writer);
+			setBlankDocumentInEditor();
 		});
 
 		$('#github-new-form').submit(function (event) {
@@ -370,16 +365,16 @@ function showLoadModal(writer) {
 			var repoDesc = $('#git-doc-description').val();
 			var isPrivate = $('#git-doc-private').checked;
 			$('#githubLoadModal').modal('hide');
-			createRepoWithBlankDoc(writer, repoName, repoDesc, isPrivate);
+			createRepoWithBlankDoc(repoName, repoDesc, isPrivate);
 		});
 
-		initializePrivatePanel(writer);
+		initializePrivatePanel();
 
-		initializePublicPanel(writer);
+		initializePublicPanel();
 
-		initializeUploadPanel(writer);
+		initializeUploadPanel();
 
-		showTemplates(writer);
+		showTemplates();
 
 		$('#open-new-doc-btn').show();
 		$('#cwrc-message').hide();
@@ -396,9 +391,16 @@ function showLoadModal(writer) {
 }
 
 
-function load(writer, shouldOverwrite = false) {
-	if (authenticate()) {
-		(shouldOverwrite || ! writer.isDocLoaded)? showLoadModal(writer) : showExistingDocModal(writer)
+function load(_writer, _state, shouldOverwrite = false) {
+	if (writer === undefined && state === undefined) {
+		writer = _writer;
+		state = _state;
+	}
+
+	if (writer.isDocLoaded && !shouldOverwrite) {
+		showExistingDocModal(writer)
+	} else {
+		showLoadModal()
 	}
 }
 

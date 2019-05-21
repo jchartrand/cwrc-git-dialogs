@@ -4,9 +4,9 @@ import {Panel, PanelGroup,} from 'react-bootstrap';
 class SearchResultList extends Component {
 
 	showResultList = (results) => {
-		return results.map(result=> {
+		return results.map((result, i) => {
 			const repoDetails = result.repository ? result.repository : result
-			return <Panel key={result.url} onClick={()=>this.props.selectCB(repoDetails.full_name, result.path)}>
+			return <Panel key={result.sha} onClick={()=>this.props.selectCB(repoDetails.full_name, result.path)}>
 				<Panel.Heading>
 					<Panel.Title>
 						<h4>{result.path}</h4>
@@ -21,7 +21,7 @@ class SearchResultList extends Component {
 	}
 
 	highlightedMatches(result) {
-		return result.text_matches.map((text_match)=>(
+		return result.text_matches.map((text_match, i)=>(
 			<p>
 				<span>{text_match.fragment.slice(0, text_match.matches[0].indices[0])}</span>
 				{

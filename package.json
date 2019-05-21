@@ -27,6 +27,7 @@
     "watch-indexlist": "watchify test/ResultListTest.js -o build/ResultList.js --debug --verbose -t babelify ",
     "test-old": "mkdirp coverage && npm run test:electron && npm run generate-coverage",
     "test": "",
+    "test:watch": "mkdirp test/build && watchify test/browser.js --debug -o test/build/test.js -t [ babelify ] -t [ browserify-istanbul ]",
     "test:browser": "browserify -t babelify -t browserify-istanbul test/browser.js | browser-run  -p 2222 --static .  | node test/extract-coverage.js | faucet",
     "test:electron": "browserify -t babelify -t browserify-istanbul test/browser.js | browser-run --static . | node test/extract-coverage.js | faucet ",
     "test:chrome": "browserify -t browserify-istanbul test/browser.js | browser-run --static . -b chrome | node test/extract-coverage.js | faucet ",
@@ -35,43 +36,61 @@
     "report-coverage": "cat ./coverage/lcov.info | codecov",
     "travis-deploy-once": "travis-deploy-once"
   },
+  "dependencies": {
+    "bootstrap": "^3.4.1",
+    "cwrc-git-server-client": "^1.7.0",
+    "jquery": "^3.4.0",
+    "js-cookie": "2.1.4",
+    "parse-link-header": "^1.0.1",
+    "react": "^16.8.6",
+    "react-bootstrap": "^0.32.4",
+    "react-dom": "^16.8.6",
+    "semantic-ui-react": "^0.82.5"
+  },
   "devDependencies": {
+    "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
-    "babelify": "7.3.0",
-    "browser-run": "^5.0.0",
-    "browserify": "14.3.0",
-    "browserify-istanbul": "2.0.0",
-    "codecov": "^3.1.0",
-    "commitizen": "^2.10.1",
-    "concat-stream": "1.6.0",
-    "cz-conventional-changelog": "2.0.0",
+    "babelify": "^8.0.0",
+    "browser-run": "^5.0.1",
+    "browserify": "^16.0.0",
+    "browserify-istanbul": "^3.0.1",
+    "codecov": "^3.3.0",
+    "commitizen": "^3.1.1",
+    "concat-stream": "^1.6.0",
+    "cz-conventional-changelog": "^2.1.0",
     "faucet": "0.0.1",
-    "husky": "0.13.3",
-    "istanbul": "0.4.5",
+    "husky": "^2.1.0",
+    "istanbul": "^0.4.5",
     "mkdirp": "0.5.1",
-    "semantic-release": "^15.11.0",
+    "semantic-release": "^15.13.12",
     "sinon": "2.2.0",
     "tape": "4.6.3",
-    "travis-deploy-once": "^5.0.9",
-    "watch": "1.0.2",
-    "watchify": "3.9.0"
+    "travis-deploy-once": "^5.0.11",
+    "watchify": "^3.11.1"
   },
   "config": {
     "commitizen": {
       "path": "node_modules/cz-conventional-changelog"
     }
   },
-  "dependencies": {
-    "bootstrap": "3.3.7",
-    "cwrc-git-server-client": "^1.7.0",
-    "jquery": "3.2.1",
-    "js-cookie": "2.1.4",
-    "parse-link-header": "^1.0.1",
-    "react": "^16.6.1",
-    "react-bootstrap": "^0.32.4",
-    "react-dom": "^16.6.1",
-    "semantic-ui-react": "^0.82.5"
+  "husky": {
+    "hooks": {
+      "pre-commit": ""
+    }
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "stage-0",
+            "react"
+          ]
+        }
+      ]
+    ]
   }
 }

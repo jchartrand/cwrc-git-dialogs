@@ -14,10 +14,11 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom';
 import { Modal, Button, Form, HelpBlock, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
 
-
 import VerifyRepo from './VerifyRepo.js'
 import SaveToPath from './SaveToPath.js'
-import authenticate from "./authenticate";
+
+let writer;
+let state;
 
 const SavedDialog = ({closedCB})=> (
 	<Modal show={true}>
@@ -89,8 +90,12 @@ class SaveCmp extends Component {
 	}
 
 	// handles changes passed up from the form
-	handleChange(state,e) {
-		this.setState({[state]: e.target.value});
+	handleChange(name,e) {
+		this.setState({[name]: e.target.value});
+		console.log(name, e.target.value);
+		if (state.hasOwnProperty(name)) {
+			state[name] = e.target.value;
+		}
 	}
 
 	// action on button click in form
@@ -169,36 +174,31 @@ class SaveCmp extends Component {
 	}
 }
 
-async function save(writer) {
-
-	//const repoName = 'whaaaa'
-	//const userName = 'jchartrand'
-	//const path = 'test/test.xml'
-	//const repoDesc = 'hello'
-	//const isPrivate = false
-	//const text = 'some test text dddd'
-	//const message = 'a test commit message'
-	if (authenticate()) {
-		if ($('#file-save').length == 0) {
-			$(writer.dialogManager.getDialogWrapper()).append('<div id="file-save"/>')
-		}
-		const repo = writer.repoName || ''
-		const path = writer.filePathInGithub?writer.filePathInGithub.replace(/^\/+/g, ''):''
-
-		const content = writer.converter.getDocumentContent(true);
-		const user = writer.githubUser.login
-
-		const component = ReactDOM.render(
-			<SaveCmp
-				repo={repo}
-				path={path}
-				user={user}
-				content={content}/>,
-			document.getElementById('file-save'))
-		component.resetState()
-		//document.getElementById(targetElement)
-
+async function save(_writer, _state) {
+	if (writer === undefined && state === undefined) {
+		writer = _writer;
+		state = _state;
 	}
+
+	if ($('#file-save').length == 0) {
+		$(writer.dialogManager.getDialogWrapper()).append('<div id="file-save"/>')
+	}
+	const repo = state.repo;
+	const path = state.path ? state.path.replace(/^\/+/g, '') : ''
+	const user = state.userId;
+
+	// TODO get content after path and repo have been set
+	const content = writer.converter.getDocumentContent(true);
+
+	const component = ReactDOM.render(
+		<SaveCmp
+			repo={repo}
+			path={path}
+			user={user}
+			content={content}/>,
+		document.getElementById('file-save'))
+	component.resetState()
+	//document.getElementById(targetElement)
 }
 
 export default save

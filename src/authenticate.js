@@ -10,12 +10,26 @@ if ($ === undefined) {
     window.cwrcQuery = $
 }
 
-var Cookies = require('js-cookie');
+let Cookies = require('js-cookie');
 
-function authenticate() {
+const authenticateURL = 'http://localhost:3000/github/authenticate';
 
+function doAuthenticate(authenticateCB) {
+    let request = $.ajax({
+        url: authenticateURL,
+        dataType: 'jsonp'
+    }).then((resp) => {
+        authenticateCB.call(this, true)
+    }, (resp) => {
+        authenticateCB.call(this, false)
+    }).always(() => {
+        $('#githubAuthenticateModal').remove()
+    })
+}
+
+function authenticate(authenticateCB) {
 	if (Cookies.get('cwrc-token')) {
-		return true
+        authenticateCB.call(this, true)
 	} else {
 		$(document.body).append($.parseHTML(
 			`<div id="githubAuthenticateModal" class="modal" style="display: block;">
@@ -48,12 +62,9 @@ function authenticate() {
 		));
 
 		$('#git-oauth-btn').click(function(event){
-			window.location.href = "/github/authenticate";
+            doAuthenticate(authenticateCB)
 		});
-
-		return false
 	}
-
 }
 
 export default authenticate

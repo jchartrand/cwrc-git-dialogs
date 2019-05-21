@@ -30,7 +30,7 @@ class RepoResultList extends Component {
 	showTree(structure, repo, indent=0) {
 		return structure.map((item, i) => {
 			return item.type === 'folder'
-				? <div key={item.sha}>
+				? <div key={i}>
 					<ListGroupItem bsStyle="success" onClick={()=>this.toggleFolder(item.path)} style={{padding: '1em'}}>
 						<div style={{paddingLeft: `${indent}em`}}>
 							<Glyphicon glyph={this.state.openFolders.includes(item.path)?"chevron-down":"chevron-right"} style={{paddingRight: '1em'}}/>
@@ -39,7 +39,7 @@ class RepoResultList extends Component {
 					</ListGroupItem>
 					{this.state.openFolders.includes(item.path) && this.showTree(item.contents, repo, indent+2)}
 				</div>
-				: <ListGroupItem key={item.sha} onClick={()=>this.props.selectCB(repo, item.path)} style={{padding: '1em'}}>
+				: <ListGroupItem key={i} onClick={()=>this.props.selectCB(repo, item.path)} style={{padding: '1em'}}>
 					<div style={{paddingLeft: `${indent}em`}}>{item.name}</div>
 				</ListGroupItem>
 		})
