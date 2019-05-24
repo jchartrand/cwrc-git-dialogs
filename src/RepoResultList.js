@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
 import { Button, Panel, PanelGroup, Glyphicon, ListGroup, ListGroupItem} from 'react-bootstrap';
-import ReactDOM from 'react-dom';
 var cwrcGit = require('cwrc-git-server-client');
 
 class RepoResultList extends Component {
@@ -10,15 +9,6 @@ class RepoResultList extends Component {
 		openFolders:[],
 		selectedRepo: null
 	}
-
-/*	updateRepoList(repos) {
-		this.setState((prevState) => ({
-			repositories: repos,
-			repoStructures: {},
-			openFolders:[],
-			selectedRepo: null
-		}))
-	}*/
 
 	toggleFolder(path) {
 		this.setState((prevState) => this.state.openFolders.includes(path)
@@ -31,16 +21,16 @@ class RepoResultList extends Component {
 		return structure.map((item, i) => {
 			return item.type === 'folder'
 				? <div key={i}>
-					<ListGroupItem bsStyle="success" onClick={()=>this.toggleFolder(item.path)} style={{padding: '1em'}}>
-						<div style={{paddingLeft: `${indent}em`}}>
-							<Glyphicon glyph={this.state.openFolders.includes(item.path)?"chevron-down":"chevron-right"} style={{paddingRight: '1em'}}/>
+					<ListGroupItem bsStyle="info" onClick={()=>this.toggleFolder(item.path)} style={{padding: '10px'}}>
+						<div style={{paddingLeft: `${indent*10}px`}}>
+							<Glyphicon glyph={this.state.openFolders.includes(item.path)?"chevron-down":"chevron-right"} style={{paddingRight: '10px'}}/>
 							{item.name}
 						</div>
 					</ListGroupItem>
 					{this.state.openFolders.includes(item.path) && this.showTree(item.contents, repo, indent+2)}
 				</div>
-				: <ListGroupItem key={i} onClick={()=>this.props.selectCB(repo, item.path)} style={{padding: '1em'}}>
-					<div style={{paddingLeft: `${indent}em`}}>{item.name}</div>
+				: <ListGroupItem key={i} onClick={()=>this.props.selectCB(repo, item.path)} style={{padding: '10px'}}>
+					<div style={{paddingLeft: `${indent*10}px`}}>{item.name}</div>
 				</ListGroupItem>
 		})
 	}
@@ -52,9 +42,9 @@ class RepoResultList extends Component {
 						this.setState((prevState, props) => ({repoStructures: {...prevState.repoStructures, [repoFullName]: structure}}))
 					}
 				)
-				return <div><Glyphicon glyph="refresh" style={{padding:'1em'}}/>Loading Repository Structure...</div>
+				return <div><Glyphicon glyph="cloud-download" style={{padding:'10px'}}/>Loading Repository Structure...</div>
 			} else {
-				return <ListGroup style={{padding:'1em'}}>{this.showTree(this.state.repoStructures[repoFullName], repoFullName)}</ListGroup>
+				return <ListGroup>{this.showTree(this.state.repoStructures[repoFullName], repoFullName)}</ListGroup>
 			}
 	}
 
@@ -64,8 +54,8 @@ class RepoResultList extends Component {
 			return <Panel key={i} eventKey={repoDetails.full_name} >
 				<Panel.Heading>
 					<Panel.Title toggle >
-						<span style={{fontWeight: '900'}}>{repoDetails.fullName || repoDetails.full_name}</span>
-						<span >{repoDetails.description && ` ︱ ${repoDetails.description}`}</span>
+						<span style={{fontWeight: '900'}}>{repoDetails.full_name}</span>
+						<span style={{fontSize: '0.8em'}}>{repoDetails.description && ` ︱ ${repoDetails.description}`}</span>
 					</Panel.Title>
 				</Panel.Heading>
 				<Panel.Collapse>
@@ -88,10 +78,9 @@ class RepoResultList extends Component {
 
 
 	render() {
-		const {selectCB} = this.props
 		return (
-			<PanelGroup accordion id="repoList" onSelect={this.handlePanelSelect.bind(this)}>
-				{this.showRepoList(this.props.repositories)}
+			<PanelGroup accordion id="git-dialogs-repoResultList" onSelect={this.handlePanelSelect.bind(this)}>
+				{this.showRepoList(this.props.repos)}
 			</PanelGroup>
 		)
 	}

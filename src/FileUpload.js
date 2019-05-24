@@ -1,8 +1,5 @@
 import React, {Component} from 'react'
-import ReactDOM from 'react-dom';
-import { FormGroup, ControlLabel, FormControl, Label, Button, HelpBlock, Row, Col} from 'react-bootstrap';
-
-
+import { FormGroup, ControlLabel, FormControl, Label, Button, HelpBlock, Grid, Row, Col, Well} from 'react-bootstrap';
 
 class FileUpload extends Component {
 
@@ -55,49 +52,48 @@ class FileUpload extends Component {
 		}
 	}
 
-
 	render() {
 		return (
 			<form>
-				<FormGroup>
-					<ControlLabel htmlFor="fileUpload" style={{ cursor: "pointer"}}><h3><Label bsStyle="success">Choose file</Label></h3>
-						<FormControl
-							id="fileUpload"
-							type="file"
-							onChange={this.handleUpload.bind(this)}
-							style={{ display: "none" }}
-						/>
-					</ControlLabel>
-				</FormGroup>
-
-
-				<div style={{padding: '0 0 1.5em 1.5em', background:'#fff'}}> — OR — </div>
-
-
-				<FormGroup
-					controlId="formBasicText"
-
-				>
-					<ControlLabel></ControlLabel>
-						<FormControl
-							componentClass="textarea"
-							rows="9"
-							value={this.state.xmlText}
-							placeholder="Enter your XML here"
-							onChange={this.handleTextChange}
-						/>
-						<FormControl.Feedback />
-					{this.state.showWarning && <HelpBlock>Please enter some text in the box above.</HelpBlock>}
-				</FormGroup>
-
-				<Button onClick={this.loadText}>Open Text in Editor</Button>
+				<Grid style={{marginTop: "15px"}} fluid={true}>
+					<Row>
+						<Col sm={3}>
+							<Well>
+								<FormGroup>
+									<ControlLabel htmlFor="fileUpload" style={{ cursor: "pointer"}}>
+										<h4><Label bsStyle="success">Choose File</Label></h4>
+										<FormControl
+											id="fileUpload"
+											type="file"
+											onChange={this.handleUpload.bind(this)}
+											style={{ display: "none" }}
+										/>
+									</ControlLabel>
+								</FormGroup>
+							</Well>
+						</Col>
+						<Col sm={1}><h4>Or</h4></Col>
+						<Col sm={8}>
+							<Well>
+								<FormGroup controlId="formBasicText">
+									<ControlLabel></ControlLabel>
+										<FormControl
+											componentClass="textarea"
+											value={this.state.xmlText}
+											placeholder="Paste your XML here"
+											onChange={this.handleTextChange}
+										/>
+										<FormControl.Feedback />
+									{this.state.showWarning && <HelpBlock>Please enter some text in the box above.</HelpBlock>}
+								</FormGroup>
+								<Button onClick={this.loadText}>Open Text in Editor</Button>
+							</Well>
+						</Col>
+					</Row>
+				</Grid>
 			</form>
 		)
 	}
 }
-function initializeFileUploadComponent(targetElement, fileCB) {
-	return ReactDOM.render(<FileUpload fileCB={fileCB} />, document.getElementById(targetElement))
-}
 
-
-export default initializeFileUploadComponent
+export default FileUpload

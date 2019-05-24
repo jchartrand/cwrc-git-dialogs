@@ -1,35 +1,35 @@
-import React, {Component} from 'react'
-import {Panel, PanelGroup,} from 'react-bootstrap';
+import React, {Component, Fragment} from 'react'
+import {Panel, PanelGroup, ListGroup, ListGroupItem} from 'react-bootstrap';
 
 class SearchResultList extends Component {
 
 	showResultList = (results) => {
 		return results.map((result, i) => {
-			const repoDetails = result.repository ? result.repository : result
-			return <Panel key={result.sha} onClick={()=>this.props.selectCB(repoDetails.full_name, result.path)}>
-				<Panel.Heading>
-					<Panel.Title>
-						<h4>{result.path}</h4>
-						<h5>{repoDetails.full_name}  {repoDetails.description && ( '-' + repoDetails.description)}</h5>
-					</Panel.Title>
-				</Panel.Heading>
-					<Panel.Body>
-						{this.highlightedMatches(result)}
-					</Panel.Body>
-			</Panel>
+			const repoDetails = result.repository ? result.repository : result;
+			const header = `${repoDetails.full_name}/${result.path}`;
+			return (
+				<ListGroupItem
+					key={i} /* this doesn't get passed for some reason */
+					onClick={()=>this.props.selectCB(repoDetails.full_name, result.path)}
+					style={{cursor: "pointer"}}
+				>
+					<div style={{fontSize: '16px', fontWeight:'900'}} class="list-group-item-heading">{repoDetails.full_name}/{result.path}</div>
+					{this.highlightedMatches(result)}
+				</ListGroupItem>
+			)
 		})
 	}
 
 	highlightedMatches(result) {
 		return result.text_matches.map((text_match, i)=>(
-			<p>
+			<Fragment>
 				<span>{text_match.fragment.slice(0, text_match.matches[0].indices[0])}</span>
 				{
 					text_match.matches.map((currentMatch, currentIndex, allMatches)=> {
 						const startOfNextMatch = currentIndex + 1 == allMatches.length ? text_match.fragment.length : allMatches[currentIndex + 1].indices[0]
 						const endOfThisMatch = currentMatch.indices[1]
 						return	<span>
-								<span style={{fontWeight:'900', fontSize:'1.3em'}}>{currentMatch.text}</span>
+								<span style={{fontWeight:'900', fontSize:'16px'}}>{currentMatch.text}</span>
 								{`${text_match.fragment.slice(
 									endOfThisMatch,
 									startOfNextMatch
@@ -37,17 +37,15 @@ class SearchResultList extends Component {
 							</span>
 					})
 				}
-			</p>
+			</Fragment>
 		))
 	}
 
 	render() {
-		const {selectCB} = this.props
-
 		return (
-			<PanelGroup accordion id="accordion-example">
+			<ListGroup>
 				{this.showResultList(this.props.results)}
-			</PanelGroup>
+			</ListGroup>
 		)
 	}
 }

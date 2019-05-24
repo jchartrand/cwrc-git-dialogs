@@ -11,74 +11,161 @@ if ($ === undefined) {
     window.cwrcQuery = $
 }
 
-//import React, {Component} from 'react'
+import React, {Component} from 'react'
+import ReactDOM from 'react-dom';
+import { Modal, Button } from 'react-bootstrap';
+import cwrcGit from 'cwrc-git-server-client';
 
 import save from "./Save.js"
-import load from './Load.js'
-import authenticate from './authenticate.js'
+import { LoadDialog } from './Load.js'
+import { AuthenticateDialog, authenticate, getUserInfo } from './authenticate.js'
 
-import cwrcGit from 'cwrc-git-server-client'
+let _writer;
+let dialogId;
+let renderId;
 
-// TODO redo as react component
-let state = {
-    userId: undefined,
-    userName: undefined,
-    userUrl: undefined,
-    repo: undefined,
-    path: undefined
-}
+let _userInfo;
+let _repo;
+let _path;
 
-function doGetInfoForAuthenticatedUser() {
-	return cwrcGit.getInfoForAuthenticatedUser()
-		.then((info) => {
-            console.log('github user', info);
-            state.userUrl = info.html_url;
-            state.userName = info.name;
-            state.userId = info.login;
-		}, (errorMessage) => {
-			console.log("in the fail in getInfoAndReposForAuthenticatedUser")
-			var message = (errorMessage == 'login')?`You must first authenticate with Github.`:`Couldn't find anything for that id.  Please try again.`
-			console.log(message)
-		});
+// we need to move dialog show state up so it can be re-opened
+let doShow = true;
+
+function initDialogs(writer) {
+    _writer = writer;
+    dialogId = _writer.getUniqueId('git-dialogs-');
+    renderId = _writer.getUniqueId('git-dialogs-');
+    _writer.dialogManager.getDialogWrapper().append(`<div id=${renderId} />`);
 }
 
 function saveWrap(writer) {
-    authenticate(() => {
-        save.call(this, writer, state)
-    })
+    if (_writer === undefined) {
+        initDialogs(writer)
+    }
+    doShow = true;
+    ReactDOM.render(
+        <GitDialog action="save" isDocLoaded={writer.isDocLoaded}/>,
+        document.querySelector('#'+renderId)
+    );
+    $('#'+dialogId).addClass('cwrc');
 }
 
 function loadWrap(writer, shouldOverwrite = false) {
-    authenticate(() => {
-        if (state.userId) {
-            load.call(this, writer, state, shouldOverwrite)
-        } else {
-            doGetInfoForAuthenticatedUser().then(() => {
-                load.call(this, writer, state, shouldOverwrite)
-            })
-        }
-    })
+    if (_writer === undefined) {
+        initDialogs(writer)
+    }
+    doShow = true;
+    ReactDOM.render(
+        <GitDialog action="load" isDocLoaded={writer.isDocLoaded}/>,
+        document.querySelector('#'+renderId)
+    );
+    $('#'+dialogId).addClass('cwrc');
 }
 
-function getUserInfo() {
-    return {
-        userUrl: state.userUrl,
-        userName: state.userName,
-        userId: state.userId
-    }
+function getUserInfoWrap() {
+    return _userInfo;
 }
 
 function getDocumentURI() {
-    let path = state.path;
+    let path = _path;
     if (path.charAt(0) !== '/') {
         path = '/'+path;
     }
-    return 'https://github.com/'+state.repo+'/blob/master'+path;
+    return 'https://github.com/'+_repo+'/blob/master'+path;
 }
 
-export default {
-	save: saveWrap,
-    load: loadWrap,
-    getUserInfo,
+class GitDialog extends Component {
+    constructor(props) {
+        super(props);
+        this.handleAuthentication = this.handleAuthentication.bind(this);
+        this.handleFileSelect = this.handleFileSelect.bind(this);
+        this.handleFileUpload = this.handleFileUpload.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+        this.state = {
+            user: undefined,
+            repo: undefined,
+            path: undefined,
+            show: true
+        }
+    }
+
+    componentDidMount() {
+        console.log('componentDidMount')
+    }
+
+    componentWillUnmount() {
+        console.log('componentWillUnmount')
+    }
+
+    handleAuthentication(userInfo) {
+        console.log('setting user info', userInfo);
+        _userInfo = userInfo;
+        this.setState({user: userInfo});
+    }
+
+    handleFileSelect(repo, path) {
+        _repo = undefined;
+        _path = undefined;
+		cwrcGit.getDoc(repo, 'master', path)
+			.done((result)=>{
+                _repo = repo;
+                _path = path;
+                this.setState({repo, path});
+                this.handleClose();
+                setTimeout(()=>{
+                    _writer.setDocument(result.doc);
+                }, 50)
+			}).fail((error)=>{
+                console.warn(error);
+                this.setState({repo: undefined, path: undefined});
+			});
+    }
+
+    handleFileUpload(doc) {
+        _repo = undefined;
+        _path = undefined;
+        this.handleClose();
+        setTimeout(()=>{
+            _writer.setDocument(doc);
+        }, 50)
+    }
+
+    handleClose() {
+        doShow = false;
+        this.setState({show: false});
+    }
+
+    render() {
+        const show = doShow;
+        const action = this.props.action;
+        const isDocLoaded = this.props.isDocLoaded;
+        if (this.state.user === undefined) {
+            console.log('need authentication')
+            return (
+                <Modal id={dialogId} show={show} animation={false}>
+                    <AuthenticateDialog onUserAuthentication={this.handleAuthentication} />
+                </Modal>
+            )
+        } else {
+            switch (action) {
+                case 'load':
+                    return (
+                        <Modal id={dialogId} show={show} bsSize="large" animation={false}>
+                            <LoadDialog isDocLoaded={isDocLoaded} user={this.state.user} onFileSelect={this.handleFileSelect} onFileUpload={this.handleFileUpload} handleClose={this.handleClose} />
+                        </Modal>
+                    )
+                case 'save':
+                    console.log('do save');
+                    return null;
+            }
+        }
+    }
+}
+
+export {
+	saveWrap as save,
+    loadWrap as load,
+    authenticate,
+    getUserInfoWrap as getUserInfo,
     getDocumentURI
 }

@@ -85,7 +85,7 @@ class SaveCmp extends Component {
 			saved: false
 		})
 	}
-	componentWillMount() {
+	componentDidMount() {
 		this.resetState()
 	}
 
