@@ -1,11 +1,9 @@
-import React, {Component} from 'react'
-import ReactDOM from 'react-dom';
+import React, {Fragment, Component} from 'react'
 const cwrcGit = require('cwrc-git-server-client');
 import { Modal, Button, FormGroup, Checkbox, ControlLabel, FormControl, HelpBlock} from 'react-bootstrap';
 
 const ErrorModal = ({cancel, error}) => (
-	<Modal
-	show={true}>
+	<Fragment>
 		<Modal.Header>An error occurred</Modal.Header>
 		<Modal.Body>
 			<p>{error}</p>
@@ -16,12 +14,11 @@ const ErrorModal = ({cancel, error}) => (
 				bsStyle="success"
 			>OK</Button>
 		</Modal.Footer>
-	</Modal>
+	</Fragment>
 )
 
 const ConfirmModal = ({cancel, title, body, ok, buttonText}) => (
-	<Modal
-	show={true}>
+	<Fragment>
 		<Modal.Header>{title}</Modal.Header>
 		<Modal.Body>
 			<p>{body}</p>
@@ -35,12 +32,11 @@ const ConfirmModal = ({cancel, title, body, ok, buttonText}) => (
 				bsStyle="success"
 			>{buttonText}</Button>
 		</Modal.Footer>
-	</Modal>
+	</Fragment>
 )
 
 const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handleDescriptionChange}) => (
-	<Modal
-		show={true}>
+	<Fragment>
 		<Modal.Header>Create Repository</Modal.Header>
 		<Modal.Body>
 			<p>This repository doesn't yet exist, would you like to create it?</p>
@@ -68,17 +64,16 @@ const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handl
 				bsStyle="success"
 			>Create</Button>
 		</Modal.Footer>
-	</Modal>
+	</Fragment>
 )
 
 const CheckingModal = () => (
-	<Modal
-		show={true}>
+	<Fragment>
 		<Modal.Header>Checking your respository...</Modal.Header>
 		<Modal.Body>
 			<p></p>
 		</Modal.Body>
-	</Modal>
+	</Fragment>
 )
 
 class VerifyRepo extends Component {

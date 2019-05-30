@@ -120,11 +120,11 @@ class AuthenticateDialog extends Component {
                     <Modal.Body>
                         <p>You must first authenticate through GitHub to allow the CWRC-GitWriter to make calls on your behalf.</p>
                         <p>CWRC does not keep any of your GitHub information. The GitHub token issued by GitHub is not stored on a CWRC server, but is only submitted as a <a href="https://jwt.io/" rel="noopener noreferrer" target="_blank">JSON Web Token</a> for each request you make.</p>
-                        <div>
-                            <Button bsStyle="success" onClick={this.handleClick}>Authenticate with GitHub</Button>
-                        </div>
                         {error ? <h4><Label bsStyle="danger">{error}</Label></h4> : ''}
                     </Modal.Body>
+                    <Modal.Footer>
+                        <Button bsStyle="success" onClick={this.handleClick}>Authenticate with GitHub</Button>
+                    </Modal.Footer>
                 </Fragment>
             )
         }

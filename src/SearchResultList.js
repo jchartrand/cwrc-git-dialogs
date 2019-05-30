@@ -13,7 +13,11 @@ class SearchResultList extends Component {
 					onClick={()=>this.props.selectCB(repoDetails.full_name, result.path)}
 					style={{cursor: "pointer"}}
 				>
-					<div style={{fontSize: '16px', fontWeight:'900'}} class="list-group-item-heading">{repoDetails.full_name}/{result.path}</div>
+					<div
+						style={{fontSize: '16px', fontWeight: '900', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}
+						class="list-group-item-heading"
+						title={header}
+					>{header}</div>
 					{this.highlightedMatches(result)}
 				</ListGroupItem>
 			)

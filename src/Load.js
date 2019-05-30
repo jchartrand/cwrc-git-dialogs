@@ -319,6 +319,4 @@ class LoadDialog extends Component {
 	}
 }
 
-export {
-	LoadDialog
-}
+export default LoadDialog

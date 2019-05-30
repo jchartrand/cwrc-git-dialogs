@@ -1,11 +1,9 @@
-import React, {Component} from 'react'
-import ReactDOM from 'react-dom';
+import React, {Fragment, Component} from 'react'
 const cwrcGit = require('cwrc-git-server-client');
 import { Modal, Button } from 'react-bootstrap';
 
 const ErrorModal = ({cancel, error}) => (
-	<Modal
-		show={true}>
+	<Fragment>
 		<Modal.Header>An error occurred</Modal.Header>
 		<Modal.Body>
 			<p>{error}</p>
@@ -16,12 +14,11 @@ const ErrorModal = ({cancel, error}) => (
 				bsStyle="success"
 			>Ok</Button>
 		</Modal.Footer>
-	</Modal>
+	</Fragment>
 )
 
 const ConfirmModal = ({cancel, title, body, ok}) => (
-	<Modal
-		show={true}>
+	<Fragment>
 		<Modal.Header>{title}</Modal.Header>
 		<Modal.Body>
 			<p>{body}</p>
@@ -35,17 +32,16 @@ const ConfirmModal = ({cancel, title, body, ok}) => (
 				bsStyle="success"
 			>Yes</Button>
 		</Modal.Footer>
-	</Modal>
+	</Fragment>
 )
 
 const CheckingModal = () => (
-	<Modal
-		show={true}>
+	<Fragment>
 		<Modal.Header>Checking your file...</Modal.Header>
 		<Modal.Body>
 			<p></p>
 		</Modal.Body>
-	</Modal>
+	</Fragment>
 )
 
 class SaveToPath extends Component {
@@ -104,8 +100,9 @@ class SaveToPath extends Component {
 	}
 
 	save = () => {
+		const document = this.props.getDocument();
 		this.props.usePR ?
-			cwrcGit.saveAsPullRequest(this.props.repo, this.props.path, this.props.content, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
+			cwrcGit.saveAsPullRequest(this.props.repo, this.props.path, document, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
 				(result) => this.complete(),
 				(error) => {
 					if (error.statusText === 'Internal Server Error') {
@@ -114,7 +111,7 @@ class SaveToPath extends Component {
 					this.displayError(error)
 				}
 			) :
-			cwrcGit.saveDoc(this.props.repo, this.props.path, this.props.content, this.state.branch, this.state.commitMessage).then(
+			cwrcGit.saveDoc(this.props.repo, this.props.path, document, this.state.branch, this.state.commitMessage).then(
 				(result) => this.complete(),
 				(error) => {
 					if (error.statusText === 'Not Found') {
@@ -155,20 +152,5 @@ class SaveToPath extends Component {
 		}
 	}
 }
-
-/*function saveToPath(userName, repoName, path, content, message) {
-	return new Promise((resolve, reject)=> {
-		const component = ReactDOM.render(
-			<SaveToPathCmp
-				promiseResolve={resolve}
-				promiseReject={reject}
-				userName={userName}
-				repoName={repoName}
-				path={path}
-				message={message}
-				content={content}/>,
-			document.getElementById('file-verify'))
-	})
-}*/
 
 export default SaveToPath
