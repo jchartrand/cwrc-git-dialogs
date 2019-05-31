@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { Pagination} from 'react-bootstrap';
+import {Pagination} from 'react-bootstrap';
 import ReactDOM from 'react-dom';
 
 class Paginator extends Component {
@@ -8,17 +8,17 @@ class Paginator extends Component {
 		return Array(end - start + 1).fill().map((_, idx) => start + idx)
 	}
 
-	getPageItem(page, currentPage, pagingCB, resultComponent) {
+	getPageItem(page, currentPage, pagingCB) {
 		return <Pagination.Item
 			key={page}
-			onClick={()=>page != currentPage && pagingCB(page, resultComponent)}
+			onClick={()=>page != currentPage && pagingCB(page)}
 			data-page={page}
 			active={page===currentPage}>
 				{page}
 			</Pagination.Item>
 	}
 
-	addLinks(currentPage, lastPage, pagingCB, resultComponent) {
+	addLinks(currentPage, lastPage, pagingCB) {
 		const delta = 2
 		const spaceOnEnd = lastPage - currentPage
 		let portionofDeltaAvailableOnEnd = (spaceOnEnd >= delta)?delta:spaceOnEnd
@@ -34,17 +34,17 @@ class Paginator extends Component {
 		let endPage = Math.min(currentPage + totalDeltaForEnd, lastPage)
 
 		let pagesToShow = this.range(startPage, endPage)
-		return pagesToShow.map(page=>this.getPageItem(page, currentPage, pagingCB, resultComponent))
+		return pagesToShow.map(page=>this.getPageItem(page, currentPage, pagingCB))
 	}
 
 
 	render() {
-		const {lastPage, currentPage, pagingCB, resultComponent} = this.props
+		const {lastPage, currentPage, pagingCB} = this.props
 		return (
 			<Pagination>
-					<Pagination.Prev onClick={()=>currentPage > 1 && pagingCB(currentPage-1, resultComponent)} disabled={currentPage == 1}/>
-					{this.addLinks(currentPage, lastPage, pagingCB, resultComponent)}
-					<Pagination.Next onClick={()=>currentPage != lastPage && pagingCB(currentPage+1, resultComponent)} disabled={currentPage == lastPage}/>
+					<Pagination.Prev onClick={()=>currentPage > 1 && pagingCB(currentPage-1)} disabled={currentPage == 1}/>
+					{this.addLinks(currentPage, lastPage, pagingCB)}
+					<Pagination.Next onClick={()=>currentPage != lastPage && pagingCB(currentPage+1)} disabled={currentPage == lastPage}/>
 			</Pagination>)
 	}
 }
@@ -53,4 +53,4 @@ function showPagination(targetElement, currentPage, lastPage, pagingCallback, re
 	ReactDOM.render(<Paginator pagingCB={pagingCallback} lastPage={lastPage} currentPage={currentPage} resultComponent={reactResultComponentReference}/>, document.getElementById(targetElement))
 }
 
-export default showPagination
+export default Paginator

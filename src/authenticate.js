@@ -10,50 +10,130 @@ if ($ === undefined) {
     window.cwrcQuery = $
 }
 
-var Cookies = require('js-cookie');
+let Cookies = require('js-cookie');
 
-function authenticate() {
+import cwrcGit from 'cwrc-git-server-client';
 
-	if (Cookies.get('cwrc-token')) {
-		return true
-	} else {
-		$(document.body).append($.parseHTML(
-			`<div id="githubAuthenticateModal" class="modal" style="display: block;">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div id="menu" class="modal-body">
-                            <div style="margin-bottom:2em">
-                                <h4 id="gh-modal-title' class="modal-title" style="text-align:center">Authenticate with GitHub</h4>
-                            </div>
-                            <div style="margin-top:1em">
-                                <div id="cwrc-message" style="margin-top:1em">
-                                    <p>You must first authenticate through GitHub to allow the CWRC-GitWriter 
-                                    to make calls on your behalf.</p><p>CWRC does not keep any of your GitHub 
-                                    information.  The GitHub token issued by GitHub is not stored on a CWRC server, 
-                                    but is only submitted as a <a href="https://jwt.io/" rel="noopener noreferrer" target="_blank">JSON Web Token</a> 
-                                    for each request you make.</p>
-                                </div>
-                            </div>
-                            <div style="text-align:center;margin-top:3em;margin-bottom:3em" id="git-oath-btn-grp">
-                                <div class="input-group" >
-                                    <div class="input-group-btn" >
-                                        <button type="button" id="git-oauth-btn" class="btn btn-success">Authenticate with GitHub</button>
-                                    </div>
-                                </div> <!--input group -->
-                            </div>
-                        </div><!-- /.modal-body --> 
-                    </div><!-- /.modal-content -->
-                </div><!-- /.modal-dialog -->
-            </div><!-- /.modal -->`
-		));
+import React, {Component, Fragment} from 'react'
+import { Modal, Button, Label } from 'react-bootstrap';
 
-		$('#git-oauth-btn').click(function(event){
-			window.location.href = "/github/authenticate";
-		});
+const authenticateURL = 'http://localhost:3000/github/authenticate';
 
-		return false
-	}
-
+function isAuthenticated() {
+    return Cookies.get('cwrc-token') !== undefined;
 }
 
-export default authenticate
+function authenticate() {
+	if (isAuthenticated()) {
+        console.log('already have token')
+        return getUserInfo();
+	} else {
+        return doAuthenticate();
+	}
+}
+
+function doAuthenticate() {
+    let dfd = $.Deferred();
+
+    $.ajax({
+        url: authenticateURL,
+        dataType: 'jsonp'
+    }).always(() => {
+        console.log('got token')
+        getUserInfo().then((user) => {
+            dfd.resolve(user);
+        }, (error) => {
+            dfd.reject(error);
+        })
+    })
+
+    return dfd.promise();
+}
+
+function getUserInfo() {
+    let dfd = $.Deferred();
+
+    cwrcGit.getInfoForAuthenticatedUser()
+        .then((info) => {
+            let user = {
+                userUrl: info.html_url,
+                userName: info.name,
+                userId: info.login
+            }
+            console.log('got user info', user);
+            dfd.resolve(user);
+        }, (error) => {
+            console.warn('error getting user info', error)
+            var message = (error === 'login') ? "You must first sign in to GitHub." : "Couldn't find anything for that user ID. Please try again."
+            dfd.reject(message);
+        });
+    
+    return dfd.promise();
+}
+
+class AuthenticateDialog extends Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+        this.state = {
+            authenticating: false,
+            error: undefined,
+            user: undefined
+        }
+    }
+
+    handleClick() {
+        this.setState({authenticating: true});
+        authenticate()
+            .then((user) => {
+                this.setState({authenticating: false, error: undefined, user})
+                this.props.onUserAuthentication(user);
+            }, (error) => {
+                this.setState({authenticating: false, error})
+            })
+    }
+
+    componentDidMount() {
+        if (isAuthenticated() && this.state.user === undefined) {
+            // trigger the click in order to fetch user info
+            this.handleClick();
+        }
+    }
+
+    render() {
+        const authenticating = this.state.authenticating;
+        const error = this.state.error;
+
+        if (authenticating) {
+            return (
+                <Fragment>
+                    <Modal.Header>Authenticate with GitHub</Modal.Header>
+                    <Modal.Body>
+                        <p>Authenticating...</p>
+                    </Modal.Body>
+                </Fragment>
+            )
+        } else {
+            return (
+                <Fragment>
+                    <Modal.Header>Authenticate with GitHub</Modal.Header>
+                    <Modal.Body>
+                        <p>You must first authenticate through GitHub to allow CWRC-Writer to make calls on your behalf.</p>
+                        <p>CWRC does not keep any of your GitHub information. The GitHub token issued by GitHub is not stored on a CWRC server, but is only submitted as a <a href="https://jwt.io/" rel="noopener noreferrer" target="_blank">JSON Web Token</a> for each request you make.</p>
+                        {error ? <h4><Label bsStyle="danger">{error}</Label></h4> : ''}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button bsStyle="success" onClick={this.handleClick}>Authenticate with GitHub</Button>
+                    </Modal.Footer>
+                </Fragment>
+            )
+        }
+    }
+}
+
+export {
+    AuthenticateDialog,
+    isAuthenticated,
+    authenticate,
+    getUserInfo
+}

@@ -10,54 +10,62 @@ if ($ === undefined) {
     window.cwrcQuery = $
 }
 
-import initializeReactResultComponent from "./ResultList.js";
-import initializeFileUploadComponent from "./FileUpload.js";
-import showPagination from "./Paginator.js";
-import showExistingDocModal from "./ExistingDocModal.js";
-import authenticate from './authenticate.js'
+import React, {Component, Fragment} from 'react'
+import { Modal, Button, Tabs, Tab, Well, Grid, Row, Col, PanelGroup, Panel, ListGroup, ListGroupItem, ToggleButtonGroup, ToggleButton, ControlLabel, FormControl, Glyphicon } from 'react-bootstrap';
+import parseLinks from 'parse-link-header';
+import cwrcGit from 'cwrc-git-server-client';
 
-var Cookies = require('js-cookie');
-const parseLinks = require('parse-link-header');
-var cwrcGit = require('cwrc-git-server-client');
+import RepoResultList from "./RepoResultList.js";
+import SearchResultList from "./SearchResultList.js";
+import FileUpload from "./FileUpload.js";
+import Paginator from "./Paginator.js";
+import SearchInput from "./SearchInput.js";
 
-function loadIntoWriter(writer, xmlDoc) {
-	writer.loadDocumentXML(xmlDoc);
-}
-function setDocInEditor(writer, doc) {
-	var xmlDoc = $.parseXML(doc);
-	loadIntoWriter(writer, xmlDoc);
-}
+const RESULTS_PER_PAGE = 10;
 
-function setBlankDocumentInEditor(writer) {
-	loadTemplate(writer, 'TEI blank template.xml')
-}
-
-function loadTemplate(writer, templateName) {
-	cwrcGit.getTemplate(templateName)
-		.done(function( result ) {
-			loadIntoWriter(writer, result);
-		}).fail(function(errorMessage) {
-			console.log("in the getTemplate fail");
-			console.log(errorMessage);
+function getReposForGithubUser(user, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
+	let dfd = $.Deferred();
+	cwrcGit.getReposForGithubUser(user, requestedPage, resultsPerPage).then((results)=>{
+		dfd.resolve({
+			items: results.data,
+			lastPage: getLastPage(results, requestedPage)
 		});
+	}, (fail)=>{
+		dfd.reject(fail);
+	})
+	return dfd.promise();
 }
 
-function isCurrentDocValid(writer) {
-	return writer && writer.getDocRawContent && writer.getDocRawContent().includes('_tag')
-}
-function loadDoc(writer, repo, path) {
-	return cwrcGit.getDoc(repo, 'master', path)
-		.done(function( result ) {
-			setDocInEditor(writer, result.doc)
-			writer.repoName = repo;
-			writer.filePathInGithub = path;
-		}).fail(function(errorMessage) {
-			console.log("in the getDoc fail");
-			console.log(errorMessage);
+function getReposForAuthenticatedGithubUser(requestedPage, affiliation='owner', resultsPerPage=RESULTS_PER_PAGE) {
+	let dfd = $.Deferred();
+	cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, resultsPerPage, affiliation).then((results)=>{
+		dfd.resolve({
+			items: results.data,
+			lastPage: getLastPage(results, requestedPage)
 		});
+	}, (fail)=>{
+		dfd.reject(fail);
+	})
+	return dfd.promise();
 }
 
-function displayPaging(pagingContainerId, results, requestedPage, pagingCB, reactResultComponentReference) {
+function getSearchResults(gitName, searchTerms, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
+	let dfd = $.Deferred();
+	let queryString = 'language:xml ';
+	if (searchTerms) queryString += '"' + searchTerms + '" ';
+	if (gitName) queryString += "user:" + gitName;
+	cwrcGit.search(queryString, resultsPerPage, requestedPage).then((results)=>{
+		dfd.resolve({
+			items: results.data.items,
+			lastPage: getLastPage(results, requestedPage)
+		});
+	}, (fail)=>{
+		dfd.reject(fail);
+	});
+	return dfd.promise();
+}
+
+function getLastPage(results, requestedPage) {
 	var lastPage;
 	if (results.meta.link) {
 		const relLinks = parseLinks(results.meta.link);
@@ -65,341 +73,250 @@ function displayPaging(pagingContainerId, results, requestedPage, pagingCB, reac
 	} else {
 		lastPage = requestedPage
 	}
-	showPagination(pagingContainerId, requestedPage, lastPage, pagingCB, reactResultComponentReference)
+	return lastPage;
 }
 
-function fileSelectCB(writer, repo, path){
-	loadDoc(writer, repo, path);
-	$('#githubLoadModal').modal('hide');
-}
+class LoadDialog extends Component {
+	constructor(props) {
+		super(props);
 
-function fileCB(writer, textContents){
-	loadIntoWriter(writer, textContents)
-	$('#githubLoadModal').modal('hide');
-}
+		this.handleTabSelect = this.handleTabSelect.bind(this);
+		this.handleRepoTypeSelect = this.handleRepoTypeSelect.bind(this);
+		this.handleAffiliationSelect = this.handleAffiliationSelect.bind(this);
+		this.doSearch = this.doSearch.bind(this);
+		this.handleSearchClear = this.handleSearchClear.bind(this);
+		this.handleSearchChange = this.handleSearchChange.bind(this);
+		this.getRepos = this.getRepos.bind(this);
 
-function getInfoForAuthenticatedUser(writer) {
-	cwrcGit.getInfoForAuthenticatedUser()
-		.then((info) => {
-			writer.githubUser = info
-			$('#private-tab').text(`${writer.githubUser.login} repositories`)
-		}, (errorMessage) => {
-			console.log("in the fail in getInfoAndReposForAuthenticatedUser")
-			var message = (errorMessage == 'login')?`You must first authenticate with Github.`:`Couldn't find anything for that id.  Please try again.`
-			console.log(message)
-			$('#cwrc-message').text(message).show()
-		});
-}
+		this.state = {
+			activeTab: undefined,
+			loading: false,
+			error: '',
+			
+			isSearch: false,
+			searchFilter: '',
+			query: undefined,
 
-function createTargetElement(writer, elementName) {
-	if ($(`#${elementName}`).length == 0) {
-		$(writer.dialogManager.getDialogWrapper()).append(`<div id="${elementName}"/>`)
+			repoType: 'private',
+			privateReposAffiliation: 'owner',
+
+			results: undefined,
+			currentPage: 1,
+			lastPage: 1,
+
+			templates: undefined
+		}
 	}
-}
 
-function initializePrivatePanel(writer) {
-	createTargetElement(writer, 'github-private-doc-list')
-	const resultListComponent = initializeReactResultComponent('github-private-doc-list', fileSelectCB.bind(null, writer));
-	getInfoForAuthenticatedUser(writer);
-	showReposForAuthenticatedUser(writer,'private-pagination', 1, resultListComponent, 'owner')
+	componentWillMount() {
+		this.handleTabSelect('templates');
+	}
 
-	$('#private-repo-owner').prop('checked', true);
-
-	$('#github-private-form').submit(function(event){
-		event.preventDefault();
-		var privateSearchTerms = $('#private-search-terms').val();
-		showSearchResults(writer, writer.githubUser.login, privateSearchTerms, 'private-pagination', 1, resultListComponent);
-	});
-
-	$('#private-repo-owner, #private-repo-collaborator, #private-repo-member').change(function() {
-		let affiliation = $('input[name=repo-filter]:checked').val();
-		showReposForAuthenticatedUser(writer, 'private-pagination', 1, resultListComponent, affiliation)
-	})
-}
-
-function initializePublicPanel(writer) {
-	createTargetElement(writer, 'github-public-doc-list')
-	const resultListComponent = initializeReactResultComponent('github-public-doc-list', fileSelectCB.bind(null, writer));
-	$('#github-public-form').submit(function(event){
-		event.preventDefault();
-		var gitName = $('#git-user').val();
-		var publicSearchTerms = $('#public-search-terms').val();
-		if (gitName && !publicSearchTerms) {
-			showReposForGithubUser(writer, gitName, 'public-pagination', 1, resultListComponent)
-		} else {
-			showSearchResults(writer, gitName, publicSearchTerms, 'public-pagination', 1, resultListComponent);
+	handleTabSelect(key) {
+		this.setState({activeTab: key, loading: false});
+		switch(key) {
+			case 'repos':
+				if (this.state.results === undefined) {
+					this.getRepos();
+				}
+				break;
+			case 'templates':
+				if (this.state.templates === undefined) {
+					this.setState({loading: true});
+					cwrcGit.getTemplates().then((templates)=>{
+						this.setState({templates, loading: false})
+					}, (fail)=>{
+						this.setState({error: fail.responseText})
+					})
+				}
+				break;
 		}
-	});
-}
+	}
 
-function initializeUploadPanel(writer) {
-	createTargetElement(writer, 'github-upload-form')
-	const uploadComponent = initializeFileUploadComponent('github-upload-form', fileCB.bind(null, writer));
-}
-
-function showReposForAuthenticatedUser(writer, pagingContainerId, requestedPage, resultComponent, affiliation) {
-	cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, 20, affiliation).then(results=>{
-		const pagingCB = (requestedPage, resultComponent)=>showReposForAuthenticatedUser(writer, 'private-pagination', requestedPage, resultComponent, affiliation)
-		populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, resultComponent)
-	})
-}
-
-function showReposForGithubUser(writer, user, pagingContainerId, requestedPage, resultComponent) {
-	cwrcGit.getReposForGithubUser(user, requestedPage, 20).then(results=>{
-		const pagingCB = (requestedPage, resultComponent)=>showReposForGithubUser(writer, user, 'public-pagination', requestedPage, resultComponent)
-		populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, resultComponent)
-	})
-}
-
-function populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, reactResultComponentReference) {
-	$('#cwrc-message').hide();
-	reactResultComponentReference.updateList(results)
-	if (pagingContainerId) displayPaging(pagingContainerId, results, requestedPage, pagingCB, reactResultComponentReference)
-}
-
-function showSearchResults(writer, gitName, searchTerms, pagingContainerId, requestedPage, resultComponent) {
-	// var queryString = cwrcAppName;
-	var queryString = 'language:xml ';
-	if (searchTerms) queryString += '"' + searchTerms + '" ';
-	if (gitName) queryString += "user:" + gitName;
-	const pagingCB = (requestedPage)=>showSearchResults(writer, gitName, searchTerms, pagingContainerId, requestedPage, resultComponent)
-	cwrcGit.search(queryString, 20, requestedPage)
-		.done(function (results) {
-			populateResultList(writer, results, requestedPage, pagingContainerId, pagingCB, resultComponent)
-		}).fail(function(errorMessage) {
-		console.log('in the fail of the call to search in showRepos')
-		$('#cwrc-message').text(`Couldn't find anything for your query.  Please try again.`).show()
-	})
-}
-
-function showTemplates(writer) {
-	cwrcGit.getTemplates()
-		.done(function( templates ) {
-			populateTemplateList(writer, templates, '#template-list')
-		}).fail(function(errorMessage) {
-		$('#cwrc-message').text(`Couldn't find the templates. Please check your connection or try again.`).show();
-	});
-}
-
-function populateTemplateList(writer, templates, listGroupId) {
-	$(function () {
-		const listContainer = $(listGroupId);
-		listContainer.empty()
-
-		for (let template of templates) {
-			listContainer.prepend(`
-                <a id="gh_${template.name}" href="#" data-template="${template.name}" class="list-group-item git-repo">
-                    <h4 class="list-group-item-heading">${template.name}</h4>
-                </a>`);
-		}
-
-		$('#cwrc-message').hide();
-
-		$(`${listGroupId} .list-group-item`).on('click', function() {
-			var $this = $(this);
-			var $templateName = $this.data('template');
-			loadTemplate(writer, $templateName);
-
-			$('#githubLoadModal').modal('hide');
-		});
-
-	});
-}
-
-
-
-function showLoadModal(writer) {
-	if ($('#githubLoadModal').length) {
-		$('#githubLoadModal').modal('show');
-	} else {
-		var el = writer.dialogManager.getDialogWrapper();
-		$(el).append($.parseHTML(
-			`<div id="githubLoadModal" class="modal fade">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-     
-                    <div id="menu" class="modal-body">
-                        <div style="margin-bottom:2em">
-                              <button id="close-load-btn" type="button" class="close"  aria-hidden="true" style="float:right"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-                           <h4 id="gh-modal-title' class="modal-title" style="text-align:center">Load From a Github Repository</h4>
-                        </div>
-                        <div style="margin-top:1em">
-                            <div id="cwrc-message" class="text-warning" style="margin-top:1em">some text</div>
-                        </div>
-
-
-                            <!-- Nav tabs -->
-                        <ul class="nav nav-tabs" role="tablist">
-                          <li class="nav-item">
-                            <a class="nav-link active" id="private-tab" data-toggle="tab" href="#private" role="tab">My Documents</a>
-                          </li>
-                          <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#public" role="tab">Search all public CWRC Github documents</a>
-                          </li>
-                          <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#templates" role="tab">CWRC Templates</a>
-                          </li>
-                          <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#upload" role="tab">Load File or Text</a>
-                          </li>
-                          
-                        </ul>
-
-                        <!-- Tab panes -->
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="private" role="tabpanel">
-                                <form role="search" id="github-private-form">
-                                    <div class="row" style="margin-top:1em">
-                                        <div class="col-xs-4">   
-                                            <div class="input-group">
-                                                <input type="text" class="form-control input-md" id="private-search-terms" name="private-search-terms"
-                                                       placeholder="Search your documents"/>
-                                                <span class="input-group-btn">
-                                                    <button type="submit" value="Submit" class="btn btn-default"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;</button>
-                                                </span>
-                                            </div>  
-                                        </div>
-                                        <div class="col-xs-4">
-                                        	
-                                        </div>
-                                        <div class="col-xs-4">
-                                            <!--button id="open-new-doc-btn" href="#github-new-form"  class="btn btn-default"  style="float:right" data-toggle="collapse" >Blank Document</button-->
-                                            <button id="blank-doc-btn" class="btn btn-default"  style="float:right" >Blank Document</button>
-                                        </div>
-                                    </div>
-                                    <div style="margin-top:1em">
-	                                    <label style="padding-right:1em">Show repositories for which I am: </label>
-                                        <label class="radio-inline">
-                                            <input type="radio" id="private-repo-owner" name="repo-filter" value="owner"/> Owner
-										</label>
-										<label class="radio-inline">
-                                            <input type="radio" id="private-repo-collaborator" name="repo-filter" value="collaborator"/> Collaborator
-										</label>
-										<label class="radio-inline">
-                                            <input type="radio" id="private-repo-member" name="repo-filter" value="organization_member"/> Organization Member
-										</label>
-									</div>
-                                </form>
-                          
-                                <div id="github-private-doc-list" class="list-group" style="padding-left:4em;padding-right:4em;padding-top:1em;padding-bottom:3em"></div>
-                                <div id="private-pagination" style="text-align:center"/>
-                            </div><!-- /tab-pane -->
-                            
-                            <!-- PUBLIC REPOS PANE -->
-                            <div class="tab-pane" id="public" role="tabpanel">
-                                
-                                    <form role="search" id="github-public-form">
-                                      <div class="row" style="margin-top:1em">
-                                            <div class="col-xs-4">   
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control input-md" id="public-search-terms" name="public-search-terms"
-                                                           placeholder="Search"/>
-                                                    <span class="input-group-btn">
-                                                        <button type="submit" value="Submit" class="btn btn-default"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;</button>
-                                                    </span>
-                                                </div>  
-                                            </div>
-                                            <div class="col-xs-4">
-                                                <!--div class="input-group">
-                                                    <input type="text" class="form-control input-md" id="public-topic-terms" name="public-topic-terms"
-                                                           placeholder="Filter by GitHub topic"/>
-                                                    <span class="input-group-btn">
-                                                        <button type="submit" value="Submit" class="btn btn-default"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;</button>
-                                                    </span>
-                                                </div-->  
-                                            </div>
-                                            <div class="col-xs-4">
-                                                <div class="input-group" >
-                                                    <input id="git-user" type="text" class="form-control" placeholder="Limit to github user or organization" aria-describedby="git-user-addon"/>
-                                                    <div class="input-group-btn" id="git-user-id-addon">
-                                                        <button type="submit" value="Submit" id="new-user-btn" class="btn btn-default"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;</button>
-                                                    </div>
-                                                </div><!-- /input-group -->
-                                            </div>
-                                        </div>
-                                    </form>
-
-                               
-                                <div id="github-public-doc-list" class="list-group" style="padding-top:1em"></div>
-                                <div id="public-pagination" style="text-align:center"/>
-                            </div><!-- /tab-pane -->
-
-                            <!-- TEMPLATES PANE -->
-                            <div class="tab-pane" id="templates" role="tabpanel">
-                            
-                                <div id="template-list" class="list-group" style="padding-top:1em"></div>
-                            </div><!-- /tab-pane -->                     
-
-							 <!-- UPLOAD PANE -->
-                            <div class="tab-pane" id="upload" role="tabpanel">
-                                <div id="github-upload-form" class="list-group" style="padding-top:1em"></div>
-                            </div><!-- /tab-pane -->  
-                            
-                        </div> <!-- /tab-content -->
-                    </div><!-- /.modal-body -->
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" id="cancel-load-btn">Cancel</button>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->`));
-
-		// enable popover functionality - bootstrap requires explicit enabling
-		$(function () {
-			$('[data-toggle="popover"]').popover()
-		});
-
-		$('#close-load-btn').add('#cancel-load-btn').click(function (event) {
-			// if the load popup window has been triggered then don't allow it to close unless we have
-			// a valid document in the editor.
-			if (isCurrentDocValid(writer)) {
-				$('#githubLoadModal').modal('hide');
-			} else {
-				$('#cwrc-message').text('You must either load a document from GitHub or choose "Blank Document"').show()
+	handleRepoTypeSelect(key) {
+		if (key !== null) {
+			this.setState({repoType: key, isSearch: false});
+			if (key === 'private') {
+				setTimeout(()=>{
+					this.getRepos();
+				});
 			}
+		}
+	}
+
+	handleAffiliationSelect(value) {
+		this.setState({privateReposAffiliation: value, isSearch: false});
+		setTimeout(()=>{
+			this.getRepos();
 		});
+	}
 
-		$('#blank-doc-btn').click(function (event) {
-			$('#githubLoadModal').modal('hide');
-			setBlankDocumentInEditor(writer);
-		});
+	doSearch(pageNum, value=this.state.query) {
+		this.setState({loading: true, error: '', isSearch: true, query: value});
+		let promise;
+		if (this.state.repoType === 'private') {
+			promise = getSearchResults(this.props.user.userId, value, pageNum)
+		} else {
+			let filter = this.filterInput.value;
+			if (filter && !value) {
+				this.setState({isSearch: false});
+				promise = getReposForGithubUser(filter, pageNum);
+			} else {
+				promise = getSearchResults(filter, value, pageNum);
+			}
+		}
+		promise.then((result)=>{
+			this.setState({loading: false, results: result.items, currentPage: pageNum, lastPage: result.lastPage})
+		},(fail)=>{
+			this.setState({loading: false, error: fail.responseText})
+		})
+	}
 
-		$('#github-new-form').submit(function (event) {
-			event.preventDefault();
-			var repoName = $('#git-doc-name').val();
-			var repoDesc = $('#git-doc-description').val();
-			var isPrivate = $('#git-doc-private').checked;
-			$('#githubLoadModal').modal('hide');
-			createRepoWithBlankDoc(writer, repoName, repoDesc, isPrivate);
-		});
+	handleSearchChange(value) {
+		this.setState({query: value});
+	}
 
-		initializePrivatePanel(writer);
+	handleSearchClear() {
+		this.setState({isSearch: false});
+		setTimeout(()=>{
+			this.getRepos();
+		})
+	}
 
-		initializePublicPanel(writer);
+	getRepos(pageNum=1) {
+		this.setState({loading: true, error: ''});
+		let promise;
+		if (this.state.repoType === 'public') {
+			let filter = this.filterInput.value;
+			if (filter !== '') {
+				promise = getReposForGithubUser(filter, pageNum);
+			} else {
+				this.setState({loading: false});
+				return false;
+			}
+		} else {
+			promise = getReposForAuthenticatedGithubUser(pageNum, this.state.privateReposAffiliation);
+		}
+		promise.then((result)=>{
+			this.setState({loading: false, results: result.items, currentPage: pageNum, lastPage: result.lastPage})
+		},(fail)=>{
+			this.setState({loading: false, error: fail.responseText})
+		})
+	}	
 
-		initializeUploadPanel(writer);
+	render() {
+		const isDocLoaded = this.props.isDocLoaded;
+		const user = this.props.user;
+		const onFileSelect = this.props.onFileSelect;
+		const onFileUpload = this.props.onFileUpload;
+		const handleClose = this.props.handleClose;
+		const loading = this.state.loading;
+		const isSearch = this.state.isSearch;
+		const error = this.state.error;
+		const results = this.state.results || [];
+		const templates = (this.state.templates || []).map((item, key)=>(
+			<ListGroupItem key={key} onClick={onFileUpload.bind(this, item.download_url)}>{item.name.replace(/.xml$/, '')}</ListGroupItem>
+		));
+		return (
+			<Fragment>
+				<Modal.Header closeButton={isDocLoaded} onHide={handleClose}>Load a Document</Modal.Header>
+				<Modal.Body>
+					<Tabs
+						id="git-dialogs-tabs"
+						animation={false}
+						activeKey={this.state.activeTab}
+						onSelect={this.handleTabSelect}
+					>
+						<Tab eventKey="templates" title="CWRC Templates" style={{marginTop: "10px"}}>
+						{loading ?
+							<Well><h5><Glyphicon glyph="cloud-download" style={{padding: '10px'}}/>Loading...</h5></Well>
+							:
+							(error !== '' ?
+								<Well><h5>Error!</h5><p>{error}</p></Well>
+								:
+								<Well bsSize="small">
+									<ListGroup>{templates}</ListGroup>
+								</Well>
+							)
+						}
+						</Tab>
 
-		showTemplates(writer);
-
-		$('#open-new-doc-btn').show();
-		$('#cwrc-message').hide();
-		$('#private-tab').tab('show')
-		$('#githubLoadModal').modal({backdrop: 'static', keyboard: false}).on('hidden.bs.modal', function () {
-			$(this).data('bs.modal', null);
-			$(this).remove()
-			$(".modal-backdrop").remove();
-		});
-
-		var data = $('#githubLoadModal').data('bs.modal');
-		data.$backdrop.detach().appendTo(el);
+						<Tab eventKey="repos" title={'GitHub Repositories'} style={{marginTop: "10px"}}>
+							<Grid fluid={true} style={{marginBottom: "10px"}}>
+								<Row>
+									<Col sm={5}>
+										<h4>Search</h4>
+										<PanelGroup accordion id="git-dialogs-repoPanelGroup" activeKey={this.state.repoType} onSelect={this.handleRepoTypeSelect}>
+											<Panel eventKey="private">
+												<Panel.Heading>
+													<Panel.Title toggle>My Repositories</Panel.Title>
+												</Panel.Heading>
+												<Panel.Collapse>
+													<Panel.Body>
+														<ControlLabel>Show repositories for which I am:</ControlLabel>
+														<ToggleButtonGroup type="radio" name="affiliation" defaultValue="owner"> { /* can't use onChange because of bootstrap js conflict https://github.com/react-bootstrap/react-bootstrap/issues/2774 */ }
+															<ToggleButton bsSize="small" value="owner" onClick={this.handleAffiliationSelect.bind(this, 'owner')}>Owner</ToggleButton>
+															<ToggleButton bsSize="small" value="collaborator" onClick={this.handleAffiliationSelect.bind(this, 'collaborator')}>Collaborator</ToggleButton>
+															<ToggleButton bsSize="small" value="organization_member" onClick={this.handleAffiliationSelect.bind(this, 'organization_member')}>Organization Member</ToggleButton>
+														</ToggleButtonGroup>
+													</Panel.Body>
+												</Panel.Collapse>
+											</Panel>
+											<Panel eventKey="public">
+												<Panel.Heading>
+													<Panel.Title toggle>Public Repositories</Panel.Title>
+												</Panel.Heading>
+												<Panel.Collapse>
+													<Panel.Body>
+														<ControlLabel>Limit to user or organization:</ControlLabel>
+														<FormControl type="text" inputRef={(ref)=>{this.filterInput = ref}} onKeyPress={(event)=>{if (event.charCode === 13) this.getRepos(1);}} />
+														<Button onClick={()=>{this.getRepos(1)}} style={{marginTop: '10px'}}>Search</Button>
+													</Panel.Body>
+												</Panel.Collapse>
+											</Panel>
+										</PanelGroup>
+										<SearchInput placeholder="Search within repositories" style={{marginTop: '10px'}} onChange={this.handleSearchChange} onSearch={(value)=>{this.doSearch(1,value)}} onClear={this.handleSearchClear} />
+									</Col>
+									<Col sm={7}>
+										<h4>Results</h4>
+										{loading ?
+											<Well><h5><Glyphicon glyph="cloud-download" style={{padding: '10px'}}/>Loading...</h5></Well>
+											:
+											(error !== '' ?
+												<Well><h5>Error!</h5><p>{error}</p></Well>
+												:
+												(results.length === 0 ?
+													<Well><h5>No results</h5></Well>
+													:
+													(isSearch ? 
+														<Well bsSize="small">
+															<SearchResultList selectCB={onFileSelect} results={results} />
+															<Paginator pagingCB={this.doSearch} currentPage={this.state.currentPage} lastPage={this.state.lastPage} />
+														</Well>
+														: 
+														<Well bsSize="small">
+															<RepoResultList selectCB={onFileSelect} repos={results} />
+															<Paginator pagingCB={this.getRepos} currentPage={this.state.currentPage} lastPage={this.state.lastPage} />
+														</Well>
+													)
+												)
+											)
+										}
+									</Col>
+								</Row>
+							</Grid>
+						</Tab>
+						<Tab eventKey="upload" title="Upload File or Text" style={{marginTop: "10px"}}>
+							<FileUpload fileCB={onFileUpload} />
+						</Tab>
+					</Tabs>
+				</Modal.Body>
+				<Modal.Footer>
+					{isDocLoaded ? <Button onClick={handleClose}>Cancel</Button> : ''}
+				</Modal.Footer>
+			</Fragment>
+		)
 	}
 }
 
-
-function load(writer, shouldOverwrite = false) {
-	if (authenticate()) {
-		(shouldOverwrite || ! writer.isDocLoaded)? showLoadModal(writer) : showExistingDocModal(writer)
-	}
-}
-
-export default load
+export default LoadDialog

@@ -1,11 +1,9 @@
-import React, {Component} from 'react'
-import ReactDOM from 'react-dom';
+import React, {Fragment, Component} from 'react'
 const cwrcGit = require('cwrc-git-server-client');
 import { Modal, Button, FormGroup, Checkbox, ControlLabel, FormControl, HelpBlock} from 'react-bootstrap';
 
 const ErrorModal = ({cancel, error}) => (
-	<Modal
-	show={true}>
+	<Fragment>
 		<Modal.Header>An error occurred</Modal.Header>
 		<Modal.Body>
 			<p>{error}</p>
@@ -14,20 +12,20 @@ const ErrorModal = ({cancel, error}) => (
 			<Button
 				onClick={cancel}
 				bsStyle="success"
-			>OK</Button>
+			>Ok</Button>
 		</Modal.Footer>
-	</Modal>
+	</Fragment>
 )
 
 const ConfirmModal = ({cancel, title, body, ok, buttonText}) => (
-	<Modal
-	show={true}>
-		<Modal.Header>{title}</Modal.Header>
+	<Fragment>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
+			<h4>{title}</h4>
 			<p>{body}</p>
 		</Modal.Body>
 		<Modal.Footer>
-			<Button onClick={cancel} bsStyle="danger">
+			<Button onClick={cancel}>
 				Cancel
 			</Button>
 			<Button
@@ -35,14 +33,14 @@ const ConfirmModal = ({cancel, title, body, ok, buttonText}) => (
 				bsStyle="success"
 			>{buttonText}</Button>
 		</Modal.Footer>
-	</Modal>
+	</Fragment>
 )
 
 const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handleDescriptionChange}) => (
-	<Modal
-		show={true}>
-		<Modal.Header>Create Repository</Modal.Header>
+	<Fragment>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
+			<h4>Create Repository</h4>
 			<p>This repository doesn't yet exist, would you like to create it?</p>
 			<FormGroup controlId='repoDesc'>
 				<ControlLabel>Description</ControlLabel>
@@ -52,15 +50,14 @@ const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handl
 					value={repoDesc}
 					onChange={handleDescriptionChange}
 				/>
-				<HelpBlock>The description will appear in the Github page for your new repository.</HelpBlock>
+				<HelpBlock>The description will appear in the GitHub page for your new repository.</HelpBlock>
 			</FormGroup>
 			<Checkbox checked={isPrivate} onChange={handlePrivateChange}>
 				Make Private
-				<HelpBlock>You must have a paid Github account to create private repositories.</HelpBlock>
 			</Checkbox>
 		</Modal.Body>
 		<Modal.Footer>
-			<Button onClick={cancel} bsStyle="danger">
+			<Button onClick={cancel}>
 				Cancel
 			</Button>
 			<Button
@@ -68,17 +65,16 @@ const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handl
 				bsStyle="success"
 			>Create</Button>
 		</Modal.Footer>
-	</Modal>
+	</Fragment>
 )
 
 const CheckingModal = () => (
-	<Modal
-		show={true}>
-		<Modal.Header>Checking your respository...</Modal.Header>
+	<Fragment>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
-			<p></p>
+			<p>Checking your respository...</p>
 		</Modal.Body>
-	</Modal>
+	</Fragment>
 )
 
 class VerifyRepo extends Component {
@@ -98,7 +94,7 @@ class VerifyRepo extends Component {
 
 	componentDidMount() {
 		this.setState({checkingRepo: true})
-		cwrcGit.getRepoContents(this.props.repo).then(
+		cwrcGit.getRepoContents(this.getFullRepoPath()).then(
 			(result)=>{
 				this.setState({
 					checkingRepo: false,
@@ -116,16 +112,18 @@ class VerifyRepo extends Component {
 			})
 	}
 
+	getFullRepoPath() {
+		return this.props.user+'/'+this.props.repo;
+	}
+
 	complete = () => {
 		this.resetComponent()
 		this.props.verifiedCB()
-		//this.props.promiseResolve()
 	}
 
 	cancel = () => {
 		this.resetComponent()
 		this.props.cancelCB()
-		//this.props.promiseReject()
 	}
 
 	displayError = (error) => {
@@ -133,8 +131,7 @@ class VerifyRepo extends Component {
 	}
 
 	createRepo = () => {
-		let repoNameWithoutUserName = this.props.repo.split('/')[1]
-		cwrcGit.createRepo(repoNameWithoutUserName, this.state.repoDesc, this.state.isPrivate).then(
+		cwrcGit.createRepo(this.props.repo, this.state.repoDesc, this.state.isPrivate).then(
 			(result) => this.complete(),
 			(error) => this.displayError(error)
 		)
