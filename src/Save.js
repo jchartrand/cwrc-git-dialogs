@@ -11,68 +11,17 @@ if ($ === undefined) {
 }
 
 import React, {Fragment, Component} from 'react'
-import { Modal, Button, Form, HelpBlock, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
+import { Modal, Grid, Row, Col, Button, Form, HelpBlock, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
 
 import VerifyRepo from './VerifyRepo.js'
 import SaveToPath from './SaveToPath.js'
-
-const SavedDialog = ({closedCB}) => {
-	return (
-		<Fragment>
-			<Modal.Header>Document Saved</Modal.Header>
-			<Modal.Body>Your document has been saved.</Modal.Body>
-			<Modal.Footer>
-				<Button onClick={closedCB} bsStyle="success">Ok</Button>
-			</Modal.Footer>
-		</Fragment>
-	)
-}
-
-const SaveForm = ({handleRepoChangeCB, handlePathChangeCB, saveFileCB, saveFileAsPullRequestCB, cancelCB, repo, path}) => {
-	return (
-		<Fragment>
-			<Modal.Header>Save to Repository</Modal.Header>
-			<Modal.Body>
-				<Form>
-					<FormGroup controlId="repo" validationState={null}>
-						<ControlLabel>Repository Path</ControlLabel>
-						<FormControl
-							type="text"
-							value={repo}
-							onChange={handleRepoChangeCB}/>
-						<HelpBlock>[GitHub-user-ID]/[GitHub-repository] (e.g., jchartrand/cheeses)</HelpBlock>
-					</FormGroup>
-					<FormGroup controlId="path" validationState={null}>
-						<ControlLabel>File Path</ControlLabel>
-						<FormControl
-							type="text"
-							value={path}
-							onChange={handlePathChangeCB} />
-						<HelpBlock>The repository path to which to save (e.g., french/basque/SaintSauveur.xml)</HelpBlock>
-					</FormGroup>
-				</Form>
-			</Modal.Body>
-			<Modal.Footer>
-				<Button onClick={cancelCB}>
-					Cancel
-				</Button>
-				<Button
-					onClick={saveFileCB}
-					bsStyle="success"
-				>Save</Button>
-				<Button
-					onClick={saveFileAsPullRequestCB}
-					bsStyle="success"
-				>Save As Pull Request</Button>
-			</Modal.Footer>
-		</Fragment>
-	)
-}
 
 class SaveCmp extends Component {
 	constructor(props) {
 		super(props);
 		this.handleChange = this.handleChange.bind(this);
+		this.saveFile = this.saveFile.bind(this);
+		this.saveFileAsPR = this.saveFileAsPR.bind(this);
 	}
 
 	componentWillMount() {
@@ -81,6 +30,7 @@ class SaveCmp extends Component {
 
 	resetState() {
 		this.setState({
+			user: this.props.user,
 			repo: this.props.repo,
 			path: this.props.path,
 			usePR: false,
@@ -94,6 +44,17 @@ class SaveCmp extends Component {
 	// handles changes passed up from the form
 	handleChange(name, value) {
 		this.setState({[name]: value});
+		switch(name) {
+			case 'path':
+				this.props.handlePathChange(value);
+				break;
+			case 'user':
+				this.props.handleRepoChange(value+'/'+this.state.repo);
+				break;
+			case 'repo':
+				this.props.handleRepoChange(this.state.user+'/'+value);
+				break;
+		}
 	}
 
 	// action on button click in form
@@ -107,7 +68,8 @@ class SaveCmp extends Component {
 	}
 
 	saved() {
-		this.setState({saved: true})
+		this.props.handleSaved(this.state.user+'/'+this.state.repo, this.state.path);
+		this.setState({saved: true});
 	}
 
 	// callback passed to VerifyRepo
@@ -121,30 +83,76 @@ class SaveCmp extends Component {
 	}
 
 	render() {
-		const {repo, path, usePR, message, submitted, repoVerified, saved} = this.state;
+		const {user, repo, path, usePR, message, submitted, repoVerified, saved} = this.state;
 		const handleClose = this.props.handleClose;
-		const handleRepoChange = this.props.handleRepoChange;
-		const handlePathChange = this.props.handlePathChange;
 		const getDocument = this.props.getDocument;
 		if (saved) {
 			return (
-				<SavedDialog closedCB={handleClose}/>
+				<Fragment>
+					<Modal.Header>Save to Repository</Modal.Header>
+					<Modal.Body>
+						<h4>Document Saved</h4>
+						<p>Your document has been saved.</p>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button onClick={handleClose} bsStyle="success">Ok</Button>
+					</Modal.Footer>
+				</Fragment>
 			)
 		} else if (!submitted) {
 			return (
-				<SaveForm
-					handleRepoChangeCB={(e)=>{let val = e.target.value; this.handleChange('repo', val); handleRepoChange(val);}}
-					handlePathChangeCB={(e)=>{let val = e.target.value; this.handleChange('path', val); handlePathChange(val);}}
-					repo={repo}
-					path={path}
-					saveFileCB={this.saveFile.bind(this)}
-					saveFileAsPullRequestCB={this.saveFileAsPR.bind(this)}
-					cancelCB={handleClose}
-				/>
+				<Fragment>
+					<Modal.Header>Save to Repository</Modal.Header>
+					<Modal.Body>
+						<Form>
+							<Grid fluid>
+								<Row>
+									<h4>Repository Path</h4>
+									<Col sm={6}>
+										<FormGroup controlId="user" validationState={null}>
+											<ControlLabel>GitHub User</ControlLabel>
+											<FormControl
+												type="text"
+												value={user}
+												onChange={(e)=>{this.handleChange('user', e.target.value)}}/>
+										</FormGroup>
+									</Col>
+									<Col sm={6}>
+										<FormGroup controlId="repo" validationState={null}>
+											<ControlLabel>Repository Name</ControlLabel>
+											<FormControl
+												type="text"
+												value={repo}
+												onChange={(e)=>{this.handleChange('repo', e.target.value)}}/>
+										</FormGroup>
+									</Col>
+								</Row>
+								<Row>
+									<h4>File Path</h4>
+									<Col sm={12}>
+										<FormGroup controlId="path" validationState={null}>
+											<FormControl
+												type="text"
+												value={path}
+												onChange={(e)=>{this.handleChange('path', e.target.value)}}/>
+											<HelpBlock>The file (and folder) path to which to save (e.g., french/basque/SaintSauveur.xml)</HelpBlock>
+										</FormGroup>
+									</Col>
+								</Row>
+							</Grid>
+						</Form>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button onClick={handleClose}>Cancel</Button>
+						<Button onClick={this.saveFile} bsStyle="success">Save</Button>
+						<Button onClick={this.saveFileAsPR} bsStyle="success">Save As Pull Request</Button>
+					</Modal.Footer>
+				</Fragment>
 			)
 		} else if (submitted && !repoVerified) {
 			return (
 				<VerifyRepo
+					user={user}
 					repo={repo}
 					path={path}
 					verifiedCB={this.repoVerified.bind(this)}
@@ -154,6 +162,7 @@ class SaveCmp extends Component {
 		} else if (submitted) {
 			return (
 				<SaveToPath
+					user={user}
 					repo={repo}
 					path={path}
 					getDocument={getDocument}

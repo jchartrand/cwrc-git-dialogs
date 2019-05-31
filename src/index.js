@@ -73,7 +73,7 @@ function loadWrap(writer, shouldOverwrite = false) {
     $('#'+dialogId).addClass('cwrc');
 }
 
-function getUserInfoWrap() {
+function getUserInfo() {
     return _userInfo;
 }
 
@@ -133,6 +133,7 @@ class GitDialog extends Component {
         this.handleAuthentication = this.handleAuthentication.bind(this);
         this.handleFileSelect = this.handleFileSelect.bind(this);
         this.handleFileUpload = this.handleFileUpload.bind(this);
+        this.handleSaved = this.handleSaved.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleConfirmLoad = this.handleConfirmLoad.bind(this);
         this.state = {
@@ -176,6 +177,11 @@ class GitDialog extends Component {
         setTimeout(()=>{
             _writer.setDocument(doc);
         }, 50)
+    }
+
+    handleSaved(repo, path) {
+        setDocumentInfo(repo, path);
+        _writer.event('documentSaved').publish();
     }
 
     handleClose() {
@@ -273,9 +279,10 @@ class GitDialog extends Component {
                         )
                     }
                 case 'save':
+                    let [userId, repoName] = repo.split('/');
                     return (
                         <Modal id={dialogId} show={true} animation={false}>
-                            <SaveCmp path={path} repo={repo} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} />
+                            <SaveCmp user={userId} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
                         </Modal>
                     )
             }
@@ -287,6 +294,6 @@ export {
 	saveWrap as save,
     loadWrap as load,
     authenticate,
-    getUserInfoWrap as getUserInfo,
+    getUserInfo,
     getDocumentURI
 }

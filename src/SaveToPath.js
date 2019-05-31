@@ -4,8 +4,9 @@ import { Modal, Button } from 'react-bootstrap';
 
 const ErrorModal = ({cancel, error}) => (
 	<Fragment>
-		<Modal.Header>An error occurred</Modal.Header>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
+			<h4>An error occurred</h4>
 			<p>{error}</p>
 		</Modal.Body>
 		<Modal.Footer>
@@ -19,12 +20,13 @@ const ErrorModal = ({cancel, error}) => (
 
 const ConfirmModal = ({cancel, title, body, ok}) => (
 	<Fragment>
-		<Modal.Header>{title}</Modal.Header>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
+			<h4>{title}</h4>
 			<p>{body}</p>
 		</Modal.Body>
 		<Modal.Footer>
-			<Button onClick={cancel} bsStyle="danger">
+			<Button onClick={cancel}>
 				Cancel
 			</Button>
 			<Button
@@ -35,11 +37,11 @@ const ConfirmModal = ({cancel, title, body, ok}) => (
 	</Fragment>
 )
 
-const CheckingModal = () => (
+const StatusModal = ({status}) => (
 	<Fragment>
-		<Modal.Header>Checking your file...</Modal.Header>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
-			<p></p>
+			<p>{status}</p>
 		</Modal.Body>
 	</Fragment>
 )
@@ -56,6 +58,7 @@ class SaveToPath extends Component {
 		error: null,
 		checkingPath: null,
 		pathHasBeenChecked: null,
+		saving: null,
 		branch: 'master',
 		commitMessage: 'Saved by CWRC-Writer',
 		prTitle: 'Request made from CWRC-Writer',
@@ -64,12 +67,13 @@ class SaveToPath extends Component {
 
 	componentDidMount() {
 		this.setState({checkingPath: true})
-		cwrcGit.getDoc(this.props.repo, 'master', this.props.path).then(
+		cwrcGit.getDoc(this.getFullRepoPath, 'master', this.props.path).then(
 			(result)=>{
 				this.setState({
 					checkingPath: false,
 					doesPathExist: true,
-					pathHasBeenChecked: true
+					pathHasBeenChecked: true,
+					saving: false
 				})
 				return result;
 			},
@@ -77,32 +81,36 @@ class SaveToPath extends Component {
 				error.status === 404 ? this.setState({
 					checkingPath: false,
 					doesPathExist: false,
-					pathHasBeenChecked: true
+					pathHasBeenChecked: true,
+					saving: false
 				}): this.displayError(error)
 				return error
 			})
 	}
 
+	getFullRepoPath() {
+		return this.props.user+'/'+this.props.repo;
+	}
+
 	complete = () => {
 		this.resetComponent()
 		this.props.savedCB()
-		//this.props.promiseResolve()
 	}
 
 	cancel = () => {
 		this.resetComponent()
 		this.props.cancelCB()
-		//this.props.promiseReject()
 	}
 
 	displayError = (error) => {
-		this.setState({error: error.statusText})
+		this.setState({error: error.statusText, saving: false})
 	}
 
 	save = () => {
+		this.setState({saving: true});
 		const document = this.props.getDocument();
 		this.props.usePR ?
-			cwrcGit.saveAsPullRequest(this.props.repo, this.props.path, document, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
+			cwrcGit.saveAsPullRequest(this.getFullRepoPath(), this.props.path, document, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
 				(result) => this.complete(),
 				(error) => {
 					if (error.statusText === 'Internal Server Error') {
@@ -111,7 +119,7 @@ class SaveToPath extends Component {
 					this.displayError(error)
 				}
 			) :
-			cwrcGit.saveDoc(this.props.repo, this.props.path, document, this.state.branch, this.state.commitMessage).then(
+			cwrcGit.saveDoc(this.getFullRepoPath(), this.props.path, document, this.state.branch, this.state.commitMessage).then(
 				(result) => this.complete(),
 				(error) => {
 					if (error.statusText === 'Not Found') {
@@ -124,14 +132,16 @@ class SaveToPath extends Component {
 	}
 
 	render() {
-		const {pathHasBeenChecked, doesPathExist, error, checkingPath} = this.state
+		const {pathHasBeenChecked, doesPathExist, error, checkingPath, saving} = this.state
 
 		if (error) {
 			return <ErrorModal
 				error = {error}
 				cancel = {this.cancel.bind(this)}/>
+		} else if (saving) {
+			return <StatusModal status='Saving your file...' />
 		} else if (checkingPath) {
-			return <CheckingModal/>
+			return <StatusModal status='Checking your file...' />
 		} else if (doesPathExist) {
 			return <ConfirmModal
 				title='File Exists'

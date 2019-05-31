@@ -12,19 +12,20 @@ const ErrorModal = ({cancel, error}) => (
 			<Button
 				onClick={cancel}
 				bsStyle="success"
-			>OK</Button>
+			>Ok</Button>
 		</Modal.Footer>
 	</Fragment>
 )
 
 const ConfirmModal = ({cancel, title, body, ok, buttonText}) => (
 	<Fragment>
-		<Modal.Header>{title}</Modal.Header>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
+			<h4>{title}</h4>
 			<p>{body}</p>
 		</Modal.Body>
 		<Modal.Footer>
-			<Button onClick={cancel} bsStyle="danger">
+			<Button onClick={cancel}>
 				Cancel
 			</Button>
 			<Button
@@ -37,8 +38,9 @@ const ConfirmModal = ({cancel, title, body, ok, buttonText}) => (
 
 const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handleDescriptionChange}) => (
 	<Fragment>
-		<Modal.Header>Create Repository</Modal.Header>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
+			<h4>Create Repository</h4>
 			<p>This repository doesn't yet exist, would you like to create it?</p>
 			<FormGroup controlId='repoDesc'>
 				<ControlLabel>Description</ControlLabel>
@@ -48,15 +50,14 @@ const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handl
 					value={repoDesc}
 					onChange={handleDescriptionChange}
 				/>
-				<HelpBlock>The description will appear in the Github page for your new repository.</HelpBlock>
+				<HelpBlock>The description will appear in the GitHub page for your new repository.</HelpBlock>
 			</FormGroup>
 			<Checkbox checked={isPrivate} onChange={handlePrivateChange}>
 				Make Private
-				<HelpBlock>You must have a paid Github account to create private repositories.</HelpBlock>
 			</Checkbox>
 		</Modal.Body>
 		<Modal.Footer>
-			<Button onClick={cancel} bsStyle="danger">
+			<Button onClick={cancel}>
 				Cancel
 			</Button>
 			<Button
@@ -69,9 +70,9 @@ const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handl
 
 const CheckingModal = () => (
 	<Fragment>
-		<Modal.Header>Checking your respository...</Modal.Header>
+		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
-			<p></p>
+			<p>Checking your respository...</p>
 		</Modal.Body>
 	</Fragment>
 )
@@ -93,7 +94,7 @@ class VerifyRepo extends Component {
 
 	componentDidMount() {
 		this.setState({checkingRepo: true})
-		cwrcGit.getRepoContents(this.props.repo).then(
+		cwrcGit.getRepoContents(this.getFullRepoPath()).then(
 			(result)=>{
 				this.setState({
 					checkingRepo: false,
@@ -111,16 +112,18 @@ class VerifyRepo extends Component {
 			})
 	}
 
+	getFullRepoPath() {
+		return this.props.user+'/'+this.props.repo;
+	}
+
 	complete = () => {
 		this.resetComponent()
 		this.props.verifiedCB()
-		//this.props.promiseResolve()
 	}
 
 	cancel = () => {
 		this.resetComponent()
 		this.props.cancelCB()
-		//this.props.promiseReject()
 	}
 
 	displayError = (error) => {
@@ -128,8 +131,7 @@ class VerifyRepo extends Component {
 	}
 
 	createRepo = () => {
-		let repoNameWithoutUserName = this.props.repo.split('/')[1]
-		cwrcGit.createRepo(repoNameWithoutUserName, this.state.repoDesc, this.state.isPrivate).then(
+		cwrcGit.createRepo(this.props.repo, this.state.repoDesc, this.state.isPrivate).then(
 			(result) => this.complete(),
 			(error) => this.displayError(error)
 		)

@@ -79,6 +79,7 @@ class FileUpload extends Component {
 									<ControlLabel></ControlLabel>
 										<FormControl
 											componentClass="textarea"
+											style={{height: '100px'}}
 											value={this.state.xmlText}
 											placeholder="Paste your XML here"
 											onChange={this.handleTextChange}
