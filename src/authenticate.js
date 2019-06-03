@@ -17,7 +17,7 @@ import cwrcGit from 'cwrc-git-server-client';
 import React, {Component, Fragment} from 'react'
 import { Modal, Button, Label } from 'react-bootstrap';
 
-const authenticateURL = 'http://localhost:3000/github/authenticate';
+const authenticateURL = '/github/authenticate';
 
 function isAuthenticated() {
     return Cookies.get('cwrc-token') !== undefined;
