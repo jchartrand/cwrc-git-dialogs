@@ -37,6 +37,7 @@ function doAuthenticate() {
 
     $.ajax({
         url: authenticateURL,
+        crossDomain: true,
         dataType: 'jsonp'
     }).always(() => {
         console.log('got token')
