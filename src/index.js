@@ -46,7 +46,11 @@ function saveWrap(writer) {
     }
 
     if (_repo === undefined && _path === undefined) {
-        _repo = '';
+        if (_userInfo && _userInfo.userId) {
+            _repo = _userInfo.userId;
+        } else {
+            _repo = ''; // shouldn't end up here ever
+        }
         _path = '';
     }
 
