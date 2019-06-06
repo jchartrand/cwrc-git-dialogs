@@ -44,6 +44,12 @@ function saveWrap(writer) {
     if (_writer === undefined) {
         initDialogs(writer)
     }
+
+    if (_repo === undefined && _path === undefined) {
+        _repo = '';
+        _path = '';
+    }
+
     ReactDOM.render(
         <GitDialog action="save" />,
         document.querySelector('#'+renderId)
