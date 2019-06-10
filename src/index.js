@@ -93,7 +93,8 @@ function getDocumentURI() {
             console.warn('cwrc-git-dialogs: path started with /');
             _path = _path.substring(1);
         }
-        return 'https://github.com/'+_repo+'/blob/master/'+_path;
+        return 'https://raw.githubusercontent.com/'+_repo+'/master/'+_path;
+        
     } else {
         console.warn('cwrc-git-dialogs: no repo or path set!');
         return '';
