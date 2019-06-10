@@ -64,9 +64,8 @@ function getUserInfo() {
             console.log('got user info', user);
             dfd.resolve(user);
         }, (error) => {
-            console.warn('error getting user info', error)
-            var message = (error === 'login') ? "You must first sign in to GitHub." : "Couldn't find anything for that user ID. Please try again."
-            dfd.reject(message);
+            console.warn('cwrc-git-dialogs error:', error)
+            dfd.reject(error);
         });
     
     return dfd.promise();
@@ -121,7 +120,17 @@ class AuthenticateDialog extends Component {
                     <Modal.Body>
                         <p>You must first authenticate through GitHub to allow CWRC-Writer to make calls on your behalf.</p>
                         <p>CWRC does not keep any of your GitHub information. The GitHub token issued by GitHub is not stored on a CWRC server, but is only submitted as a <a href="https://jwt.io/" rel="noopener noreferrer" target="_blank">JSON Web Token</a> for each request you make.</p>
-                        {error ? <h4><Label bsStyle="danger">{error}</Label></h4> : ''}
+                        {error ? (
+                            error === 'login' ? 
+                                <Fragment>
+                                    <h4><Label bsStyle="danger">You must first sign in to GitHub</Label></h4>
+                                    <a href="https://github.com/login" target="_blank">Click here to open a sign in window</a>
+                                </Fragment>
+                            :
+                                <h4><Label bsStyle="danger">Couldn't find anything for that user ID. Please try again.</Label></h4>
+                            )
+                            : ''
+                        }
                     </Modal.Body>
                     <Modal.Footer>
                         <Button bsStyle="success" onClick={this.handleClick}>Authenticate with GitHub</Button>
