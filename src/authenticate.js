@@ -15,7 +15,7 @@ let Cookies = require('js-cookie');
 import cwrcGit from 'cwrc-git-server-client';
 
 import React, {Component, Fragment} from 'react'
-import { Modal, Button, Label } from 'react-bootstrap';
+import { Modal, Button, Alert } from 'react-bootstrap';
 
 const authenticateURL = '/github/authenticate';
 
@@ -46,18 +46,12 @@ function getUserInfo() {
 class AuthenticateDialog extends Component {
     constructor(props) {
         super(props);
-        this.authClick = this.authClick.bind(this);
         this.doGetUserInfo = this.doGetUserInfo.bind(this);
         this.state = {
             authenticating: false,
-            authClicked: false,
             error: undefined,
             user: undefined
         }
-    }
-
-    authClick() {
-        this.setState({authClicked: true})
     }
 
     doGetUserInfo() {
@@ -80,7 +74,6 @@ class AuthenticateDialog extends Component {
     render() {
         const authenticating = this.state.authenticating;
         const error = this.state.error;
-        const authClicked = this.state.authClicked;
 
         if (authenticating) {
             return (
@@ -96,20 +89,21 @@ class AuthenticateDialog extends Component {
                 <Fragment>
                     <Modal.Header>Authenticate with GitHub</Modal.Header>
                     <Modal.Body>
-                        <p>You must first authenticate through GitHub to allow CWRC-Writer to make calls on your behalf.</p>
-                        <p>CWRC does not keep any of your GitHub information. The GitHub token issued by GitHub is not stored on a CWRC server, but is only submitted as a <a href="https://jwt.io/" rel="noopener noreferrer" target="_blank">JSON Web Token</a> for each request you make.</p>
-                        <p>Click below to authenticate with GitHub. A new window will open up to complete the process. Once completed, click below to verify your GitHub token.</p>
                         {error ?
-                            <h4><Label bsStyle="danger">There was an error verifying your token. Please make sure you're authenticated and try again.</Label></h4>
-                            : ''
+                            <Alert bsStyle="danger">
+                                An error occurred during authentication. Click below to try authenticating again.
+                            </Alert>
+                            :
+                            <Fragment>
+                                <p>You must first authenticate through GitHub to allow CWRC-Writer to make calls on your behalf.</p>
+                                <p>CWRC does not keep any of your GitHub information. The GitHub token issued by GitHub is not stored on a CWRC server, but is only submitted as a <a href="https://jwt.io/" rel="noopener noreferrer" target="_blank">JSON Web Token</a> for each request you make.</p>
+                                <p>Click below to authenticate with GitHub. Once you've completed the process you will be returned to CWRC-Writer.</p>
+                            </Fragment>
                         }
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button bsStyle="success" href={authenticateURL} target="githubAuthentication" onClick={this.authClick} disabled={authClicked ? true : false}>
+                        <Button bsStyle="success" href={authenticateURL}>
                             Authenticate with GitHub
-                        </Button>
-                        <Button bsStyle="success" onClick={this.doGetUserInfo} disabled={authClicked ? false : true}>
-                            Verify GitHub Token
                         </Button>
                     </Modal.Footer>
                 </Fragment>
