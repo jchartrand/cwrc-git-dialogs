@@ -19,7 +19,7 @@ import cwrcGit from 'cwrc-git-server-client';
 import queryString from 'query-string';
 
 import Splash from './Splash.js';
-import { AuthenticateDialog, authenticate, isAuthenticated } from './authenticate.js';
+import { AuthenticateDialog, isAuthenticated } from './authenticate.js';
 import LoadDialog from './Load.js';
 import SaveCmp from './Save.js';
 
@@ -304,7 +304,6 @@ class GitDialog extends Component {
 export {
 	saveWrap as save,
     loadWrap as load,
-    authenticate,
     getUserInfo,
     getDocumentURI
 }

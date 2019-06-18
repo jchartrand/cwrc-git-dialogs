@@ -23,34 +23,6 @@ function isAuthenticated() {
     return Cookies.get('cwrc-token') !== undefined;
 }
 
-function authenticate() {
-	if (isAuthenticated()) {
-        console.log('already have token')
-        return getUserInfo();
-	} else {
-        return doAuthenticate();
-	}
-}
-
-function doAuthenticate() {
-    let dfd = $.Deferred();
-
-    $.ajax({
-        url: authenticateURL,
-        crossDomain: true,
-        dataType: 'jsonp'
-    }).always(() => {
-        console.log('got token')
-        getUserInfo().then((user) => {
-            dfd.resolve(user);
-        }, (error) => {
-            dfd.reject(error);
-        })
-    })
-
-    return dfd.promise();
-}
-
 function getUserInfo() {
     let dfd = $.Deferred();
 
@@ -74,17 +46,23 @@ function getUserInfo() {
 class AuthenticateDialog extends Component {
     constructor(props) {
         super(props);
-        this.handleClick = this.handleClick.bind(this);
+        this.authClick = this.authClick.bind(this);
+        this.doGetUserInfo = this.doGetUserInfo.bind(this);
         this.state = {
             authenticating: false,
+            authClicked: false,
             error: undefined,
             user: undefined
         }
     }
 
-    handleClick() {
+    authClick() {
+        this.setState({authClicked: true})
+    }
+
+    doGetUserInfo() {
         this.setState({authenticating: true});
-        authenticate()
+        getUserInfo()
             .then((user) => {
                 this.setState({authenticating: false, error: undefined, user})
                 this.props.onUserAuthentication(user);
@@ -95,14 +73,14 @@ class AuthenticateDialog extends Component {
 
     componentDidMount() {
         if (isAuthenticated() && this.state.user === undefined) {
-            // trigger the click in order to fetch user info
-            this.handleClick();
+            this.doGetUserInfo();
         }
     }
 
     render() {
         const authenticating = this.state.authenticating;
         const error = this.state.error;
+        const authClicked = this.state.authClicked;
 
         if (authenticating) {
             return (
@@ -120,20 +98,19 @@ class AuthenticateDialog extends Component {
                     <Modal.Body>
                         <p>You must first authenticate through GitHub to allow CWRC-Writer to make calls on your behalf.</p>
                         <p>CWRC does not keep any of your GitHub information. The GitHub token issued by GitHub is not stored on a CWRC server, but is only submitted as a <a href="https://jwt.io/" rel="noopener noreferrer" target="_blank">JSON Web Token</a> for each request you make.</p>
-                        {error ? (
-                            error === 'login' ? 
-                                <Fragment>
-                                    <h4><Label bsStyle="danger">You must first sign in to GitHub</Label></h4>
-                                    <a href="https://github.com/login" target="_blank">Click here to open a sign in window</a>
-                                </Fragment>
-                            :
-                                <h4><Label bsStyle="danger">Couldn't find anything for that user ID. Please try again.</Label></h4>
-                            )
+                        <p>Click below to authenticate with GitHub. A new window will open up to complete the process. Once completed, click below to verify your GitHub token.</p>
+                        {error ?
+                            <h4><Label bsStyle="danger">There was an error verifying your token. Please make sure you're authenticated and try again.</Label></h4>
                             : ''
                         }
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button bsStyle="success" onClick={this.handleClick}>Authenticate with GitHub</Button>
+                        <Button bsStyle="success" href={authenticateURL} target="githubAuthentication" onClick={this.authClick} disabled={authClicked ? true : false}>
+                            Authenticate with GitHub
+                        </Button>
+                        <Button bsStyle="success" onClick={this.doGetUserInfo} disabled={authClicked ? false : true}>
+                            Verify GitHub Token
+                        </Button>
                     </Modal.Footer>
                 </Fragment>
             )
@@ -144,6 +121,5 @@ class AuthenticateDialog extends Component {
 export {
     AuthenticateDialog,
     isAuthenticated,
-    authenticate,
     getUserInfo
 }
