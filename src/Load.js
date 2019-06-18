@@ -234,9 +234,12 @@ class LoadDialog extends Component {
 							(error !== '' ?
 								<Well><h5>Error!</h5><p>{error}</p></Well>
 								:
-								<Well bsSize="small">
-									<ListGroup>{templates}</ListGroup>
-								</Well>
+								<Fragment>
+									{/*<h5>New to CWRC-Writer? Consider having a look at <a href="https://cwrc.ca/CWRC-Writer_Documentation/" target="_blank">the documentation</a></h5>*/}
+									<Well bsSize="small">
+										<ListGroup>{templates}</ListGroup>
+									</Well>
+								</Fragment>
 							)
 						}
 						</Tab>
@@ -311,9 +314,12 @@ class LoadDialog extends Component {
 						</Tab>
 					</Tabs>
 				</Modal.Body>
-				<Modal.Footer>
-					{isDocLoaded ? <Button onClick={handleClose}>Cancel</Button> : ''}
-				</Modal.Footer>
+				{isDocLoaded ?
+					<Modal.Footer>
+						<Button onClick={handleClose}>Cancel</Button>
+					</Modal.Footer>
+					: ''
+				}
 			</Fragment>
 		)
 	}
