@@ -67,7 +67,7 @@ class SaveToPath extends Component {
 
 	componentDidMount() {
 		this.setState({checkingPath: true})
-		cwrcGit.getDoc(this.getFullRepoPath, 'master', this.props.path).then(
+		cwrcGit.getDoc(this.getFullRepoPath(), 'master', this.props.path).then(
 			(result)=>{
 				this.setState({
 					checkingPath: false,
@@ -156,6 +156,7 @@ class SaveToPath extends Component {
 				body="This file doesn't yet exist, would you like to create it?"
 				buttonText='Create'
 				ok ={this.save.bind(this)}
+				cancel = {this.cancel.bind(this)}
 			/>
 		} else {
 			return null;
