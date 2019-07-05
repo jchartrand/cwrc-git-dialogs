@@ -30,7 +30,7 @@ class SaveCmp extends Component {
 
 	resetState() {
 		this.setState({
-			user: this.props.user,
+			owner: this.props.owner,
 			repo: this.props.repo,
 			path: this.props.path,
 			usePR: false,
@@ -48,11 +48,11 @@ class SaveCmp extends Component {
 			case 'path':
 				this.props.handlePathChange(value);
 				break;
-			case 'user':
+			case 'owner':
 				this.props.handleRepoChange(value+'/'+this.state.repo);
 				break;
 			case 'repo':
-				this.props.handleRepoChange(this.state.user+'/'+value);
+				this.props.handleRepoChange(this.state.owner+'/'+value);
 				break;
 		}
 	}
@@ -68,7 +68,7 @@ class SaveCmp extends Component {
 	}
 
 	saved() {
-		this.props.handleSaved(this.state.user+'/'+this.state.repo, this.state.path);
+		this.props.handleSaved(this.state.owner+'/'+this.state.repo, this.state.path);
 		this.setState({saved: true});
 	}
 
@@ -83,7 +83,8 @@ class SaveCmp extends Component {
 	}
 
 	render() {
-		const {user, repo, path, usePR, message, submitted, repoVerified, saved} = this.state;
+		const {owner, repo, path, usePR, message, submitted, repoVerified, saved} = this.state;
+		const user = this.props.user;
 		const handleClose = this.props.handleClose;
 		const getDocument = this.props.getDocument;
 		if (saved) {
@@ -109,12 +110,12 @@ class SaveCmp extends Component {
 								<Row>
 									<h4>Repository Path</h4>
 									<Col sm={6}>
-										<FormGroup controlId="user" validationState={null}>
+										<FormGroup controlId="owner" validationState={null}>
 											<ControlLabel>GitHub User</ControlLabel>
 											<FormControl
 												type="text"
-												value={user}
-												onChange={(e)=>{this.handleChange('user', e.target.value)}}/>
+												value={owner}
+												onChange={(e)=>{this.handleChange('owner', e.target.value)}}/>
 										</FormGroup>
 									</Col>
 									<Col sm={6}>
@@ -153,6 +154,7 @@ class SaveCmp extends Component {
 			return (
 				<VerifyRepo
 					user={user}
+					owner={owner}
 					repo={repo}
 					path={path}
 					verifiedCB={this.repoVerified.bind(this)}
@@ -162,7 +164,7 @@ class SaveCmp extends Component {
 		} else if (submitted) {
 			return (
 				<SaveToPath
-					user={user}
+					owner={owner}
 					repo={repo}
 					path={path}
 					getDocument={getDocument}

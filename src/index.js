@@ -290,10 +290,10 @@ class GitDialog extends Component {
                         )
                     }
                 case 'save':
-                    let [userId, repoName] = repo.split('/');
+                    let [owner, repoName] = repo.split('/');
                     return (
                         <Modal id={dialogId} show={true} animation={false}>
-                            <SaveCmp user={userId} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
+                            <SaveCmp user={user.userId} owner={owner} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
                         </Modal>
                     )
             }

@@ -89,7 +89,7 @@ class SaveToPath extends Component {
 	}
 
 	getFullRepoPath() {
-		return this.props.user+'/'+this.props.repo;
+		return this.props.owner+'/'+this.props.repo;
 	}
 
 	complete = () => {

@@ -68,11 +68,11 @@ const CreateModal = ({cancel,ok, repoDesc, isPrivate, handlePrivateChange, handl
 	</Fragment>
 )
 
-const CheckingModal = () => (
+const CheckingModal = ({body}) => (
 	<Fragment>
 		<Modal.Header>Save to Repository</Modal.Header>
 		<Modal.Body>
-			<p>Checking your respository...</p>
+			<p>{body}</p>
 		</Modal.Body>
 	</Fragment>
 )
@@ -84,36 +84,59 @@ class VerifyRepo extends Component {
 	}
 
 	resetComponent = () => this.setState({
-		repoHasBeenChecked: false,
-		doesRepoExist: null,
-		error: null,
 		checkingRepo: null,
+		doesRepoExist: null,
+		checkingPermission: null,
+		doesUserHavePermission: null,
+		error: null,
 		isPrivate: false,
 		repoDesc: 'Automagically created by CWRC'
 	})
 
 	componentDidMount() {
-		this.setState({checkingRepo: true})
+		this.checkRepoExistence();
+	}
+
+	checkRepoExistence() {
+		this.setState({checkingRepo: true});
 		cwrcGit.getRepoContents(this.getFullRepoPath()).then(
 			(result)=>{
 				this.setState({
 					checkingRepo: false,
 					doesRepoExist: true
 				})
-				return result;
+				this.checkPermission();
 			},
 			(error)=>{
 				error.status === 404 ? this.setState({
 					checkingRepo: false,
-					repoHasBeenChecked: true,
 					doesRepoExist: false
 				}): this.displayError(error)
-				return error
 			})
 	}
 
+	checkPermission() {
+		this.setState({checkingPermission: true});
+		cwrcGit.getPermissionsForGithubUser(this.props.owner, this.props.repo, this.props.user).then(
+			(result)=>{
+				if (result === 'none' || result === 'read') {
+					this.setState({
+						checkingPermission: false,
+						doesUserHavePermission: false
+					})
+				} else {
+					this.complete();
+				}
+				
+			},
+			(error)=>{
+				this.displayError(error);
+			}
+		)
+	}
+
 	getFullRepoPath() {
-		return this.props.user+'/'+this.props.repo;
+		return this.props.owner+'/'+this.props.repo;
 	}
 
 	complete = () => {
@@ -127,7 +150,18 @@ class VerifyRepo extends Component {
 	}
 
 	displayError = (error) => {
-		this.setState({error: error.statusText})
+		let errorMsg;
+		if (typeof error === 'string') {
+			errorMsg = error;
+		} else {
+			errorMsg = error.statusText;
+			// handle octokit/cwrcgit error
+			if (error.responseJSON && error.responseJSON.message) {
+				let errorJSON = JSON.parse(error.responseJSON.message);
+				errorMsg = errorJSON.message;
+			}
+		}
+		this.setState({error: errorMsg})
 	}
 
 	createRepo = () => {
@@ -147,33 +181,37 @@ class VerifyRepo extends Component {
 	}
 
 	render() {
-		const {repoHasBeenChecked, doesRepoExist, error, checkingRepo} = this.state
+		const {checkingRepo, doesRepoExist, checkingPermission, doesUserHavePermission, error} = this.state
 
 		if (error) {
 			return <ErrorModal
 					error = {error}
 					cancel = {this.cancel.bind(this)}/>
 		} else if (checkingRepo) {
-			return <CheckingModal/>
-		} else if (doesRepoExist) {
-			return <ConfirmModal
-				title='Repository Exists'
-				body='This repository exists, would you like to use it?'
-				buttonText='Yes'
-				ok = {this.complete.bind(this)}
-				cancel = {this.cancel.bind(this)}
-			/>
-		} else if (repoHasBeenChecked) {
-			return <CreateModal
-				ok = {this.createRepo.bind(this)}
-				cancel = {this.cancel.bind(this)}
-				handlePrivateChange = {this.handlePrivateChange.bind(this)}
-				handleDescriptionChange = {this.handleDescriptionChange.bind(this)}
-				isPrivate = {this.state.isPrivate}
-				repoDesc={this.state.repoDesc}
-				/>
+			return <CheckingModal body="Checking your respository..." />
+		} else if (checkingPermission) {
+			return <CheckingModal body="Checking your permissions..." />
 		} else {
-			return null;
+			if (doesRepoExist && doesUserHavePermission === false) {
+				return <ErrorModal
+					error = "You do not have permission to use this repository."
+					cancel = {this.cancel.bind(this)}/>
+			} else {
+				if (this.props.owner !== this.props.user) {
+					return <ErrorModal
+						error = "You cannot create a repository for another user's account."
+						cancel = {this.cancel.bind(this)}/>
+				} else {
+					return <CreateModal
+						ok = {this.createRepo.bind(this)}
+						cancel = {this.cancel.bind(this)}
+						handlePrivateChange = {this.handlePrivateChange.bind(this)}
+						handleDescriptionChange = {this.handleDescriptionChange.bind(this)}
+						isPrivate = {this.state.isPrivate}
+						repoDesc={this.state.repoDesc}
+						/>
+				}
+			}
 		}
 	}
 }
