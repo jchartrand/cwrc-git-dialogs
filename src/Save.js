@@ -208,7 +208,6 @@ class SaveCmp extends Component {
 					repo={repo}
 					path={path}
 					getDocument={getDocument}
-					message={message}
 					usePR={usePR}
 					savedCB={this.saved.bind(this)}
 					cancelCB={this.repoOrPathCancelled.bind(this)}
