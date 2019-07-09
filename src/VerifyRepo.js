@@ -105,7 +105,11 @@ class VerifyRepo extends Component {
 					checkingRepo: false,
 					doesRepoExist: true
 				})
-				this.checkPermission();
+				if (this.props.usePR !== true) {
+					this.checkPermission();
+				} else {
+					this.complete();
+				}
 			},
 			(error)=>{
 				error.status === 404 ? this.setState({
@@ -194,7 +198,7 @@ class VerifyRepo extends Component {
 		} else {
 			if (doesRepoExist && doesUserHavePermission === false) {
 				return <ErrorModal
-					error = "You do not have permission to use this repository."
+					error = "You do not have permission to use this repository. Try saving as a pull request or save to another repository you have writing privileges for."
 					cancel = {this.cancel.bind(this)}/>
 			} else {
 				if (this.props.owner !== this.props.user) {
