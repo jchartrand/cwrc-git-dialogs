@@ -291,6 +291,7 @@ class GitDialog extends Component {
                     }
                 case 'save':
                     let [owner, repoName] = repo.split('/');
+                    if (repoName === undefined) repoName = '';
                     return (
                         <Modal id={dialogId} show={true} animation={false}>
                             <SaveCmp user={user.userId} owner={owner} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
