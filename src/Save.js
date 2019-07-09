@@ -157,6 +157,7 @@ class SaveCmp extends Component {
 					owner={owner}
 					repo={repo}
 					path={path}
+					usePR={usePR}
 					verifiedCB={this.repoVerified.bind(this)}
 					cancelCB={this.repoOrPathCancelled.bind(this)}
 				/>
