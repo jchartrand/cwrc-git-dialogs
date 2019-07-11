@@ -20,6 +20,7 @@ import queryString from 'query-string';
 
 import Splash from './Splash.js';
 import { AuthenticateDialog, isAuthenticated } from './authenticate.js';
+import LogOutDialog from './LogOut.js';
 import LoadDialog from './Load.js';
 import SaveCmp from './Save.js';
 
@@ -80,6 +81,15 @@ function loadWrap(writer, shouldOverwrite = false) {
         document.querySelector('#'+renderId)
     );
     dialogInstance.setState({show: true, confirmLoad: true});
+    $('#'+dialogId).addClass('cwrc');
+}
+
+function logOutWrap() {
+    ReactDOM.render(
+        <GitDialog action="logout" />,
+        document.querySelector('#'+renderId)
+    );
+    dialogInstance.setState({show: true,});
     $('#'+dialogId).addClass('cwrc');
 }
 
@@ -297,6 +307,13 @@ class GitDialog extends Component {
                             <SaveCmp user={user.userId} owner={owner} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
                         </Modal>
                     )
+
+                case 'logout':
+                    return (
+                        <Modal id={dialogId} show={true} animation={false}>
+                            <LogOutDialog handleClose={this.handleClose} />
+                        </Modal>
+                    )
             }
         }
     }
@@ -306,5 +323,6 @@ export {
 	saveWrap as save,
     loadWrap as load,
     getUserInfo,
-    getDocumentURI
+    getDocumentURI,
+    logOutWrap as logOut
 }
