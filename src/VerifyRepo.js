@@ -86,6 +86,8 @@ class VerifyRepo extends Component {
 	resetComponent = () => this.setState({
 		checkingRepo: null,
 		doesRepoExist: null,
+		checkingOwner: null,
+		isOwnerUser: null,
 		checkingPermission: null,
 		doesUserHavePermission: null,
 		error: null,
@@ -94,7 +96,23 @@ class VerifyRepo extends Component {
 	})
 
 	componentDidMount() {
-		this.checkRepoExistence();
+		this.isOwnerUserOrOrg();
+	}
+
+	isOwnerUserOrOrg() {
+		this.setState({checkingOwner: true});
+		cwrcGit.getDetailsForGithubUser(this.props.owner).then((result)=>{
+			const isOwnerUser = result.data.type === 'User';
+			this.setState({checkingOwner: false, isOwnerUser});
+			this.checkRepoExistence();
+		},
+		(error)=>{
+			if (error.status === 404) {
+				this.displayError(`The repository owner "${this.props.owner}" does not exist.`);
+			} else {
+				this.displayError(error);
+			}
+		})
 	}
 
 	checkRepoExistence() {
@@ -169,10 +187,17 @@ class VerifyRepo extends Component {
 	}
 
 	createRepo = () => {
-		cwrcGit.createRepo(this.props.repo, this.state.repoDesc, this.state.isPrivate).then(
-			(result) => this.complete(),
-			(error) => this.displayError(error)
-		)
+		if (this.state.isOwnerUser) {
+			cwrcGit.createRepo(this.props.repo, this.state.repoDesc, this.state.isPrivate).then(
+				(result) => this.complete(),
+				(error) => this.displayError(error)
+			)
+		} else {
+			cwrcGit.createOrgRepo(this.props.owner, this.props.repo, this.state.repoDesc, this.state.isPrivate).then(
+				(result) => this.complete(),
+				(error) => this.displayError(error)
+			)
+		}
 	}
 
 	// handles changes passed up from children
@@ -185,14 +210,16 @@ class VerifyRepo extends Component {
 	}
 
 	render() {
-		const {checkingRepo, doesRepoExist, checkingPermission, doesUserHavePermission, error} = this.state
+		const {checkingRepo, checkingOwner, isOwnerUser, doesRepoExist, checkingPermission, doesUserHavePermission, error} = this.state
 
 		if (error) {
 			return <ErrorModal
 					error = {error}
 					cancel = {this.cancel.bind(this)}/>
+		} else if (checkingOwner) {
+			return <CheckingModal body="Checking the repository owner..." />
 		} else if (checkingRepo) {
-			return <CheckingModal body="Checking your respository..." />
+			return <CheckingModal body="Checking the respository..." />
 		} else if (checkingPermission) {
 			return <CheckingModal body="Checking your permissions..." />
 		} else {
@@ -201,7 +228,7 @@ class VerifyRepo extends Component {
 					error = "You do not have permission to use this repository. Try saving as a pull request or save to another repository you have writing privileges for."
 					cancel = {this.cancel.bind(this)}/>
 			} else {
-				if (this.props.owner !== this.props.user) {
+				if (isOwnerUser && this.props.owner !== this.props.user) {
 					return <ErrorModal
 						error = "You cannot create a repository for another user's account."
 						cancel = {this.cancel.bind(this)}/>
