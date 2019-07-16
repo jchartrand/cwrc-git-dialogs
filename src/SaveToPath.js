@@ -1,5 +1,5 @@
 import React, {Fragment, Component} from 'react'
-const cwrcGit = require('cwrc-git-server-client');
+import cwrcGit from './GitServerClient.js';
 import { Modal, Button } from 'react-bootstrap';
 
 const ErrorModal = ({cancel, error}) => (
@@ -47,9 +47,21 @@ const StatusModal = ({status}) => (
 )
 
 class SaveToPath extends Component {
+	constructor(props) {
+		super(props);
 
-	componentWillMount () {
-		this.resetComponent()
+		this.state = {
+			fileHasBeenSaved: false,
+			doesPathExist: null,
+			error: null,
+			checkingPath: null,
+			pathHasBeenChecked: null,
+			saving: null,
+			branch: 'master',
+			commitMessage: 'Saved by CWRC-Writer',
+			prTitle: 'Request made from CWRC-Writer',
+			prBranch: 'cwrc-writer-pr'
+		}
 	}
 
 	resetComponent = () => this.setState({
@@ -66,6 +78,7 @@ class SaveToPath extends Component {
 	})
 
 	componentDidMount() {
+		cwrcGit.setServerURL(this.props.serverURL);
 		this.setState({checkingPath: true})
 		cwrcGit.getDoc(this.getFullRepoPath(), 'master', this.props.path).then(
 			(result)=>{

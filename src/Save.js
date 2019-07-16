@@ -28,14 +28,8 @@ class SaveCmp extends Component {
 		this.ownerInput = null;
 		this.repoInput = null;
 		this.pathInput = null;
-	}
 
-	componentWillMount() {
-		this.resetState();
-	}
-
-	resetState() {
-		this.setState({
+		this.state = {
 			owner: this.props.owner,
 			repo: this.props.repo,
 			path: this.props.path,
@@ -44,7 +38,7 @@ class SaveCmp extends Component {
 			repoVerified: false,
 			formMessage: undefined,
 			saved: false
-		})
+		}
 	}
 
 	// handles changes passed up from the form
@@ -192,6 +186,7 @@ class SaveCmp extends Component {
 		} else if (submitted && !repoVerified) {
 			return (
 				<VerifyRepo
+					serverURL={this.props.serverURL}
 					user={user}
 					owner={owner}
 					repo={repo}
@@ -204,6 +199,7 @@ class SaveCmp extends Component {
 		} else if (submitted) {
 			return (
 				<SaveToPath
+					serverURL={this.props.serverURL}
 					owner={owner}
 					repo={repo}
 					path={path}

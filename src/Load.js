@@ -11,9 +11,9 @@ if ($ === undefined) {
 }
 
 import React, {Component, Fragment} from 'react'
-import { Modal, Button, Tabs, Tab, Well, Grid, Row, Col, PanelGroup, Panel, ListGroup, ListGroupItem, ToggleButtonGroup, ToggleButton, ControlLabel, FormControl, Glyphicon } from 'react-bootstrap';
+import { Modal, Button, Tabs, Tab, Well, Grid, Row, Col, PanelGroup, Panel, ListGroup, ListGroupItem, ToggleButtonGroup, ToggleButton, ControlLabel, FormGroup, FormControl, Checkbox, Glyphicon } from 'react-bootstrap';
 import parseLinks from 'parse-link-header';
-import cwrcGit from 'cwrc-git-server-client';
+import cwrcGit from './GitServerClient.js';
 
 import RepoResultList from "./RepoResultList.js";
 import SearchResultList from "./SearchResultList.js";
@@ -54,7 +54,7 @@ function getSearchResults(gitName, searchTerms, requestedPage, resultsPerPage=RE
 	let queryString = 'language:xml ';
 	if (searchTerms) queryString += '"' + searchTerms + '" ';
 	if (gitName) queryString += "user:" + gitName;
-	cwrcGit.search(queryString, resultsPerPage, requestedPage).then((results)=>{
+	cwrcGit.searchCode(queryString, resultsPerPage, requestedPage).then((results)=>{
 		dfd.resolve({
 			items: results.data.items,
 			lastPage: getLastPage(results, requestedPage)
@@ -83,6 +83,7 @@ class LoadDialog extends Component {
 		this.handleTabSelect = this.handleTabSelect.bind(this);
 		this.handleRepoTypeSelect = this.handleRepoTypeSelect.bind(this);
 		this.handleAffiliationSelect = this.handleAffiliationSelect.bind(this);
+		this.handleXMLOnlyChange = this.handleXMLOnlyChange.bind(this);
 		this.doSearch = this.doSearch.bind(this);
 		this.handleSearchClear = this.handleSearchClear.bind(this);
 		this.handleSearchChange = this.handleSearchChange.bind(this);
@@ -96,6 +97,7 @@ class LoadDialog extends Component {
 			isSearch: false,
 			searchFilter: '',
 			query: undefined,
+			xmlOnly: false,
 
 			repoType: 'private',
 			privateReposAffiliation: 'owner',
@@ -108,7 +110,8 @@ class LoadDialog extends Component {
 		}
 	}
 
-	componentWillMount() {
+	componentDidMount() {
+		cwrcGit.setServerURL(this.props.serverURL);
 		this.handleTabSelect('templates');
 	}
 
@@ -148,6 +151,14 @@ class LoadDialog extends Component {
 		this.setState({privateReposAffiliation: value, isSearch: false});
 		setTimeout(()=>{
 			this.getRepos();
+		});
+	}
+
+	handleXMLOnlyChange(event) {
+		const value = event.target.checked;
+		this.setState({xmlOnly: value});
+		setTimeout(()=>{
+			// this.getRepos();
 		});
 	}
 
@@ -213,6 +224,7 @@ class LoadDialog extends Component {
 		const loading = this.state.loading;
 		const isSearch = this.state.isSearch;
 		const error = this.state.error;
+		const xmlOnly = this.state.xmlOnly;
 		const results = this.state.results || [];
 		const templates = (this.state.templates || []).map((item, key)=>(
 			<ListGroupItem key={key} onClick={onFileUpload.bind(this, item.download_url)}>{item.name.replace(/.xml$/, '')}</ListGroupItem>
@@ -279,6 +291,11 @@ class LoadDialog extends Component {
 											</Panel>
 										</PanelGroup>
 										<SearchInput placeholder="Search within repositories" style={{marginTop: '10px'}} onChange={this.handleSearchChange} onSearch={(value)=>{this.doSearch(1,value)}} onClear={this.handleSearchClear} />
+										{false ? <FormGroup style={{marginTop: '10px'}}>
+											<Checkbox checked={xmlOnly} onChange={this.handleXMLOnlyChange}>
+												Only show XML repositories
+											</Checkbox>
+										</FormGroup>:''}
 									</Col>
 									<Col sm={7}>
 										<h4>Results</h4>
@@ -298,7 +315,7 @@ class LoadDialog extends Component {
 														</Well>
 														: 
 														<Well bsSize="small">
-															<RepoResultList selectCB={onFileSelect} repos={results} />
+															<RepoResultList serverURL={this.props.serverURL} selectCB={onFileSelect} repos={results} />
 															<Paginator pagingCB={this.getRepos} currentPage={this.state.currentPage} lastPage={this.state.lastPage} />
 														</Well>
 													)

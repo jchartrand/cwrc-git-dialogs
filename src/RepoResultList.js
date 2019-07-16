@@ -1,13 +1,19 @@
 import React, {Component} from 'react'
 import { Button, Panel, PanelGroup, Glyphicon, ListGroup, ListGroupItem} from 'react-bootstrap';
-var cwrcGit = require('cwrc-git-server-client');
+import cwrcGit from './GitServerClient.js';
 
 class RepoResultList extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			repoStructures:{},
+			openFolders:[],
+			selectedRepo: null
+		}
+	}
 
-	state = {
-		repoStructures:{},
-		openFolders:[],
-		selectedRepo: null
+	componentDidMount() {
+		cwrcGit.setServerURL(this.props.serverURL);
 	}
 
 	toggleFolder(path) {

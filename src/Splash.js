@@ -1,13 +1,3 @@
-let $ = window.cwrcQuery
-if ($ === undefined) {
-	let prevJQuery = window.jQuery
-	$ = require('jquery')
-	window.jQuery = $
-	require('bootstrap')
-	window.jQuery = prevJQuery
-	window.cwrcQuery = $
-}
-
 import React, {Fragment} from 'react'
 import { Modal, Button, PageHeader } from 'react-bootstrap';
 

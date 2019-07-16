@@ -12,12 +12,10 @@ if ($ === undefined) {
 
 let Cookies = require('js-cookie');
 
-import cwrcGit from 'cwrc-git-server-client';
+import cwrcGit from './GitServerClient.js';
 
 import React, {Component, Fragment} from 'react'
 import { Modal, Button, Alert } from 'react-bootstrap';
-
-const authenticateURL = '/github/authenticate';
 
 function isAuthenticated() {
     return Cookies.get('cwrc-token') !== undefined;
@@ -66,12 +64,14 @@ class AuthenticateDialog extends Component {
     }
 
     componentDidMount() {
+        cwrcGit.setServerURL(this.props.serverURL);
         if (isAuthenticated() && this.state.user === undefined) {
             this.doGetUserInfo();
         }
     }
 
     render() {
+        const authenticateURL = this.props.serverURL+'/authenticate';
         const authenticating = this.state.authenticating;
         const error = this.state.error;
 

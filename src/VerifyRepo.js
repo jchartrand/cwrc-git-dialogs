@@ -1,5 +1,5 @@
 import React, {Fragment, Component} from 'react'
-const cwrcGit = require('cwrc-git-server-client');
+import cwrcGit from './GitServerClient.js';
 import { Modal, Button, FormGroup, Checkbox, ControlLabel, FormControl, HelpBlock} from 'react-bootstrap';
 
 const ErrorModal = ({cancel, error}) => (
@@ -78,9 +78,20 @@ const CheckingModal = ({body}) => (
 )
 
 class VerifyRepo extends Component {
+	constructor(props) {
+		super(props);
 
-	componentWillMount () {
-		this.resetComponent()
+		this.state = {
+			checkingRepo: null,
+			doesRepoExist: null,
+			checkingOwner: null,
+			isOwnerUser: null,
+			checkingPermission: null,
+			doesUserHavePermission: null,
+			error: null,
+			isPrivate: false,
+			repoDesc: 'Automagically created by CWRC'
+		}
 	}
 
 	resetComponent = () => this.setState({
@@ -96,6 +107,7 @@ class VerifyRepo extends Component {
 	})
 
 	componentDidMount() {
+		cwrcGit.setServerURL(this.props.serverURL);
 		this.isOwnerUserOrOrg();
 	}
 

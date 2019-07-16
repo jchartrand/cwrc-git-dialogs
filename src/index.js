@@ -14,7 +14,7 @@ if ($ === undefined) {
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom';
 import { Modal, Button, Label } from 'react-bootstrap';
-import cwrcGit from 'cwrc-git-server-client';
+import cwrcGit from './GitServerClient.js';
 
 import queryString from 'query-string';
 
@@ -23,6 +23,8 @@ import { AuthenticateDialog, isAuthenticated } from './authenticate.js';
 import LogOutDialog from './LogOut.js';
 import LoadDialog from './Load.js';
 import SaveCmp from './Save.js';
+
+let serverURL = '';
 
 let _writer;
 let dialogId;
@@ -33,6 +35,10 @@ let _repo;
 let _path;
 
 let dialogInstance;
+
+function setServerURL(url) {
+    serverURL = url;
+}
 
 function initDialogs(writer) {
     _writer = writer;
@@ -179,6 +185,7 @@ class GitDialog extends Component {
     }
 
     handleFileSelect(repo, path) {
+        cwrcGit.setServerURL(serverURL);
 		return cwrcGit.getDoc(repo, 'master', path)
 			.done((result)=>{
                 setDocumentInfo(repo, path);
@@ -256,7 +263,7 @@ class GitDialog extends Component {
             } else {
                 return (
                     <Modal id={dialogId} show={true} animation={false}>
-                        <AuthenticateDialog onUserAuthentication={this.handleAuthentication} />
+                        <AuthenticateDialog serverURL={serverURL} onUserAuthentication={this.handleAuthentication} />
                     </Modal>
                 )
             }
@@ -295,7 +302,7 @@ class GitDialog extends Component {
                     } else {
                         return (
                             <Modal id={dialogId} show={true} bsSize="large" animation={false}>
-                                <LoadDialog isDocLoaded={isDocLoaded} user={user} onFileSelect={this.handleFileSelect} onFileUpload={this.handleFileUpload} handleClose={this.handleClose} />
+                                <LoadDialog serverURL={serverURL} isDocLoaded={isDocLoaded} user={user} onFileSelect={this.handleFileSelect} onFileUpload={this.handleFileUpload} handleClose={this.handleClose} />
                             </Modal>
                         )
                     }
@@ -304,7 +311,7 @@ class GitDialog extends Component {
                     if (repoName === undefined) repoName = '';
                     return (
                         <Modal id={dialogId} show={true} animation={false}>
-                            <SaveCmp user={user.userId} owner={owner} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
+                            <SaveCmp serverURL={serverURL} user={user.userId} owner={owner} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
                         </Modal>
                     )
 
@@ -320,6 +327,7 @@ class GitDialog extends Component {
 }
 
 export {
+    setServerURL,
 	saveWrap as save,
     loadWrap as load,
     getUserInfo,

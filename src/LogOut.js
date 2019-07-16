@@ -1,15 +1,5 @@
 'use strict';
 
-let $ = window.cwrcQuery
-if ($ === undefined) {
-    let prevJQuery = window.jQuery
-    $ = require('jquery')
-    window.jQuery = $
-    require('bootstrap')
-    window.jQuery = prevJQuery
-    window.cwrcQuery = $
-}
-
 let Cookies = require('js-cookie');
 
 import React, {Component, Fragment} from 'react'
