@@ -12,6 +12,11 @@ function setServerURL(url) {
     baseUrl = url;
 }
 
+let isGitLab = false;
+function useGitLab(useIt) {
+    isGitLab = useIt;
+}
+
 function callCWRCGitWithToken(ajaxConfig) {
     ajaxConfig.crossDomain = true;
     ajaxConfig.xhrFields = {withCredentials: true};
@@ -44,11 +49,15 @@ function getDetailsForOrg(org) {
 }
 
 function createRepo(repo, description, isPrivate) {
+    var url = `${baseUrl}/user/repos`;
+    if (isGitLab) {
+        url=`${baseUrl}/projects?name=`+repo
+    }
 	const ajaxConfig = {
         type: 'POST',
         dataType: 'json',
         data: {repo, isPrivate, description },
-        url:  `${baseUrl}/user/repos`
+        url: url
     };
   	return callCWRCGitWithToken(ajaxConfig);
 }
@@ -64,7 +73,10 @@ function createOrgRepo(org, repo, description, isPrivate) {
 }
 
 function getReposForGithubUser(githubName, page = 1, per_page = 20) {
-	var url = `${baseUrl}/users/${githubName}/repos`;
+    var url = `${baseUrl}/users/${githubName}/repos`;
+    if (isGitLab) {
+        url=`${baseUrl}/users/${githubName}/projects`;
+    }
 	var ajaxConfig = {
         type: 'GET',
         dataType: 'json',
@@ -77,6 +89,9 @@ function getReposForGithubUser(githubName, page = 1, per_page = 20) {
 function getReposForAuthenticatedGithubUser(page, per_page, affiliation) {
     if (Cookies.get('cwrc-token')) {
         var url = `${baseUrl}/user/repos`;
+        if (isGitLab) {
+            url= `${baseUrl}/projects`;
+        }
         var ajaxConfig = {
             type: 'GET',
             dataType: 'json',
@@ -90,7 +105,10 @@ function getReposForAuthenticatedGithubUser(page, per_page, affiliation) {
 }
 
 function getRepoContents(githubName) {
-	var url = `${baseUrl}/repos/${githubName}`;
+    var url = `${baseUrl}/repos/${githubName}`;
+    if (isGitLab) {
+        url= `${baseUrl}/projects/'${githubName}/repository/tree`;
+    }
 	var ajaxConfig = {
 		type: 'GET',
 		dataType: 'json',
@@ -106,7 +124,10 @@ function getRepoContents(githubName) {
 }
 
 function getRepoContentsByDrillDown(githubName) {
-	var url = `${baseUrl}/repos/${githubName}/full`;
+    var url = `${baseUrl}/repos/${githubName}/full`;
+    if (isGitLab) {
+        url = `${baseUrl}/projects/${githubName}/full`;
+    }
 	var ajaxConfig = {
 		type: 'GET',
 		dataType: 'json',
@@ -118,12 +139,15 @@ function getRepoContentsByDrillDown(githubName) {
 // repoName here is the combined owner/repo, e.g., 'jchartrand/someRepoName'
 
 function getDoc(repoName, branch, path){
-
+    var url = `${baseUrl}/repos/${repoName}/contents`
+    if (isGitLab) {
+        url = `${baseUrl}/projects/${repoName}/repository/files/${encodeURI(path)}/raw?ref=master`
+    }
     const ajaxConfig = {
         type: 'GET',
         dataType: 'json',
 	    data: {branch, path},
-        url: `${baseUrl}/repos/${repoName}/contents`
+        url: url
     };
     return callCWRCGitWithToken(ajaxConfig);
 }
@@ -131,10 +155,13 @@ function getDoc(repoName, branch, path){
 function getInfoForAuthenticatedUser() {
     if (Cookies.get('cwrc-token')) {
         var url = `${baseUrl}/users`;
+        if (isGitLab) {
+            url = `${baseUrl}/users`;
+        }
         var ajaxConfig = {
             type: 'GET',
             dataType: 'json',
-            url:  url
+            url: url
         };
         return callCWRCGitWithToken(ajaxConfig).then(result=>result.data);
     } else {
@@ -156,12 +183,15 @@ function getPermissionsForGithubUser(owner, repo, username) {
 // If not, and there is an existing doc, the file will be updated against the latest SHA in the repo.
 function saveDoc(repo, path, content, branch, message, sha) {
     var data = {content, sha, branch, path, message};
-    
+    var url = `${baseUrl}/repos/${repo}/doc`
+    if (isGitLab) {
+        url = `${baseUrl}/projects/${repo}/repository/files/${path}`
+    }
     var ajaxConfig = {
         type: 'PUT',
         dataType: 'json',
         data: data,
-        url:  `${baseUrl}/repos/${repo}/doc`
+        url: url
     };
     return callCWRCGitWithToken(ajaxConfig)
 }
@@ -197,10 +227,14 @@ function getTemplate(templateName) {
 }
 
 function searchCode(query, per_page, page) {
+    var url = `${baseUrl}/search/code`;
+    if (isGitLab) {
+        url = `${baseUrl}/search?scope=projects`;
+    }
     var ajaxConfig = {
         type: 'GET',
         dataType: 'json',
-        url: `${baseUrl}/search/code`,
+        url: url,
 	    data: {q: query, page, per_page}
 
     };
@@ -224,6 +258,7 @@ function searchRepos(query, per_page, page) {
 
 module.exports = {
     setServerURL: setServerURL,
+    useGitLab: useGitLab,
     getDetailsForGithubUser: getDetailsForGithubUser,
     getDetailsForOrg: getDetailsForOrg,
     getReposForGithubUser: getReposForGithubUser,

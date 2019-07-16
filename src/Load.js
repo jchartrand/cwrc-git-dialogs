@@ -112,6 +112,7 @@ class LoadDialog extends Component {
 
 	componentDidMount() {
 		cwrcGit.setServerURL(this.props.serverURL);
+		cwrcGit.useGitLab(this.props.isGitLab);
 		this.handleTabSelect('templates');
 	}
 
@@ -315,7 +316,7 @@ class LoadDialog extends Component {
 														</Well>
 														: 
 														<Well bsSize="small">
-															<RepoResultList serverURL={this.props.serverURL} selectCB={onFileSelect} repos={results} />
+															<RepoResultList serverURL={this.props.serverURL} isGitLab={this.props.isGitLab} selectCB={onFileSelect} repos={results} />
 															<Paginator pagingCB={this.getRepos} currentPage={this.state.currentPage} lastPage={this.state.lastPage} />
 														</Well>
 													)

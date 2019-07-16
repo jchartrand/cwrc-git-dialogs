@@ -187,6 +187,7 @@ class SaveCmp extends Component {
 			return (
 				<VerifyRepo
 					serverURL={this.props.serverURL}
+					isGitLab={this.props.isGitLab}
 					user={user}
 					owner={owner}
 					repo={repo}
@@ -200,6 +201,7 @@ class SaveCmp extends Component {
 			return (
 				<SaveToPath
 					serverURL={this.props.serverURL}
+					isGitLab={this.props.isGitLab}
 					owner={owner}
 					repo={repo}
 					path={path}

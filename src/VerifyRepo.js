@@ -108,6 +108,7 @@ class VerifyRepo extends Component {
 
 	componentDidMount() {
 		cwrcGit.setServerURL(this.props.serverURL);
+		cwrcGit.useGitLab(this.props.isGitLab);
 		this.isOwnerUserOrOrg();
 	}
 

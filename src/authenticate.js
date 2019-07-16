@@ -65,6 +65,7 @@ class AuthenticateDialog extends Component {
 
     componentDidMount() {
         cwrcGit.setServerURL(this.props.serverURL);
+        cwrcGit.useGitLab(this.props.isGitLab);
         if (isAuthenticated() && this.state.user === undefined) {
             this.doGetUserInfo();
         }

@@ -25,6 +25,7 @@ import LoadDialog from './Load.js';
 import SaveCmp from './Save.js';
 
 let serverURL = '';
+let isGitLab = false;
 
 let _writer;
 let dialogId;
@@ -38,6 +39,10 @@ let dialogInstance;
 
 function setServerURL(url) {
     serverURL = url;
+}
+
+function useGitLab(useIt) {
+    isGitLab = useIt;
 }
 
 function initDialogs(writer) {
@@ -186,6 +191,7 @@ class GitDialog extends Component {
 
     handleFileSelect(repo, path) {
         cwrcGit.setServerURL(serverURL);
+        cwrcGit.useGitLab(isGitLab);
 		return cwrcGit.getDoc(repo, 'master', path)
 			.done((result)=>{
                 setDocumentInfo(repo, path);
@@ -263,7 +269,7 @@ class GitDialog extends Component {
             } else {
                 return (
                     <Modal id={dialogId} show={true} animation={false}>
-                        <AuthenticateDialog serverURL={serverURL} onUserAuthentication={this.handleAuthentication} />
+                        <AuthenticateDialog serverURL={serverURL} isGitLab={isGitLab} onUserAuthentication={this.handleAuthentication} />
                     </Modal>
                 )
             }
@@ -302,7 +308,7 @@ class GitDialog extends Component {
                     } else {
                         return (
                             <Modal id={dialogId} show={true} bsSize="large" animation={false}>
-                                <LoadDialog serverURL={serverURL} isDocLoaded={isDocLoaded} user={user} onFileSelect={this.handleFileSelect} onFileUpload={this.handleFileUpload} handleClose={this.handleClose} />
+                                <LoadDialog serverURL={serverURL} isGitLab={isGitLab} isDocLoaded={isDocLoaded} user={user} onFileSelect={this.handleFileSelect} onFileUpload={this.handleFileUpload} handleClose={this.handleClose} />
                             </Modal>
                         )
                     }
@@ -311,7 +317,7 @@ class GitDialog extends Component {
                     if (repoName === undefined) repoName = '';
                     return (
                         <Modal id={dialogId} show={true} animation={false}>
-                            <SaveCmp serverURL={serverURL} user={user.userId} owner={owner} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
+                            <SaveCmp serverURL={serverURL} isGitLab={isGitLab} user={user.userId} owner={owner} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
                         </Modal>
                     )
 
@@ -328,6 +334,7 @@ class GitDialog extends Component {
 
 export {
     setServerURL,
+    useGitLab,
 	saveWrap as save,
     loadWrap as load,
     getUserInfo,

@@ -79,6 +79,7 @@ class SaveToPath extends Component {
 
 	componentDidMount() {
 		cwrcGit.setServerURL(this.props.serverURL);
+		cwrcGit.useGitLab(this.props.isGitLab);
 		this.setState({checkingPath: true})
 		cwrcGit.getDoc(this.getFullRepoPath(), 'master', this.props.path).then(
 			(result)=>{
