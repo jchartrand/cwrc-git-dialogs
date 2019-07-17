@@ -1,15 +1,5 @@
 'use strict';
 
-let $ = window.cwrcQuery
-if ($ === undefined) {
-    let prevJQuery = window.jQuery
-    $ = require('jquery')
-    window.jQuery = $
-    require('bootstrap')
-    window.jQuery = prevJQuery
-    window.cwrcQuery = $
-}
-
 let Cookies = require('js-cookie');
 
 import cwrcGit from './GitServerClient.js';
@@ -22,23 +12,17 @@ function isAuthenticated() {
 }
 
 function getUserInfo() {
-    let dfd = $.Deferred();
-
-    cwrcGit.getInfoForAuthenticatedUser()
+    return cwrcGit.getInfoForAuthenticatedUser()
         .then((info) => {
             let user = {
                 userUrl: info.html_url,
                 userName: info.name,
                 userId: info.login
             }
-            console.log('got user info', user);
-            dfd.resolve(user);
+            return Promise.resolve(user);
         }, (error) => {
-            console.warn('cwrc-git-dialogs error:', error)
-            dfd.reject(error);
+            return Promise.reject(error);
         });
-    
-    return dfd.promise();
 }
 
 class AuthenticateDialog extends Component {

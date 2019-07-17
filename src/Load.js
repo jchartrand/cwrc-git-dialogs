@@ -1,15 +1,5 @@
 'use strict';
 
-let $ = window.cwrcQuery
-if ($ === undefined) {
-    let prevJQuery = window.jQuery
-    $ = require('jquery')
-    window.jQuery = $
-    require('bootstrap')
-    window.jQuery = prevJQuery
-    window.cwrcQuery = $
-}
-
 import React, {Component, Fragment} from 'react'
 import { Modal, Button, Tabs, Tab, Well, Grid, Row, Col, PanelGroup, Panel, ListGroup, ListGroupItem, ToggleButtonGroup, ToggleButton, ControlLabel, FormGroup, FormControl, Checkbox, Glyphicon } from 'react-bootstrap';
 import parseLinks from 'parse-link-header';
@@ -24,45 +14,39 @@ import SearchInput from "./SearchInput.js";
 const RESULTS_PER_PAGE = 10;
 
 function getReposForGithubUser(user, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
-	let dfd = $.Deferred();
-	cwrcGit.getReposForGithubUser(user, requestedPage, resultsPerPage).then((results)=>{
-		dfd.resolve({
+	return cwrcGit.getReposForGithubUser(user, requestedPage, resultsPerPage).then((results)=>{
+		return Promise.resolve({
 			items: results.data,
 			lastPage: getLastPage(results, requestedPage)
 		});
 	}, (fail)=>{
-		dfd.reject(fail);
-	})
-	return dfd.promise();
+		return Promise.reject(fail);
+	});
 }
 
 function getReposForAuthenticatedGithubUser(requestedPage, affiliation='owner', resultsPerPage=RESULTS_PER_PAGE) {
-	let dfd = $.Deferred();
-	cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, resultsPerPage, affiliation).then((results)=>{
-		dfd.resolve({
+	return cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, resultsPerPage, affiliation).then((results)=>{
+		return Promise.resolve({
 			items: results.data,
 			lastPage: getLastPage(results, requestedPage)
 		});
 	}, (fail)=>{
-		dfd.reject(fail);
-	})
-	return dfd.promise();
+		return Promise.reject(fail);
+	});
 }
 
 function getSearchResults(gitName, searchTerms, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
-	let dfd = $.Deferred();
 	let queryString = 'language:xml ';
 	if (searchTerms) queryString += '"' + searchTerms + '" ';
 	if (gitName) queryString += "user:" + gitName;
-	cwrcGit.searchCode(queryString, resultsPerPage, requestedPage).then((results)=>{
-		dfd.resolve({
+	return cwrcGit.searchCode(queryString, resultsPerPage, requestedPage).then((results)=>{
+		return Promise.resolve({
 			items: results.data.items,
 			lastPage: getLastPage(results, requestedPage)
 		});
 	}, (fail)=>{
-		dfd.reject(fail);
-	});
-	return dfd.promise();
+		return Promise.reject(fail);
+	});;
 }
 
 function getLastPage(results, requestedPage) {

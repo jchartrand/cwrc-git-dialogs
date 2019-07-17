@@ -1,16 +1,5 @@
 'use strict';
 
-// shared instance of bootstraped jquery for entity and git dialogs
-let $ = window.cwrcQuery
-if ($ === undefined) {
-    let prevJQuery = window.jQuery
-    $ = require('jquery')
-    window.jQuery = $
-    require('bootstrap')
-    window.jQuery = prevJQuery
-    window.cwrcQuery = $
-}
-
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom';
 import { Modal, Button, Label } from 'react-bootstrap';
@@ -71,7 +60,7 @@ function saveWrap(writer) {
         document.querySelector('#'+renderId)
     );
     dialogInstance.setState({show: true});
-    $('#'+dialogId).addClass('cwrc');
+    document.querySelector('#'+dialogId).classList.add('cwrc');
 }
 
 function loadWrap(writer, shouldOverwrite = false) {
@@ -92,7 +81,7 @@ function loadWrap(writer, shouldOverwrite = false) {
         document.querySelector('#'+renderId)
     );
     dialogInstance.setState({show: true, confirmLoad: true});
-    $('#'+dialogId).addClass('cwrc');
+    document.querySelector('#'+dialogId).classList.add('cwrc');
 }
 
 function logOutWrap() {
@@ -101,7 +90,7 @@ function logOutWrap() {
         document.querySelector('#'+renderId)
     );
     dialogInstance.setState({show: true,});
-    $('#'+dialogId).addClass('cwrc');
+    document.querySelector('#'+dialogId).classList.add('cwrc');
 }
 
 function getUserInfo() {
@@ -193,13 +182,13 @@ class GitDialog extends Component {
         cwrcGit.setServerURL(serverURL);
         cwrcGit.useGitLab(isGitLab);
 		return cwrcGit.getDoc(repo, 'master', path)
-			.done((result)=>{
+			.then((result)=>{
                 setDocumentInfo(repo, path);
                 this.handleClose();
                 setTimeout(()=>{
                     _writer.setDocument(result.doc);
                 }, 50)
-			}).fail((error)=>{
+			},(error)=>{
                 setDocumentInfo(undefined, undefined);
                 this.setState({error: `There was an error loading the document from: ${repo}${path}`});
 			});

@@ -1,15 +1,5 @@
 'use strict';
 
-let $ = window.cwrcQuery
-if ($ === undefined) {
-	let prevJQuery = window.jQuery
-	$ = require('jquery')
-	window.jQuery = $
-	require('bootstrap')
-	window.jQuery = prevJQuery
-	window.cwrcQuery = $
-}
-
 import React, {Fragment, Component} from 'react'
 import { Modal, Grid, Row, Col, Button, Label, Form, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
 
