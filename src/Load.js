@@ -114,7 +114,7 @@ class LoadDialog extends Component {
 					cwrcGit.getTemplates().then((templates)=>{
 						this.setState({templates, loading: false})
 					}, (fail)=>{
-						this.setState({error: fail.responseText})
+						this.setState({error: fail.responseText, loading: false})
 					})
 				}
 				break;
