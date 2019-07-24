@@ -16,53 +16,64 @@
 1. [Installation](#installation)
 1. [API](#api)
 1. [Use](#use)
+<!---
 1. [Development](#development)
 1. [Testing](#testing)
+-->
 
 ### Overview
 
-Spawns dialogs for file listing, loading, and saving.  Meant to be used by [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter).  Uses [CWRC-GitServerClient](https://github.com/cwrc/CWRC-GitServerClient), which in turn makes the actual HTTP calls to the [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which then calls out to GitHub itself, through the [GitHub REST API](https://developer.github.com/v3/).
+A suite of dialogs for loading, saving, and listing files.  Meant to be used in conjunction with [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter).  Relies upon an instance of [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer) to make calls to GitHub.
 
 ### Demo 
 
-The [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) code bundles together the code in this repository together with the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) and the [CWRC-GitServerClient](https://github.com/cwrc/CWRC-GitServerClient) to make up the portion of the CWRC-Writer that runs in the web browser.  The server side code is handled by [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which is an Express.js server.  Both parts are demonstrated in the [CWRC GitHub Sandbox](http://208.75.74.217/editor_github.html). The same code can be installed on your own server to run your own instance.
+The [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) code bundles together the code in this repository together with the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) to make up the portion of the CWRC-Writer that runs in the web browser.  The server side code is handled by [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which is an Express.js server.  Both parts are demonstrated in the [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca/). The same code can be installed on your own server to run your own instance.
 
 ### Installation
 
-`npm install cwrc-git-dialogs`   
-
-To simultaneously register as a dependency in your package.json:
-
-`npm install cwrc-git-dialogs --save`   
-
-or in short form:
-
-`npm i -S cwrc-git-delegator`
+`npm install cwrc-git-dialogs`
 
 ### API
 
-This module exports a javascript object with three methods:
+This module exports an object with the following methods:
 
-###### save(writer)
+###### save(CWRC-WriterBase writer)
 *Spawns a popup prompting the user to save the current document to a GitHub repository.*
 
-###### load(writer)
+###### load(CWRC-WriterBase writer)
 *Spawns a popup prompting the user to load a document from a GitHub repository.*
 
-###### authenticate()
-*Returns true if the user is authenticated.  Redirects to Github OAuth url if not.*
+###### getUserInfo()
+*Returns an object with the following properties: userId, userName, userUrl.*
 
-where the *writer* is an instance of the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase).  
+###### logOut()
+*Removes the GitHub OAuth token and reloads the page.*
+
+###### setServerURL(String url)
+*Sets the URL for the location of the CWRC-GitServer instance.*
+
+###### useGitLab(Boolean useIt)
+*Whether to use GitLab API formatted calls. Defaults to false.*
 
 ### Use
 
-When setting up a new CWRC-Writer, you 'register' this object (i.e., the object returned when you 'require' the NPM package associated with this repository) with a CWRC-Writer instance by passing the object in on a 'config' object when instantiating the CWRC-Writer instance (using the javascript 'new' operator).  See [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
+When setting up CWRC-Writer, you register this module with a [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) instance by passing it as a property on the `config` object used when instantiating the instance. After registering the module, CWRC-WriterBase will call this module's methods as required.
 
-The [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) will assume that the save and load methods are available, and will invoke them when the 'save' and 'load' buttons in the editor are clicked.
+A simplified example:
 
-The 'authenticate' method is called separately wherever it makes most sense.  In the [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) it is called before instantating the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase).  Again, look at [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for an example.
+```
+var GitStorageDialogs = require('cwrc-git-dialogs');
+var config = {
+    storageDialogs: GitStorageDialogs
+}
+var CWRCWriter = require('cwrc-writer-base');
+var writer = new CWRCWriter(config);
+```
 
-The test directory contains [TAPE](https://github.com/substack/tape) tests that can help better understand the API. Also see [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) which fully uses the API.
+See [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for the full example.
+
+
+<!---
 
 ### Development
 
@@ -161,5 +172,6 @@ Finally we publish the coverage at codecov.io:
 "report-coverage": "cat ./coverage/lcov.info | codecov"
 ```
 
+-->
 
 
