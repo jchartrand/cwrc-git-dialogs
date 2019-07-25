@@ -27,7 +27,7 @@ A suite of dialogs for loading, saving, and listing files.  Meant to be used in 
 
 ### Demo 
 
-The [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) code bundles together the code in this repository together with the [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) to make up the portion of the CWRC-Writer that runs in the web browser.  The server side code is handled by [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer), which is an Express.js server.  Both parts are demonstrated in the [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca/). The same code can be installed on your own server to run your own instance.
+The [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca) is running an instance of [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter), which uses the NPM package published from this repository along with the code in [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase). There is a corresponding server component running [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer) and [CWRC-Git](https://github.com/cwrc/CWRC-Git). The same code is easily (for someone with modest development experience) installed on any server to run your own instance.  If you are looking to put together your own CWRC-Writer, [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) is a good place to start.
 
 ### Installation
 
