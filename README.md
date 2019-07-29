@@ -41,7 +41,7 @@ The [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca) is running an instance
 *Spawns a popup prompting the user to load a document from a GitHub repository.*
 
 ###### getDocumentURI()
-*Returns a string representing the URI of the current document.
+*Returns a string representing the URI of the current document.*
 
 ###### getUserInfo()
 *Returns an object with the following properties: userId, userName, userUrl.*
