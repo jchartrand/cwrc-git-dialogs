@@ -32,7 +32,7 @@ The [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca) is running an instance
 
 ### API
 
-Methods used by CWRC-WriterBase:
+#### Methods used by CWRC-WriterBase
 
 ###### save(CWRC-WriterBase writer)
 *Spawns a popup prompting the user to save the current document to a GitHub repository.*
@@ -49,7 +49,7 @@ Methods used by CWRC-WriterBase:
 ###### logOut()
 *Removes the GitHub OAuth token and reloads the page.*
 
-Additional configuration methods:
+#### Additional configuration methods
 
 ###### setServerURL(String url)
 *Sets the URL for the location of the CWRC-GitServer instance.*
