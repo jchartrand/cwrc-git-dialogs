@@ -127,7 +127,7 @@ class SaveCmp extends Component {
 									<h4>Repository Path</h4>
 									<Col sm={6}>
 										<FormGroup controlId="owner" validationState={this.validateControl(this.state.owner)}>
-											<ControlLabel>GitHub User</ControlLabel>
+											<ControlLabel>GitHub User/Organization</ControlLabel>
 											<FormControl
 												type="text"
 												value={owner}
