@@ -178,19 +178,20 @@ class GitDialog extends Component {
         this.forceUpdate();
     }
 
-    handleFileSelect(repo, path) {
+    handleFileSelect(repoName, path) {
         cwrcGit.setServerURL(serverURL);
         cwrcGit.useGitLab(isGitLab);
-		return cwrcGit.getDoc(repo, 'master', path)
+        let [owner, repo] = repoName.split('/');
+		return cwrcGit.getDoc(owner, repo, 'master', path)
 			.then((result)=>{
-                setDocumentInfo(repo, path);
+                setDocumentInfo(repoName, path);
                 this.handleClose();
                 setTimeout(()=>{
                     _writer.setDocument(result.doc);
                 }, 50)
 			},(error)=>{
                 setDocumentInfo(undefined, undefined);
-                this.setState({error: `There was an error loading the document from: ${repo}${path}`});
+                this.setState({error: `There was an error loading the document from: ${repoName}${path}`});
 			});
     }
 

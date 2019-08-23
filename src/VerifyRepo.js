@@ -130,7 +130,7 @@ class VerifyRepo extends Component {
 
 	checkRepoExistence() {
 		this.setState({checkingRepo: true});
-		cwrcGit.getRepoContents(this.getFullRepoPath()).then(
+		cwrcGit.getRepoContents(this.props.owner, this.props.repo).then(
 			(result)=>{
 				this.setState({
 					checkingRepo: false,
@@ -168,10 +168,6 @@ class VerifyRepo extends Component {
 				this.displayError(error);
 			}
 		)
-	}
-
-	getFullRepoPath() {
-		return this.props.owner+'/'+this.props.repo;
 	}
 
 	complete = () => {

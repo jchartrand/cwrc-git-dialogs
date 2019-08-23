@@ -81,7 +81,7 @@ class SaveToPath extends Component {
 		cwrcGit.setServerURL(this.props.serverURL);
 		cwrcGit.useGitLab(this.props.isGitLab);
 		this.setState({checkingPath: true})
-		cwrcGit.getDoc(this.getFullRepoPath(), 'master', this.props.path).then(
+		cwrcGit.getDoc(this.props.owner, this.props.repo, 'master', this.props.path).then(
 			(result)=>{
 				this.setState({
 					checkingPath: false,
@@ -102,10 +102,6 @@ class SaveToPath extends Component {
 			})
 	}
 
-	getFullRepoPath() {
-		return this.props.owner+'/'+this.props.repo;
-	}
-
 	complete = () => {
 		this.resetComponent()
 		this.props.savedCB()
@@ -124,7 +120,7 @@ class SaveToPath extends Component {
 		this.setState({saving: true});
 		const document = this.props.getDocument();
 		this.props.usePR ?
-			cwrcGit.saveAsPullRequest(this.getFullRepoPath(), this.props.path, document, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
+			cwrcGit.saveAsPullRequest(this.props.owner, this.props.repo, this.props.path, document, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
 				(result) => this.complete(),
 				(error) => {
 					if (error.statusText === 'Internal Server Error') {
@@ -133,7 +129,7 @@ class SaveToPath extends Component {
 					this.displayError(error)
 				}
 			) :
-			cwrcGit.saveDoc(this.getFullRepoPath(), this.props.path, document, this.state.branch, this.state.commitMessage).then(
+			cwrcGit.saveDoc(this.props.owner, this.props.repo, this.props.path, document, this.state.branch, this.state.commitMessage).then(
 				(result) => this.complete(),
 				(error) => {
 					if (error.statusText === 'Not Found') {

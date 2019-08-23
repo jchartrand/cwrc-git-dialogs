@@ -104,10 +104,10 @@ function getReposForAuthenticatedGithubUser(page, per_page, affiliation) {
     }
 }
 
-function getRepoContents(githubName) {
-    var url = `${baseUrl}/repos/${githubName}`;
+function getRepoContents(owner, repo) {
+    var url = `${baseUrl}/repos/${owner}/${repo}`;
     if (isGitLab) {
-        url= `${baseUrl}/projects/'${githubName}/repository/tree`;
+        url= `${baseUrl}/projects/${repo}/repository/tree`;
     }
 	var ajaxConfig = {
 		type: 'GET',
@@ -123,10 +123,10 @@ function getRepoContents(githubName) {
 	});
 }
 
-function getRepoContentsByDrillDown(githubName) {
-    var url = `${baseUrl}/repos/${githubName}/full`;
+function getRepoContentsByDrillDown(owner, repo) {
+    var url = `${baseUrl}/repos/${owner}/${repo}/full`;
     if (isGitLab) {
-        url = `${baseUrl}/projects/${githubName}/full`;
+        url = `${baseUrl}/projects/${repo}/full`;
     }
 	var ajaxConfig = {
 		type: 'GET',
@@ -136,12 +136,10 @@ function getRepoContentsByDrillDown(githubName) {
 	return callCWRCGitWithToken(ajaxConfig);
 }
 
-// repoName here is the combined owner/repo, e.g., 'jchartrand/someRepoName'
-
-function getDoc(repoName, branch, path){
-    var url = `${baseUrl}/repos/${repoName}/contents`
+function getDoc(owner, repo, branch, path){
+    var url = `${baseUrl}/repos/${owner}/${repo}/contents`
     if (isGitLab) {
-        url = `${baseUrl}/projects/${repoName}/repository/files/${encodeURI(path)}/raw?ref=master`
+        url = `${baseUrl}/projects/${repo}/repository/files/${encodeURI(path)}/raw?ref=master`
     }
     const ajaxConfig = {
         type: 'GET',
@@ -181,9 +179,9 @@ function getPermissionsForGithubUser(owner, repo, username) {
 // sha is optional.
 // If provided, the doc will be updated against that SHA.
 // If not, and there is an existing doc, the file will be updated against the latest SHA in the repo.
-function saveDoc(repo, path, content, branch, message, sha) {
+function saveDoc(owner, repo, path, content, branch, message, sha) {
     var data = {content, sha, branch, path, message};
-    var url = `${baseUrl}/repos/${repo}/doc`
+    var url = `${baseUrl}/repos/${owner}/${repo}/doc`
     if (isGitLab) {
         url = `${baseUrl}/projects/${repo}/repository/files/${path}`
     }
@@ -196,14 +194,14 @@ function saveDoc(repo, path, content, branch, message, sha) {
     return callCWRCGitWithToken(ajaxConfig)
 }
 
-function saveAsPullRequest(repo, path, content, branch, message, title, sha) {
+function saveAsPullRequest(owner, repo, path, content, branch, message, title, sha) {
 	var data = {sha, branch, path, message, content, title}
 
 	var ajaxConfig = {
 		type: 'PUT',
 		dataType: 'json',
 		data: data,
-		url:  `${baseUrl}/repos/${repo}/pr`
+		url:  `${baseUrl}/repos/${owner}/${repo}/pr`
 	};
 	return callCWRCGitWithToken(ajaxConfig)
 }

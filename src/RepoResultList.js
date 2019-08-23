@@ -44,7 +44,8 @@ class RepoResultList extends Component {
 
 	showRepoStructure(repoFullName){
 			if (!this.state.repoStructures[repoFullName]) {
-				cwrcGit.getRepoContents(repoFullName).then(({contents: {contents: structure}}) => {
+				let [owner, repo] = repoFullName.split('/');
+				cwrcGit.getRepoContents(owner, repo).then(({contents: {contents: structure}}) => {
 						//console.log(structure)
 						this.setState((prevState, props) => ({repoStructures: {...prevState.repoStructures, [repoFullName]: structure}}))
 					}
