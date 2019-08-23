@@ -16,7 +16,7 @@
     "url": "https://github.com/cwrc/cwrc-git-dialogs/issues"
   },
   "homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
-  "author": "“James <“jc.chartrand@gmail.com”>",
+  "contributors": ["James Chartrand", "Andrew MacDonald"],
   "license": "GPL-2.0",
   "main": "src/index.js",
   "scripts": {
@@ -25,15 +25,8 @@
     "browserify": "mkdirp build && browserify test/development.js -o build/development.js --debug -t babelify",
     "watch": "watchify test/development.js -o build/development.js --debug --verbose -t babelify",
     "watch-indexlist": "watchify test/ResultListTest.js -o build/ResultList.js --debug --verbose -t babelify ",
-    "test-old": "mkdirp coverage && npm run test:electron && npm run generate-coverage",
     "test": "",
-    "test:watch": "mkdirp test/build && watchify test/browser.js --debug -o test/build/test.js -t [ babelify ] -t [ browserify-istanbul ]",
-    "test:browser": "browserify -t babelify -t browserify-istanbul test/browser.js | browser-run  -p 2222 --static .  | node test/extract-coverage.js | faucet",
-    "test:electron": "browserify -t babelify -t browserify-istanbul test/browser.js | browser-run --static . | node test/extract-coverage.js | faucet ",
-    "test:chrome": "browserify -t browserify-istanbul test/browser.js | browser-run --static . -b chrome | node test/extract-coverage.js | faucet ",
-    "generate-coverage": "nyc report --reporter=lcov",
-    "check-coverage": "nyc check-coverage --statements 0 --branches 0 --functions 0 --lines 0",
-    "report-coverage": "cat ./coverage/lcov.info | codecov",
+    "report-coverage": "cat ./coverage/coverage-final.json | codecov",
     "travis-deploy-once": "travis-deploy-once"
   },
   "dependencies": {
@@ -51,22 +44,15 @@
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
-    "babel-plugin-istanbul": "^5.1.4",
     "babelify": "^10.0.0",
-    "browser-run": "^6.0.0",
     "browserify": "^16.0.0",
-    "browserify-istanbul": "^3.0.1",
     "codecov": "^3.5.0",
     "commitizen": "^3.1.1",
-    "concat-stream": "^1.6.0",
     "cz-conventional-changelog": "^2.1.0",
-    "faucet": "0.0.1",
     "husky": "^2.1.0",
+    "jest": "^24.9.0",
     "mkdirp": "0.5.1",
-    "nyc": "^14.1.1",
     "semantic-release": "^15.13.12",
-    "sinon": "2.2.0",
-    "tape": "^4.10.2",
     "travis-deploy-once": "^5.0.11",
     "watchify": "^3.11.1"
   },
@@ -79,5 +65,23 @@
     "hooks": {
       "pre-commit": ""
     }
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "./src/index.js"
+    ],
+    "coverageDirectory": "./coverage",
+    "coverageThreshold": {
+      "global": {
+        "branches": 10,
+        "functions": 10,
+        "lines": 10,
+        "statements": 10
+      }
+    },
+    "testMatch": [
+      "**/test/**/*.[jt]s?(x)"
+    ]
   }
 }
