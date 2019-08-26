@@ -2,7 +2,7 @@
 
 let $ = require('jquery')
 const Cookies = require('js-cookie')
-let dialogs = require('../src/index.js')
+let gitDialogs = require('../src/index.js')
 
 const sampleDoc = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -61,8 +61,11 @@ const writerMock = {
     }
 }
 
-test('show splash', () => {
-    expect.assertions(1);
-    dialogs.load(writerMock);
-    expect($('#git-dialogs-0 h1').text().indexOf('Welcome to CWRC-Writer')).toBeGreaterThan(-1);
+$('#load-pop').on('click', function() {	
+	gitDialogs.load(writerMock)
+	
+})
+
+$('#save-pop').on('click', function() {
+	gitDialogs.save(writerMock)
 })
