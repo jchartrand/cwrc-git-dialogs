@@ -1,22 +1,14 @@
 'use strict';
 
 let $ = require('jquery')
-const test = require('tape')
 const Cookies = require('js-cookie')
-const sinon = require('sinon')
 let dialogs = require('../src/index.js')
-let server = sinon.fakeServer.create({respondImmediately:true});
+// let server = sinon.fakeServer.create({respondImmediately:true});
 
-setupServerMocks()
+// setupServerMocks()
 
 addBootstrapCSS();
 
-// append the test coverage output to the TAPE console output, for later extraction by
-// the node test/extract-coverage.js command, used in the test scripts in package.json
-test.onFinish(()=>{
-        console.log('# coverage:', JSON.stringify(window.__coverage__))
-        window.close()
-    })
 
 let testDoc = `
     <?xml version="1.0" encoding="UTF-8"?>
