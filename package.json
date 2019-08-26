@@ -16,7 +16,10 @@
     "url": "https://github.com/cwrc/cwrc-git-dialogs/issues"
   },
   "homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
-  "contributors": ["James Chartrand", "Andrew MacDonald"],
+  "contributors": [
+    "James Chartrand",
+    "Andrew MacDonald"
+  ],
   "license": "GPL-2.0",
   "main": "src/index.js",
   "scripts": {
@@ -25,7 +28,7 @@
     "browserify": "mkdirp build && browserify test/development.js -o build/development.js --debug -t babelify",
     "watch": "watchify test/development.js -o build/development.js --debug --verbose -t babelify",
     "watch-indexlist": "watchify test/ResultListTest.js -o build/ResultList.js --debug --verbose -t babelify ",
-    "test": "",
+    "test": "jest",
     "report-coverage": "cat ./coverage/coverage-final.json | codecov",
     "travis-deploy-once": "travis-deploy-once"
   },
@@ -44,6 +47,8 @@
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
+    "@testing-library/jest-dom": "^4.1.0",
+    "@testing-library/react": "^9.1.3",
     "babelify": "^10.0.0",
     "browserify": "^16.0.0",
     "codecov": "^3.5.0",

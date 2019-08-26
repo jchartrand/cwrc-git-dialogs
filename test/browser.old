@@ -5,7 +5,7 @@ const Cookies = require('js-cookie')
 let dialogs = require('../src/index.js')
 // let server = sinon.fakeServer.create({respondImmediately:true});
 
-setupServerMocks()
+// setupServerMocks()
 
 addBootstrapCSS();
 
