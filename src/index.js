@@ -107,7 +107,7 @@ function getDocumentURI() {
         
     } else {
         console.warn('cwrc-git-dialogs: no repo or path set!');
-        return '';
+        return window.location.href;
     }
 }
 
