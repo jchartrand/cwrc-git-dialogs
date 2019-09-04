@@ -122,26 +122,27 @@ class SaveToPath extends Component {
 
 	save = () => {
 		this.setState({saving: true});
-		const document = this.props.getDocument();
-		this.props.usePR ?
-			cwrcGit.saveAsPullRequest(this.getFullRepoPath(), this.props.path, document, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
-				(result) => this.complete(),
-				(error) => {
-					if (error.statusText === 'Internal Server Error') {
-						error.statusText = 'You do not have pull request permissions for the selected repository. Try saving to another repository you have pull request privileges for.'
+		this.props.getDocument().then((document) => {
+			this.props.usePR ?
+				cwrcGit.saveAsPullRequest(this.getFullRepoPath(), this.props.path, document, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
+					(result) => this.complete(),
+					(error) => {
+						if (error.statusText === 'Internal Server Error') {
+							error.statusText = 'You do not have pull request permissions for the selected repository. Try saving to another repository you have pull request privileges for.'
+						}
+						this.displayError(error)
 					}
-					this.displayError(error)
-				}
-			) :
-			cwrcGit.saveDoc(this.getFullRepoPath(), this.props.path, document, this.state.branch, this.state.commitMessage).then(
-				(result) => this.complete(),
-				(error) => {
-					if (error.statusText === 'Not Found') {
-						error.statusText = 'You do not have writing permissions for the selected repository. Try saving as a pull request or save to another repository you have writing privileges for.'
+				) :
+				cwrcGit.saveDoc(this.getFullRepoPath(), this.props.path, document, this.state.branch, this.state.commitMessage).then(
+					(result) => this.complete(),
+					(error) => {
+						if (error.statusText === 'Not Found') {
+							error.statusText = 'You do not have writing permissions for the selected repository. Try saving as a pull request or save to another repository you have writing privileges for.'
+						}
+						this.displayError(error)
 					}
-					this.displayError(error)
-				}
-			)
+				)
+			})
 
 	}
 

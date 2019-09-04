@@ -112,8 +112,11 @@ function getDocumentURI() {
 }
 
 function getDocument() {
-    const content = _writer.getDocument(true);
-    return content;
+    return new Promise((resolve, reject) => {
+        _writer.getDocumentString((content) => {
+            resolve(content);
+        });
+    })
 }
 
 function getDocumentInfoFromLocation() {
