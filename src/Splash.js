@@ -27,6 +27,7 @@ const Splash = (props) => {
                 <p>James Chartrand, <small>2011 - 2018 (lead developer)</small></p>
                 <p>Mihaela Ilovan, <small>2014 - present (project manager)</small></p>
                 <p>Andrew MacDonald, <small>2013 - present (2018 - lead developer)</small></p>
+                <p>Luciano Frizzera, <small>2019 - present (developer)</small></p>
                 <p>Geoffrey Rockwell, <small>2011 - 2014 (scoping and direction)</small></p>
                 <p>Megan Sellmer, <small>2011 - 2016 (testing and documentation)</small></p>
             </Modal.Body>

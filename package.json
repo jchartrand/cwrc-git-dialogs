@@ -18,7 +18,8 @@
   "homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
   "contributors": [
     "James Chartrand",
-    "Andrew MacDonald"
+    "Andrew MacDonald",
+    "Luciano Frizzera"
   ],
   "license": "GPL-2.0",
   "main": "src/index.js",
