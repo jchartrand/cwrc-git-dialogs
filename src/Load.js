@@ -5,13 +5,13 @@ import { Modal, Button, Tabs, Tab, Well, Grid, Row, Col, PanelGroup, Panel, List
 import parseLinks from 'parse-link-header';
 import cwrcGit from './GitServerClient.js';
 
-import RepoResultList from "./RepoResultList.js";
 import SearchResultList from "./SearchResultList.js";
 import FileUpload from "./FileUpload.js";
 import Paginator from "./Paginator.js";
 import SearchInput from "./SearchInput.js";
+import RepoResultCarousel from './RepoResultCarousel.js';
 
-const RESULTS_PER_PAGE = 10;
+const RESULTS_PER_PAGE = 100;
 
 function getReposForGithubUser(user, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
 	return cwrcGit.getReposForGithubUser(user, requestedPage, resultsPerPage).then((results)=>{
@@ -35,7 +35,7 @@ function getReposForAuthenticatedGithubUser(requestedPage, affiliation='owner', 
 	});
 }
 
-function getSearchResults(gitName, searchTerms, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
+function searchFileContentsForUser(gitName, searchTerms, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
 	let queryString = 'language:xml ';
 	if (searchTerms) queryString += '"' + searchTerms + '" ';
 	if (gitName) queryString += "user:" + gitName;
@@ -46,7 +46,7 @@ function getSearchResults(gitName, searchTerms, requestedPage, resultsPerPage=RE
 		});
 	}, (fail)=>{
 		return Promise.reject(fail);
-	});;
+	});
 }
 
 function getLastPage(results, requestedPage) {
@@ -151,14 +151,14 @@ class LoadDialog extends Component {
 		this.setState({loading: true, error: '', isSearch: true, query: value});
 		let promise;
 		if (this.state.repoType === 'private') {
-			promise = getSearchResults(this.props.user.userId, value, pageNum)
+			promise = searchFileContentsForUser(this.props.user.userId, value, pageNum)
 		} else {
 			let filter = this.filterInput.value;
 			if (filter && !value) {
 				this.setState({isSearch: false});
 				promise = getReposForGithubUser(filter, pageNum);
 			} else {
-				promise = getSearchResults(filter, value, pageNum);
+				promise = searchFileContentsForUser(filter, value, pageNum);
 			}
 		}
 		promise.then((result)=>{
@@ -275,7 +275,7 @@ class LoadDialog extends Component {
 												</Panel.Collapse>
 											</Panel>
 										</PanelGroup>
-										<SearchInput placeholder="Search within repositories" style={{marginTop: '10px'}} onChange={this.handleSearchChange} onSearch={(value)=>{this.doSearch(1,value)}} onClear={this.handleSearchClear} />
+										<SearchInput placeholder="Search XML files within repos" style={{marginTop: '10px'}} onChange={this.handleSearchChange} onSearch={(value)=>{this.doSearch(1,value)}} onClear={this.handleSearchClear} />
 										{false ? <FormGroup style={{marginTop: '10px'}}>
 											<Checkbox checked={xmlOnly} onChange={this.handleXMLOnlyChange}>
 												Only show XML repositories
@@ -300,8 +300,7 @@ class LoadDialog extends Component {
 														</Well>
 														: 
 														<Well bsSize="small">
-															<RepoResultList serverURL={this.props.serverURL} isGitLab={this.props.isGitLab} selectCB={onFileSelect} repos={results} />
-															<Paginator pagingCB={this.getRepos} currentPage={this.state.currentPage} lastPage={this.state.lastPage} />
+															<RepoResultCarousel serverURL={this.props.serverURL} isGitLab={this.props.isGitLab} selectCB={onFileSelect} repos={results} />
 														</Well>
 													)
 												)
