@@ -18,15 +18,15 @@
   "homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
   "contributors": [
     "James Chartrand",
-    "Andrew MacDonald"
+    "Andrew MacDonald",
+    "Luciano Frizzera"
   ],
   "license": "GPL-2.0",
   "main": "src/index.js",
   "scripts": {
     "semantic-release": "semantic-release",
     "cm": "git-cz",
-    "browserify": "mkdirp build && browserify test/development.js -o ./development.js --debug -t babelify",
-    "watch": "watchify test/development.js -o ./development.js --debug --verbose -t babelify",
+    "build-css": "lessc src/css/bootstrap.less src/css/bootstrap.css",
     "test": "jest",
     "report-coverage": "cat ./coverage/coverage-final.json | codecov",
     "travis-deploy-once": "travis-deploy-once"
@@ -55,6 +55,7 @@
     "cz-conventional-changelog": "^2.1.0",
     "husky": "^2.1.0",
     "jest": "^24.9.0",
+    "less": "^3.10.3",
     "mkdirp": "0.5.1",
     "semantic-release": "^15.13.12",
     "travis-deploy-once": "^5.0.11",
