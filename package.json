@@ -32,7 +32,7 @@
     "travis-deploy-once": "travis-deploy-once"
   },
   "dependencies": {
-    "bootstrap": "^3.4.1",
+    "bootstrap": "^4.4.1",
     "jquery": "^3.4.1",
     "js-cookie": "^2.2.1",
     "parse-link-header": "^1.0.1",
