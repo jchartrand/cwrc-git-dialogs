@@ -1,281 +1,405 @@
-'use strict';
-
+import Cookies from 'js-cookie';
 let $ = window.cwrcQuery
-if ($ === undefined) {
-    $ = require('jquery');
-}
-
-const Cookies = require('js-cookie');
+if ($ === undefined) $ = require('jquery');
 
 let baseUrl = '';
-function setServerURL(url) {
-    baseUrl = url;
-}
+const setServerURL = (url) => baseUrl = url;
 
 let isGitLab = false;
-function useGitLab(useIt) {
-    isGitLab = useIt;
-}
+const useGitLab = (useIt) => isGitLab = useIt;
 
-function callCWRCGitWithToken(ajaxConfig) {
-    ajaxConfig.crossDomain = true;
-    ajaxConfig.xhrFields = {withCredentials: true};
-    ajaxConfig.headers = {};
+
+const callCWRCGitWithToken = async (requestOptions) => {
+    const url = requestOptions.url;
     const theJWT = Cookies.get('cwrc-token');
-    if (theJWT) {
-    	ajaxConfig.headers['cwrc-token'] = theJWT;
-    }
-    return $.ajax(ajaxConfig);
+    if (theJWT) requestOptions.headers['cwrc-token'] = theJWT;
+
+    const response = await fetch(url, requestOptions)
+        .catch((err) => {
+            console.log(err)
+            return err;
+        });
+
+    return await response.json();
+
 }
 
-function getDetailsForGithubUser(user) {
-    var url = `${baseUrl}/users/${user}`;
-	var ajaxConfig = {
-        type: 'GET',
-        dataType: 'json',
-        url:  url
-    };
-    return callCWRCGitWithToken(ajaxConfig);
+const getDetailsForGithubUser = async (user) => {
+    const url = `${baseUrl}/users/${user}`;
+    const response = await callCWRCGitWithToken({
+        url,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+    return response;
 }
 
-function getDetailsForOrg(org) {
-    var url = `${baseUrl}/orgs/${org}`;
-	var ajaxConfig = {
-        type: 'GET',
-        dataType: 'json',
-        url:  url
-    };
-    return callCWRCGitWithToken(ajaxConfig);
+const getDetailsForOrg = async (org) => {
+    const url = `${baseUrl}/orgs/${org}`;
+    const response = await callCWRCGitWithToken({
+        url,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+    return response;
 }
 
-function createRepo(repo, description, isPrivate) {
-    var url = `${baseUrl}/user/repos`;
-    if (isGitLab) {
-        url=`${baseUrl}/projects?name=`+repo
-    }
-	const ajaxConfig = {
-        type: 'POST',
-        dataType: 'json',
-        data: {repo, isPrivate, description },
-        url: url
-    };
-  	return callCWRCGitWithToken(ajaxConfig);
+const createRepo = async (repo, description, isPrivate) => {
+    let url = `${baseUrl}/user/repos`;
+    if (isGitLab) url = `${baseUrl}/projects?name=${repo}`;
+
+    const response = await callCWRCGitWithToken({
+        url,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            repo,
+            isPrivate,
+            description
+        })
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+    return response;
+
 }
 
-function createOrgRepo(org, repo, description, isPrivate) {
-	const ajaxConfig = {
-        type: 'POST',
-        dataType: 'json',
-        data: {repo, isPrivate, description },
-        url:  `${baseUrl}/orgs/${org}/repos`
-    };
-    return callCWRCGitWithToken(ajaxConfig);
+const createOrgRepo = async (org, repo, description, isPrivate) => {
+
+    const response = await callCWRCGitWithToken({
+        url: `${baseUrl}/orgs/${org}/repos`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            repo,
+            isPrivate,
+            description
+        })
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+    return response;
+
 }
 
-function getReposForGithubUser(githubName, page = 1, per_page = 20) {
-    var url = `${baseUrl}/users/${githubName}/repos`;
-    if (isGitLab) {
-        url=`${baseUrl}/users/${githubName}/projects`;
-    }
-	var ajaxConfig = {
-        type: 'GET',
-        dataType: 'json',
-        url:  url,
-		data: {page, per_page}
-    };
-    return callCWRCGitWithToken(ajaxConfig);
+const getReposForGithubUser = async (githubName, page = 1, per_page = 20) => {
+    let url = `${baseUrl}/users/${githubName}/repos`;
+    if (isGitLab) url = `${baseUrl}/users/${githubName}/projects`;
+
+    let parameters = '?';
+    parameters += `page=${page}`
+    parameters += `&per_page=${per_page}`;
+
+    const response = await callCWRCGitWithToken({
+        url: url + parameters,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+    return response;
+
 }
 
-function getReposForAuthenticatedGithubUser(page, per_page, affiliation) {
+const getReposForAuthenticatedGithubUser = async (page, per_page, affiliation) => {
     if (Cookies.get('cwrc-token')) {
-        var url = `${baseUrl}/user/repos`;
-        if (isGitLab) {
-            url= `${baseUrl}/projects`;
-        }
-        var ajaxConfig = {
-            type: 'GET',
-            dataType: 'json',
-            url:  url,
-	        data: {page, per_page, affiliation}
-        };
-        return callCWRCGitWithToken(ajaxConfig).then(result=>result);
+        let url = `${baseUrl}/user/repos`;
+        if (isGitLab) url = `${baseUrl}/projects`;
+
+        let parameters = '?';
+        parameters += `page=${page}`
+        parameters += `&per_page=${per_page}`;
+        parameters += `&affiliation=${affiliation}`
+
+        const response = await callCWRCGitWithToken({
+            url: url + parameters,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        }).catch((err) => {
+            console.log(err)
+            return err;
+        });
+
+        return response
+
     } else {
-        return $.Deferred().reject("login").promise();
+        return $.Deferred().reject('login').promise();
     }
 }
 
-function getRepoContents(githubName) {
-    var url = `${baseUrl}/repos/${githubName}`;
-    if (isGitLab) {
-        url= `${baseUrl}/projects/'${githubName}/repository/tree`;
-    }
-	var ajaxConfig = {
-		type: 'GET',
-		dataType: 'json',
-		url:  url
-	};
-	return callCWRCGitWithToken(ajaxConfig).then(result=>{
-		return result
-	}, error=>{
-		console.log('the error in gitserverclient.getRepoContents:');
-		console.log(error)
-		return error
-	});
+const getRepoContents = async (githubName) => {
+    let url = `${baseUrl}/repos/${githubName}`;
+    if (isGitLab) url = `${baseUrl}/projects/'${githubName}/repository/tree`;
+
+    const response = await callCWRCGitWithToken({
+        url,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log('the error in gitserverclient.getRepoContents:');
+        console.log(err)
+        return err
+    });
+
+    return response;
+
 }
 
-function getRepoContentsByDrillDown(githubName) {
-    var url = `${baseUrl}/repos/${githubName}/full`;
-    if (isGitLab) {
-        url = `${baseUrl}/projects/${githubName}/full`;
-    }
-	var ajaxConfig = {
-		type: 'GET',
-		dataType: 'json',
-		url:  url
-	};
-	return callCWRCGitWithToken(ajaxConfig);
+const getRepoContentsByDrillDown = async (githubName) => {
+    let url = `${baseUrl}/repos/${githubName}/full`;
+    if (isGitLab) url = `${baseUrl}/projects/${githubName}/full`;
+
+    const response = await callCWRCGitWithToken({
+        url,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+    return response;
 }
 
 // repoName here is the combined owner/repo, e.g., 'jchartrand/someRepoName'
+const getDoc = async (repoName, branch, path) => {
+    let url = `${baseUrl}/repos/${repoName}/contents`
+    if (isGitLab) url = `${baseUrl}/projects/${repoName}/repository/files/${encodeURI(path)}/raw?ref=master`
 
-function getDoc(repoName, branch, path){
-    var url = `${baseUrl}/repos/${repoName}/contents`
-    if (isGitLab) {
-        url = `${baseUrl}/projects/${repoName}/repository/files/${encodeURI(path)}/raw?ref=master`
-    }
-    const ajaxConfig = {
-        type: 'GET',
-        dataType: 'json',
-	    data: {branch, path},
-        url: url
-    };
-    return callCWRCGitWithToken(ajaxConfig);
+    let parameters = '?';
+    parameters += `branch=${branch}`
+    parameters += `&path=${path}`;
+
+    const response = await callCWRCGitWithToken({
+        url: url + parameters,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+    return response;
 }
 
-function getInfoForAuthenticatedUser() {
-    if (Cookies.get('cwrc-token')) {
-        var url = `${baseUrl}/users`;
-        if (isGitLab) {
-            url = `${baseUrl}/users`;
-        }
-        var ajaxConfig = {
-            type: 'GET',
-            dataType: 'json',
-            url: url
-        };
-        return callCWRCGitWithToken(ajaxConfig).then(result=>result.data);
-    } else {
-        return $.Deferred().reject("login").promise();
-    }
+const getInfoForAuthenticatedUser = async () => {
+
+    if (!Cookies.get('cwrc-token')) return $.Deferred().reject('login').promise();
+
+    let url = `${baseUrl}/users`;
+    if (isGitLab) url = `${baseUrl}/users`;
+
+    const response = await callCWRCGitWithToken({
+        url,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+
+    return response.data;
+
 }
 
-function getPermissionsForGithubUser(owner, repo, username) {
-    var ajaxConfig = {
-        type: 'GET',
-        dataType: 'json',
-        url: `${baseUrl}/repos/${owner}/${repo}/collaborators/${username}/permission`
-    };
-    return callCWRCGitWithToken(ajaxConfig).then(result=>result.data.permission,(fail)=>'none')
+const getPermissionsForGithubUser = async (owner, repo, username) => {
+
+    const response = await callCWRCGitWithToken({
+        url: `${baseUrl}/repos/${owner}/${repo}/collaborators/${username}/permission`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return 'none';
+    });
+
+    console.log(response)
+
+    return response.data.permission;
+
 }
 
 // sha is optional.
 // If provided, the doc will be updated against that SHA.
 // If not, and there is an existing doc, the file will be updated against the latest SHA in the repo.
-function saveDoc(repo, path, content, branch, message, sha) {
-    var data = {content, sha, branch, path, message};
-    var url = `${baseUrl}/repos/${repo}/doc`
-    if (isGitLab) {
-        url = `${baseUrl}/projects/${repo}/repository/files/${path}`
-    }
-    var ajaxConfig = {
-        type: 'PUT',
-        dataType: 'json',
-        data: data,
-        url: url
-    };
-    return callCWRCGitWithToken(ajaxConfig)
+const saveDoc = async (repo, path, content, branch, message, sha) => {
+    let url = `${baseUrl}/repos/${repo}/doc`
+    if (isGitLab) url = `${baseUrl}/projects/${repo}/repository/files/${path}`
+
+    const response = await callCWRCGitWithToken({
+        url,
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            content,
+            sha,
+            branch,
+            path,
+            message
+        })
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+    return response;
+
 }
 
-function saveAsPullRequest(repo, path, content, branch, message, title, sha) {
-	var data = {sha, branch, path, message, content, title}
+const saveAsPullRequest = async (repo, path, content, branch, message, title, sha) => {
 
-	var ajaxConfig = {
-		type: 'PUT',
-		dataType: 'json',
-		data: data,
-		url:  `${baseUrl}/repos/${repo}/pr`
-	};
-	return callCWRCGitWithToken(ajaxConfig)
+    const response = await callCWRCGitWithToken({
+        url: `${baseUrl}/repos/${repo}/pr`,
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            content,
+            sha,
+            branch,
+            path,
+            message
+        })
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+    return response;
+
 }
 
-function getTemplates() {
-    var ajaxConfig = {
-        type: 'GET',
-        dataType: 'json',
-        url: `${baseUrl}/templates`
-    };
-    return callCWRCGitWithToken(ajaxConfig).then(result=>result.data)
+const getTemplates = async () => {
+    const response = await callCWRCGitWithToken({
+        url: `${baseUrl}/templates`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return 'none';
+    });
+
+    return response.data;
+
 }
 
-function getTemplate(templateName) {
-    var ajaxConfig = {
-        type: 'GET',
-        dataType: 'xml',
-        url: `${baseUrl}/templates/${templateName}`
-    };
-    return callCWRCGitWithToken(ajaxConfig)
+const getTemplate = async (templateName) => {
+    const response = await callCWRCGitWithToken({
+        url: `${baseUrl}/templates/${templateName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'text/xml'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return 'none';
+    });
+
+    return response;
 }
 
-function searchCode(query, per_page, page) {
-    var url = `${baseUrl}/search/code`;
-    if (isGitLab) {
-        url = `${baseUrl}/search?scope=projects`;
-    }
-    var ajaxConfig = {
-        type: 'GET',
-        dataType: 'json',
-        url: url,
-	    data: {q: query, page, per_page}
+const searchCode = async (query, per_page, page) => {
+    let url = `${baseUrl}/search/code`;
+    if (isGitLab) url = `${baseUrl}/search?scope=projects`;
 
-    };
-    return callCWRCGitWithToken(ajaxConfig).then(result=>{
-        return result
-    })
+    let parameters = '?';
+    parameters += `query=${query}`
+    parameters += `&page=${page}`;
+    parameters += `&per_page=${per_page}`;
+
+    const response = await callCWRCGitWithToken({
+        url: url + parameters,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return 'none';
+    });
+
+    return response;
 }
 
-function searchRepos(query, per_page, page) {
-    var ajaxConfig = {
-        type: 'GET',
-        dataType: 'json',
-        url: `${baseUrl}/search/repositories`,
-	    data: {q: query, page, per_page}
+const searchRepos = async (query, per_page, page) => {
 
-    };
-    return callCWRCGitWithToken(ajaxConfig).then(result=>{
-    	return result
-	})
+    let parameters = '?';
+    parameters += `query=${query}`
+    parameters += `&page=${page}`;
+    parameters += `&per_page=${per_page}`;
+
+    const response = await callCWRCGitWithToken({
+        url: `${baseUrl}/search/repositories` + parameters,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return 'none';
+    });
+
+    return response;
 }
 
-module.exports = {
-    setServerURL: setServerURL,
-    useGitLab: useGitLab,
-    getDetailsForGithubUser: getDetailsForGithubUser,
-    getDetailsForOrg: getDetailsForOrg,
-    getReposForGithubUser: getReposForGithubUser,
-    getPermissionsForGithubUser: getPermissionsForGithubUser,
-    getReposForAuthenticatedGithubUser: getReposForAuthenticatedGithubUser,
-    saveDoc: saveDoc,
-    saveAsPullRequest: saveAsPullRequest,
-    createRepo: createRepo,
-    createOrgRepo: createOrgRepo,
-    getRepoContents: getRepoContents,
-    getRepoContentsByDrillDown: getRepoContentsByDrillDown,
-    getDoc: getDoc,
-    getInfoForAuthenticatedUser: getInfoForAuthenticatedUser,
-    getTemplates: getTemplates,
-    getTemplate: getTemplate,
-    searchCode: searchCode,
-    searchRepos: searchRepos
+export default {
+    setServerURL,
+    useGitLab,
+    getDetailsForGithubUser,
+    getDetailsForOrg,
+    getReposForGithubUser,
+    getPermissionsForGithubUser,
+    getReposForAuthenticatedGithubUser,
+    saveDoc,
+    saveAsPullRequest,
+    createRepo,
+    createOrgRepo,
+    getRepoContents,
+    getRepoContentsByDrillDown,
+    getDoc,
+    getInfoForAuthenticatedUser,
+    getTemplates,
+    getTemplate,
+    searchCode,
+    searchRepos,
 }
-   
-

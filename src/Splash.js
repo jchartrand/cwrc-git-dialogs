@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, {Fragment} from 'react'
 import { Modal, Button, PageHeader } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
 const Splash = (props) => {
     return (
@@ -38,5 +39,9 @@ const Splash = (props) => {
         </Fragment>
     )
 }
+
+Splash.propTypes = {
+    onContinue: PropTypes.func
+};
 
 export default Splash

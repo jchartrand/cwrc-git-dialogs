@@ -1,29 +1,46 @@
-'use strict';
-
-let Cookies = require('js-cookie');
-
+/* eslint-disable react/no-unescaped-entities */
+import Cookies from 'js-cookie';
 import cwrcGit from './GitServerClient.js';
-
+import PropTypes from 'prop-types';
 import React, {Component, Fragment} from 'react'
 import { Modal, Button, Alert } from 'react-bootstrap';
 
-function isAuthenticated() {
+
+export const isAuthenticated = () => {
     return Cookies.get('cwrc-token') !== undefined;
 }
 
-function getUserInfo() {
-    return cwrcGit.getInfoForAuthenticatedUser()
-        .then((info) => {
-            let user = {
-                userUrl: info.html_url,
-                userName: info.name,
-                userId: info.login
-            }
-            return Promise.resolve(user);
-        }, (error) => {
-            return Promise.reject(error);
+const getUserInfo = async () => {
+
+    const response = await cwrcGit.getInfoForAuthenticatedUser()
+        .catch( (err) => {
+            console.log(err)
+            return err;
         });
+
+    const user = {
+        userUrl: response.html_url,
+        userName: response.name,
+        userId: response.login
+    }
+
+    return user;
+
 }
+
+// function getUserInfo() {
+//     return cwrcGit.getInfoForAuthenticatedUser()
+//         .then((info) => {
+//             let user = {
+//                 userUrl: info.html_url,
+//                 userName: info.name,
+//                 userId: info.login
+//             }
+//             return Promise.resolve(user);
+//         }, (error) => {
+//             return Promise.reject(error);
+//         });
+// }
 
 class AuthenticateDialog extends Component {
     constructor(props) {
@@ -36,15 +53,16 @@ class AuthenticateDialog extends Component {
         }
     }
 
-    doGetUserInfo() {
+    async doGetUserInfo() {
         this.setState({authenticating: true});
-        getUserInfo()
-            .then((user) => {
-                this.setState({authenticating: false, error: undefined, user})
-                this.props.onUserAuthentication(user);
-            }, (error) => {
-                this.setState({authenticating: false, error})
-            })
+
+        const user = await getUserInfo()
+            .catch( (err) => {
+                this.setState({authenticating: false, err})
+            });
+        
+        this.setState({authenticating: false, error: undefined, user})
+        this.props.onUserAuthentication(user);
     }
 
     componentDidMount() {
@@ -97,8 +115,14 @@ class AuthenticateDialog extends Component {
     }
 }
 
+AuthenticateDialog.propTypes = {
+    serverURL: PropTypes.string,
+    isGitLab: PropTypes.bool,
+    onUserAuthentication: PropTypes.func,
+};
+
 export {
     AuthenticateDialog,
-    isAuthenticated,
+    // isAuthenticated,
     getUserInfo
 }

@@ -1,5 +1,3 @@
-'use strict';
-
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom';
 import { Modal, Button } from 'react-bootstrap';
@@ -26,25 +24,61 @@ let _path;
 
 let dialogInstance;
 
-function setServerURL(url) {
-    serverURL = url;
-}
+const setServerURL = (url) => serverURL = url;
+const useGitLab = (useIt) => isGitLab = useIt;
+const getUserInfo = () => _userInfo;
 
-function useGitLab(useIt) {
-    isGitLab = useIt;
-}
-
-function initDialogs(writer) {
+const initDialogs = (writer) => {
     _writer = writer;
     dialogId = _writer.getUniqueId('git-dialogs-');
     renderId = _writer.getUniqueId('git-dialogs-');
     _writer.dialogManager.getDialogWrapper().append(`<div id=${renderId} />`);
 }
 
-function saveWrap(writer) {
-    if (_writer === undefined) {
-        initDialogs(writer)
+const getDocumentURI = () => {
+    if (_path !== undefined && _repo !== undefined) {
+        if (_path.charAt(0) === '/') {
+            console.warn('cwrc-git-dialogs: path started with /');
+            _path = _path.substring(1);
+        }
+        return 'https://raw.githubusercontent.com/'+_repo+'/master/'+_path;
+        
+    } else {
+        console.warn('cwrc-git-dialogs: no repo or path set!');
+        return window.location.href;
     }
+}
+
+const getDocument = () => {
+    return new Promise((resolve, reject) => {
+        _writer.getDocumentString((content) => {
+            resolve(content);
+        });
+    })
+}
+
+const getDocumentInfoFromLocation = () => {
+    const doc = queryString.parse(window.location.search);
+    if (doc.githubRepo && doc.githubPath) {
+        return {repo: doc.githubRepo, path: doc.githubPath};
+    } 
+    return null;
+}
+
+const setRepo = (repo) => _repo = repo;
+
+const setPath = (path) => {
+    if (path !== undefined) {
+        // path should not start with /
+        if (path.charAt(0) === '/') {
+            path = path.substring(1);
+        }
+    }
+    _path = path;
+}
+
+const saveWrap = (writer) => {
+    if (_writer === undefined) initDialogs(writer)
 
     if (_repo === undefined && _path === undefined) {
         if (_userInfo && _userInfo.userId) {
@@ -63,10 +97,8 @@ function saveWrap(writer) {
     document.querySelector('#'+dialogId).classList.add('cwrc');
 }
 
-function loadWrap(writer, shouldOverwrite = false) {
-    if (_writer === undefined) {
-        initDialogs(writer)
-    }
+const loadWrap = (writer, shouldOverwrite = false) => {
+    if (_writer === undefined) initDialogs(writer);
 
     if (_writer.isDocLoaded === false && _repo === undefined && _path === undefined) {
         let docInfo = getDocumentInfoFromLocation();
@@ -84,7 +116,7 @@ function loadWrap(writer, shouldOverwrite = false) {
     document.querySelector('#'+dialogId).classList.add('cwrc');
 }
 
-function logOutWrap() {
+const logOutWrap = () => {
     ReactDOM.render(
         <GitDialog action="logout" />,
         document.querySelector('#'+renderId)
@@ -93,62 +125,13 @@ function logOutWrap() {
     document.querySelector('#'+dialogId).classList.add('cwrc');
 }
 
-function getUserInfo() {
-    return _userInfo;
-}
-
-function getDocumentURI() {
-    if (_path !== undefined && _repo !== undefined) {
-        if (_path.charAt(0) === '/') {
-            console.warn('cwrc-git-dialogs: path started with /');
-            _path = _path.substring(1);
-        }
-        return 'https://raw.githubusercontent.com/'+_repo+'/master/'+_path;
-        
-    } else {
-        console.warn('cwrc-git-dialogs: no repo or path set!');
-        return window.location.href;
-    }
-}
-
-function getDocument() {
-    return new Promise((resolve, reject) => {
-        _writer.getDocumentString((content) => {
-            resolve(content);
-        });
-    })
-}
-
-function getDocumentInfoFromLocation() {
-    const doc = queryString.parse(window.location.search);
-    if (doc.githubRepo && doc.githubPath) {
-        return {repo: doc.githubRepo, path: doc.githubPath};
-    } else {
-        return null;
-    }
-}
-
-function setDocumentInfo(repo, path, updateLocation=true) {
+const setDocumentInfo = (repo, path, updateLocation = true) => {
     setRepo(repo);
     setPath(path);
     if (updateLocation) {
         const githubDoc = queryString.stringify({githubRepo: _repo, githubPath: _path});
         window.history.replaceState({}, undefined, '?'+githubDoc);
     }
-}
-
-function setRepo(repo) {
-    _repo = repo;
-}
-
-function setPath(path) {
-    if (path !== undefined) {
-        // path should not start with /
-        if (path.charAt(0) === '/') {
-            path = path.substring(1);
-        }
-    }
-    _path = path;
 }
 
 class GitDialog extends Component {
@@ -181,20 +164,22 @@ class GitDialog extends Component {
         this.forceUpdate();
     }
 
-    handleFileSelect(repo, path) {
+    async handleFileSelect(repo, path) {
         cwrcGit.setServerURL(serverURL);
         cwrcGit.useGitLab(isGitLab);
-		return cwrcGit.getDoc(repo, 'master', path)
-			.then((result)=>{
-                setDocumentInfo(repo, path);
-                this.handleClose();
-                setTimeout(()=>{
-                    _writer.setDocument(result.doc);
-                }, 50)
-			},(error)=>{
+
+        const response = await cwrcGit.getDoc(repo, 'master', path)
+            .catch((err)=>{
                 setDocumentInfo(undefined, undefined);
                 this.setState({error: `There was an error loading the document from: ${repo}${path}`});
-			});
+			})
+
+        setDocumentInfo(repo, path);
+        this.handleClose();
+        setTimeout(() => {
+            _writer.setDocument(response.doc);
+        }, 50)
+
     }
 
     handleFileUpload(doc) {
@@ -233,9 +218,7 @@ class GitDialog extends Component {
 
         const hasToken = isAuthenticated();
         
-        if (!show) {
-            return null;
-        }
+        if (!show) return null;
 
         if (error !== undefined) {
             return (
