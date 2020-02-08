@@ -34,7 +34,7 @@
   "dependencies": {
     "bootstrap": "^3.4.1",
     "jquery": "^3.4.1",
-    "js-cookie": "2.1.4",
+    "js-cookie": "^2.2.1",
     "parse-link-header": "^1.0.1",
     "query-string": "^6.10.1",
     "react": "^16.8.6",
