@@ -2,9 +2,9 @@
 
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom';
-import { Modal, Button, Label } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import cwrcGit from './GitServerClient.js';
-
+import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
 import Splash from './Splash.js';
@@ -324,12 +324,16 @@ class GitDialog extends Component {
     }
 }
 
-export {
+GitDialog.propTypes = {
+    action: PropTypes.string,
+};
+
+export default {
     setServerURL,
     useGitLab,
-	saveWrap as save,
-    loadWrap as load,
+	save: saveWrap,
+    load: loadWrap,
     getUserInfo,
     getDocumentURI,
-    logOutWrap as logOut
+    logOut: logOutWrap
 }
