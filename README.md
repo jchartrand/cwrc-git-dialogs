@@ -1,6 +1,6 @@
-![Picture](http://cwrc.ca/logos/CWRC_logos_2016_versions/CWRCLogo-Horz-FullColour.png)
-
 # cwrc-git-dialogs
+
+![Picture](http://cwrc.ca/logos/CWRC_logos_2016_versions/CWRCLogo-Horz-FullColour.png)
 
 [![Travis](https://img.shields.io/travis/cwrc/cwrc-git-dialogs.svg)](https://travis-ci.org/cwrc/cwrc-git-dialogs)
 [![Codecov](https://img.shields.io/codecov/c/github/cwrc/cwrc-git-dialogs.svg)](https://codecov.io/gh/cwrc/cwrc-git-dialogs)
@@ -18,43 +18,50 @@
 1. [Use](#use)
 1. [Development](#development)
 
-### Overview
+## Overview
 
 A suite of dialogs for loading, saving, and listing files.  Meant to be used in conjunction with [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter).  Relies upon an instance of [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer) to make calls to GitHub.
 
-### Demo 
+## Demo
 
 The [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca) is running an instance of [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter), which uses the NPM package published from this repository along with the code in [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase). There is a corresponding server component running [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer) and [CWRC-Git](https://github.com/cwrc/CWRC-Git). The same code is easily (for someone with modest development experience) installed on any server to run your own instance.  If you are looking to put together your own CWRC-Writer, [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) is a good place to start.
 
-### Installation
+## Installation
 
 `npm install cwrc-git-dialogs`
 
-### API
+## API
 
-#### Methods used by CWRC-WriterBase
+### Methods used by CWRC-WriterBase
 
-###### save(CWRC-WriterBase writer)
+#### save(CWRC-WriterBase writer)
+
 *Spawns a popup prompting the user to save the current document to a GitHub repository.*
 
-###### load(CWRC-WriterBase writer)
+#### load(CWRC-WriterBase writer)
+
 *Spawns a popup prompting the user to load a document from a GitHub repository.*
 
-###### getDocumentURI()
+#### getDocumentURI()
+
 *Returns a string representing the URI of the current document.*
 
-###### getUserInfo()
+#### getUserInfo()
+
 *Returns an object with the following properties: userId, userName, userUrl.*
 
-###### logOut()
+#### logOut()
+
 *Removes the GitHub OAuth token and reloads the page.*
 
 #### Additional configuration methods
 
-###### setServerURL(String url)
+#### setServerURL(String url)
+
 *Sets the URL for the location of the CWRC-GitServer instance.*
 
-###### useGitLab(Boolean useIt)
+#### useGitLab(Boolean useIt)
+
 *Whether to use GitLab API formatted calls. Defaults to false.*
 
 ### Use
@@ -63,13 +70,13 @@ When setting up CWRC-Writer, you register this module with a [CWRC-WriterBase](h
 
 A simplified example:
 
-```
-var GitStorageDialogs = require('cwrc-git-dialogs');
-var config = {
+```javascript
+const GitStorageDialogs = require('cwrc-git-dialogs');
+const config = {
     storageDialogs: GitStorageDialogs
 }
-var CWRCWriter = require('cwrc-writer-base');
-var writer = new CWRCWriter(config);
+const CWRCWriter = require('cwrc-writer-base');
+const writer = new CWRCWriter(config);
 ```
 
 See [https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js](https://github.com/cwrc/CWRC-GitWriter/blob/master/src/js/app.js) for the full example.
