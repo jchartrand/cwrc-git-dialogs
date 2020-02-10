@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
-let $ = window.cwrcQuery
-if ($ === undefined) $ = require('jquery');
+// let $ = window.cwrcQuery
+// if ($ === undefined) $ = require('jquery');
 
 let baseUrl = '';
 const setServerURL = (url) => baseUrl = url;
@@ -124,31 +124,30 @@ const getReposForGithubUser = async (githubName, page = 1, per_page = 20) => {
 }
 
 const getReposForAuthenticatedGithubUser = async (page, per_page, affiliation) => {
-    if (Cookies.get('cwrc-token')) {
-        let url = `${baseUrl}/user/repos`;
-        if (isGitLab) url = `${baseUrl}/projects`;
 
-        let parameters = '?';
-        parameters += `page=${page}`
-        parameters += `&per_page=${per_page}`;
-        parameters += `&affiliation=${affiliation}`
+    if (!Cookies.get('cwrc-token')) throw (new Error());
 
-        const response = await callCWRCGitWithToken({
-            url: url + parameters,
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        }).catch((err) => {
-            console.log(err)
-            return err;
-        });
+    let url = `${baseUrl}/user/repos`;
+    if (isGitLab) url = `${baseUrl}/projects`;
 
-        return response
+    let parameters = '?';
+    parameters += `page=${page}`
+    parameters += `&per_page=${per_page}`;
+    parameters += `&affiliation=${affiliation}`
 
-    } else {
-        return $.Deferred().reject('login').promise();
-    }
+    const response = await callCWRCGitWithToken({
+        url: url + parameters,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).catch((err) => {
+        console.log(err)
+        return err;
+    });
+
+    return response
+
 }
 
 const getRepoContents = async (githubName) => {
@@ -214,7 +213,7 @@ const getDoc = async (repoName, branch, path) => {
 
 const getInfoForAuthenticatedUser = async () => {
 
-    if (!Cookies.get('cwrc-token')) return $.Deferred().reject('login').promise();
+    if (!Cookies.get('cwrc-token'))  throw (new Error()); //return $.Deferred().reject('login').promise();
 
     let url = `${baseUrl}/users`;
     if (isGitLab) url = `${baseUrl}/users`;
@@ -247,8 +246,6 @@ const getPermissionsForGithubUser = async (owner, repo, username) => {
         console.log(err)
         return 'none';
     });
-
-    console.log(response)
 
     return response.data.permission;
 
@@ -323,21 +320,6 @@ const getTemplates = async () => {
 
 }
 
-const getTemplate = async (templateName) => {
-    const response = await callCWRCGitWithToken({
-        url: `${baseUrl}/templates/${templateName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'text/xml'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return 'none';
-    });
-
-    return response;
-}
-
 const searchCode = async (query, per_page, page) => {
     let url = `${baseUrl}/search/code`;
     if (isGitLab) url = `${baseUrl}/search?scope=projects`;
@@ -399,7 +381,6 @@ export default {
     getDoc,
     getInfoForAuthenticatedUser,
     getTemplates,
-    getTemplate,
     searchCode,
     searchRepos,
 }
