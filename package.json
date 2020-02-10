@@ -2,26 +2,26 @@
   "name": "cwrc-git-dialogs",
   "version": "0.0.0-development",
   "description": "Dialogs for listing, loading, and saving CWRC XML documents.",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cwrc/cwrc-git-dialogs.git"
-  },
   "keywords": [
     "cwrc",
     "github",
     "xml",
     "annotation"
   ],
+  "homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
   "bugs": {
     "url": "https://github.com/cwrc/cwrc-git-dialogs/issues"
   },
-  "homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
-  "contributors": [
-    "James Chartrand",
-    "Andrew MacDonald",
-    "Luciano Frizzera"
-  ],
   "license": "GPL-2.0",
+  "contributors": [
+    "James Chartrand <jc.chartrand@gmail.com>",
+    "Andrew MacDonald <andrewjames.code@gmail.com>",
+    "Luciano Frizzera <lucaju@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cwrc/cwrc-git-dialogs.git"
+  },
   "main": "src/index.js",
   "scripts": {
     "semantic-release": "semantic-release",
