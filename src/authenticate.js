@@ -18,29 +18,13 @@ const getUserInfo = async () => {
             return err;
         });
 
-    const user = {
+    return {
         userUrl: response.html_url,
         userName: response.name,
         userId: response.login
     }
 
-    return user;
-
 }
-
-// function getUserInfo() {
-//     return cwrcGit.getInfoForAuthenticatedUser()
-//         .then((info) => {
-//             let user = {
-//                 userUrl: info.html_url,
-//                 userName: info.name,
-//                 userId: info.login
-//             }
-//             return Promise.resolve(user);
-//         }, (error) => {
-//             return Promise.reject(error);
-//         });
-// }
 
 class AuthenticateDialog extends Component {
     constructor(props) {
@@ -123,6 +107,5 @@ AuthenticateDialog.propTypes = {
 
 export {
     AuthenticateDialog,
-    // isAuthenticated,
     getUserInfo
 }
