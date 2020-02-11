@@ -293,6 +293,7 @@ const saveAsPullRequest = async (repo, path, content, branch, message, title, sh
             sha,
             branch,
             path,
+            title,
             message
         })
     }).catch((err) => {
