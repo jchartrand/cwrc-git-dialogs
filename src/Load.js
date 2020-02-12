@@ -35,7 +35,7 @@ const getReposForAuthenticatedGithubUser = async (requestedPage, affiliation = '
 const searchFileContentsForUser = async (gitName, searchTerms, requestedPage, resultsPerPage = RESULTS_PER_PAGE) => {
 	let queryString = 'language:xml ';
 	if (searchTerms) queryString += `"${searchTerms}" `;
-	if (gitName) queryString += `user: ${gitName}`;
+	if (gitName) queryString += `user:${gitName}`;
 
 	const response = await cwrcGit.searchCode(queryString, resultsPerPage, requestedPage)
 		.catch((fail) => fail)
