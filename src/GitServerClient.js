@@ -6,95 +6,64 @@ const setServerURL = (url) => baseUrl = url;
 let isGitLab = false;
 const useGitLab = (useIt) => isGitLab = useIt;
 
+const callCWRCGitWithToken = async (url, config) => {
+    const requestOptions = Object.assign({
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }, config);
 
-const callCWRCGitWithToken = async (requestOptions) => {
-    const url = requestOptions.url;
     const theJWT = Cookies.get('cwrc-token');
     if (theJWT) requestOptions.headers['cwrc-token'] = theJWT;
 
     const response = await fetch(url, requestOptions)
         .catch((err) => {
-            console.log(err)
-            return err;
+            return new Response(null, {
+                status: 500,
+                statusText: err
+            })
         });
 
-    return await response.json();
-
+    if (response.ok) {
+        return await response.json();
+    } else {
+        return Promise.reject(response);
+    }
 }
 
 const getDetailsForGithubUser = async (user) => {
-    const url = `${baseUrl}/users/${user}`;
-    const response = await callCWRCGitWithToken({
-        url,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-    return response;
+    return await callCWRCGitWithToken(`${baseUrl}/users/${user}`);
 }
 
 const getDetailsForOrg = async (org) => {
-    const url = `${baseUrl}/orgs/${org}`;
-    const response = await callCWRCGitWithToken({
-        url,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-    return response;
+    return await callCWRCGitWithToken(`${baseUrl}/orgs/${org}`)
 }
 
 const createRepo = async (repo, description, isPrivate) => {
     let url = `${baseUrl}/user/repos`;
     if (isGitLab) url = `${baseUrl}/projects?name=${repo}`;
 
-    const response = await callCWRCGitWithToken({
-        url,
+    return await callCWRCGitWithToken(url, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
             repo,
             isPrivate,
             description
         })
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-    return response;
+    })
 
 }
 
 const createOrgRepo = async (org, repo, description, isPrivate) => {
-
-    const response = await callCWRCGitWithToken({
-        url: `${baseUrl}/orgs/${org}/repos`,
+    return await callCWRCGitWithToken(`${baseUrl}/orgs/${org}/repos`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
             repo,
             isPrivate,
             description
         })
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-    return response;
+    })
 
 }
 
@@ -106,19 +75,7 @@ const getReposForGithubUser = async (githubName, page = 1, per_page = 20) => {
     parameters += `page=${page}`
     parameters += `&per_page=${per_page}`;
 
-    const response = await callCWRCGitWithToken({
-        url: url + parameters,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-    return response;
-
+    return await callCWRCGitWithToken(url+parameters)
 }
 
 const getReposForAuthenticatedGithubUser = async (page, per_page, affiliation) => {
@@ -133,57 +90,21 @@ const getReposForAuthenticatedGithubUser = async (page, per_page, affiliation) =
     parameters += `&per_page=${per_page}`;
     parameters += `&affiliation=${affiliation}`
 
-    const response = await callCWRCGitWithToken({
-        url: url + parameters,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-    return response
-
+    return await callCWRCGitWithToken(url+parameters)
 }
 
 const getRepoContents = async (githubName) => {
     let url = `${baseUrl}/repos/${githubName}`;
     if (isGitLab) url = `${baseUrl}/projects/'${githubName}/repository/tree`;
 
-    const response = await callCWRCGitWithToken({
-        url,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log('the error in gitserverclient.getRepoContents:');
-        console.log(err)
-        return err
-    });
-
-    return response;
-
+    return await callCWRCGitWithToken(url)
 }
 
 const getRepoContentsByDrillDown = async (githubName) => {
     let url = `${baseUrl}/repos/${githubName}/full`;
     if (isGitLab) url = `${baseUrl}/projects/${githubName}/full`;
 
-    const response = await callCWRCGitWithToken({
-        url,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-    return response;
+    return await callCWRCGitWithToken(url)
 }
 
 // repoName here is the combined owner/repo, e.g., 'jchartrand/someRepoName'
@@ -195,57 +116,24 @@ const getDoc = async (repoName, branch, path) => {
     parameters += `branch=${branch}`
     parameters += `&path=${path}`;
 
-    const response = await callCWRCGitWithToken({
-        url: url + parameters,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-    return response;
+    return await callCWRCGitWithToken(url+parameters);
 }
 
 const getInfoForAuthenticatedUser = async () => {
 
-    if (!Cookies.get('cwrc-token'))  throw (new Error()); //return $.Deferred().reject('login').promise();
+    if (!Cookies.get('cwrc-token'))  throw (new Error());
 
     let url = `${baseUrl}/users`;
     if (isGitLab) url = `${baseUrl}/users`;
 
-    const response = await callCWRCGitWithToken({
-        url,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-
-    return response.data;
-
+    return await callCWRCGitWithToken(url)
+        .then(response => response.data)
 }
 
 const getPermissionsForGithubUser = async (owner, repo, username) => {
-
-    const response = await callCWRCGitWithToken({
-        url: `${baseUrl}/repos/${owner}/${repo}/collaborators/${username}/permission`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return 'none';
-    });
-
-    return response.data.permission;
+    return await callCWRCGitWithToken(`${baseUrl}/repos/${owner}/${repo}/collaborators/${username}/permission`)
+        .then(response => response.data.permission)
+        .catch(() => 'none')
 
 }
 
@@ -256,12 +144,8 @@ const saveDoc = async (repo, path, content, branch, message, sha) => {
     let url = `${baseUrl}/repos/${repo}/doc`
     if (isGitLab) url = `${baseUrl}/projects/${repo}/repository/files/${path}`
 
-    const response = await callCWRCGitWithToken({
-        url,
+    return await callCWRCGitWithToken(url, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
             content,
             sha,
@@ -269,23 +153,13 @@ const saveDoc = async (repo, path, content, branch, message, sha) => {
             path,
             message
         })
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-    return response;
+    })
 
 }
 
 const saveAsPullRequest = async (repo, path, content, branch, message, title, sha) => {
-
-    const response = await callCWRCGitWithToken({
-        url: `${baseUrl}/repos/${repo}/pr`,
+    return await callCWRCGitWithToken(`${baseUrl}/repos/${repo}/pr`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
             content,
             sha,
@@ -294,29 +168,12 @@ const saveAsPullRequest = async (repo, path, content, branch, message, title, sh
             title,
             message
         })
-    }).catch((err) => {
-        console.log(err)
-        return err;
-    });
-
-    return response;
-
+    })
 }
 
 const getTemplates = async () => {
-    const response = await callCWRCGitWithToken({
-        url: `${baseUrl}/templates`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return 'none';
-    });
-
-    return response.data;
-
+    return await callCWRCGitWithToken(`${baseUrl}/templates`)
+        .then(response => response.data)
 }
 
 const searchCode = async (query, per_page, page) => {
@@ -324,43 +181,28 @@ const searchCode = async (query, per_page, page) => {
     if (isGitLab) url = `${baseUrl}/search?scope=projects`;
 
     let parameters = '?';
-    parameters += `query=${query}`
+    parameters += `q=${query}`
     parameters += `&page=${page}`;
     parameters += `&per_page=${per_page}`;
 
-    const response = await callCWRCGitWithToken({
-        url: url + parameters,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return 'none';
-    });
-
-    return response;
+    return await callCWRCGitWithToken(url+parameters)
+        .catch((err) => {
+            return 'none';
+        })
 }
 
+// not currently used
 const searchRepos = async (query, per_page, page) => {
 
     let parameters = '?';
-    parameters += `query=${query}`
+    parameters += `q=${query}`
     parameters += `&page=${page}`;
     parameters += `&per_page=${per_page}`;
 
-    const response = await callCWRCGitWithToken({
-        url: `${baseUrl}/search/repositories` + parameters,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).catch((err) => {
-        console.log(err)
-        return 'none';
-    });
-
-    return response;
+    return await callCWRCGitWithToken(`${baseUrl}/search/repositories` + parameters)
+        .catch((err) => {
+            return 'none';
+        })
 }
 
 export default {

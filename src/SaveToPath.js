@@ -122,7 +122,13 @@ class SaveToPath extends Component {
 	}
 
 	displayError = (error) => {
-		this.setState({error: error.statusText, saving: false})
+		let errorMsg;
+		if (typeof error === 'string') {
+			errorMsg = error;
+		} else {
+			errorMsg = error.statusText;
+		}
+		this.setState({error: errorMsg, saving: false})
 	}
 
 	save = () => {
@@ -132,7 +138,7 @@ class SaveToPath extends Component {
 				cwrcGit.saveAsPullRequest(this.getFullRepoPath(), this.props.path, document, this.state.prBranch, this.state.commitMessage, this.state.prTitle).then(
 					(result) => this.complete(),
 					(error) => {
-						if (error.statusText === 'Internal Server Error') {
+						if (error.status === 500) {
 							error.statusText = 'You do not have pull request permissions for the selected repository. Try saving to another repository you have pull request privileges for.'
 						}
 						this.displayError(error)
@@ -141,7 +147,7 @@ class SaveToPath extends Component {
 				cwrcGit.saveDoc(this.getFullRepoPath(), this.props.path, document, this.state.branch, this.state.commitMessage).then(
 					(result) => this.complete(),
 					(error) => {
-						if (error.statusText === 'Not Found') {
+						if (error.status === 404) {
 							error.statusText = 'You do not have writing permissions for the selected repository. Try saving as a pull request or save to another repository you have writing privileges for.'
 						}
 						this.displayError(error)

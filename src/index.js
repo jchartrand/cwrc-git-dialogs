@@ -171,15 +171,16 @@ class GitDialog extends Component {
         const response = await cwrcGit.getDoc(repo, 'master', path)
             .catch((err)=>{
                 setDocumentInfo(undefined, undefined);
-                this.setState({error: `There was an error loading the document from: ${repo}${path}`});
+                this.setState({error: `There was an error loading the document from: ${repo}/${path}`});
 			})
 
-        setDocumentInfo(repo, path);
-        this.handleClose();
-        setTimeout(() => {
-            _writer.setDocument(response.doc);
-        }, 50)
-
+        if (response !== undefined) {
+            setDocumentInfo(repo, path);
+            this.handleClose();
+            setTimeout(() => {
+                _writer.setDocument(response.doc);
+            }, 50)
+        }
     }
 
     handleFileUpload(doc) {
