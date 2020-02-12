@@ -44,35 +44,41 @@ class RepoResultCarousel extends Component {
         const searchQuery = this.state.query.toLowerCase();
         if (searchQuery.length === 0) isSearch = false;
 
-        return structure.map((item, i) => {
-            if (item.type === 'folder') {
-                let isFolderOpen = this.state.openFolders.includes(item.path);
-                return <div key={i}>
-                    <ListGroupItem bsStyle="info" onClick={() => this.toggleFolder(item.path)} style={{ padding: '10px' }}>
-                        <div style={{ paddingLeft: `${indent * 10}px` }}>
-                            <Glyphicon glyph={isFolderOpen ? "chevron-down" : "chevron-right"} style={{ paddingRight: '10px' }} />
-                            {item.name}
-                        </div>
-                    </ListGroupItem>
-                    {isFolderOpen && this.showTree(item.contents, repo, indent + 2)}
-                </div>
-            } else {
-                if (isSearch === false) {
-                    return <ListGroupItem key={i} onClick={() => this.props.selectCB(repo, item.path)} style={{ padding: '10px' }}>
-                        <div style={{ paddingLeft: `${indent * 10}px` }}>{item.name}</div>
-                    </ListGroupItem>
-                } else {
-                    const queryIndex = item.name.toLowerCase().indexOf(searchQuery);
-                    if (queryIndex !== -1) {
-                        return <ListGroupItem key={i} onClick={() => this.props.selectCB(repo, item.path)} style={{ padding: '10px' }}>
+        if (structure.length === 0) {
+            return <div><Glyphicon glyph="info-sign" style={{ padding: '10px' }} />Empty Repository</div>
+        }
+
+        return <ListGroup style={{maxHeight: '500px', overflowY: 'scroll'}}>
+            {structure.map((item, i) => {
+                if (item.type === 'folder') {
+                    let isFolderOpen = this.state.openFolders.includes(item.path);
+                    return <div key={i}>
+                        <ListGroupItem bsStyle="info" onClick={() => this.toggleFolder(item.path)} style={{ padding: '10px' }}>
                             <div style={{ paddingLeft: `${indent * 10}px` }}>
-                                {item.name.substring(0, queryIndex)}<span style={{fontWeight: 'bold'}}>{item.name.substring(queryIndex, queryIndex+searchQuery.length)}</span>{item.name.substring(queryIndex+searchQuery.length)}
+                                <Glyphicon glyph={isFolderOpen ? "chevron-down" : "chevron-right"} style={{ paddingRight: '10px' }} />
+                                {item.name}
                             </div>
                         </ListGroupItem>
+                        {isFolderOpen && this.showTree(item.contents, repo, indent + 2)}
+                    </div>
+                } else {
+                    if (isSearch === false) {
+                        return <ListGroupItem key={i} onClick={() => this.props.selectCB(repo, item.path)} style={{ padding: '10px' }}>
+                            <div style={{ paddingLeft: `${indent * 10}px` }}>{item.name}</div>
+                        </ListGroupItem>
+                    } else {
+                        const queryIndex = item.name.toLowerCase().indexOf(searchQuery);
+                        if (queryIndex !== -1) {
+                            return <ListGroupItem key={i} onClick={() => this.props.selectCB(repo, item.path)} style={{ padding: '10px' }}>
+                                <div style={{ paddingLeft: `${indent * 10}px` }}>
+                                    {item.name.substring(0, queryIndex)}<span style={{fontWeight: 'bold'}}>{item.name.substring(queryIndex, queryIndex+searchQuery.length)}</span>{item.name.substring(queryIndex+searchQuery.length)}
+                                </div>
+                            </ListGroupItem>
+                        }
                     }
                 }
-            }
-        })
+            })}
+        </ListGroup>
     }
 
     showRepoStructure(repoFullName) {
@@ -80,11 +86,14 @@ class RepoResultCarousel extends Component {
             cwrcGit.getRepoContentsByDrillDown(repoFullName).then(({ contents: { contents: structure } }) => {
                 // console.log(structure)
                 this.setState((prevState, props) => ({ repoStructures: { ...prevState.repoStructures, [repoFullName]: structure } }))
-            }
-            )
+            },
+            (fail) => {
+                // it's an empty repo
+                this.setState((prevState, props) => ({ repoStructures: { ...prevState.repoStructures, [repoFullName]: [] } }))
+            })
             return <div><Glyphicon glyph="cloud-download" style={{ padding: '10px' }} />Loading Repository Structure...</div>
         } else {
-            return <ListGroup style={{maxHeight: '500px', overflowY: 'scroll'}}>{this.showTree(this.state.repoStructures[repoFullName], repoFullName)}</ListGroup>
+            return this.showTree(this.state.repoStructures[repoFullName], repoFullName)
         }
     }
 
