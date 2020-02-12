@@ -80,26 +80,31 @@ class SaveToPath extends Component {
 	componentDidMount() {
 		cwrcGit.setServerURL(this.props.serverURL);
 		cwrcGit.useGitLab(this.props.isGitLab);
-		this.setState({checkingPath: true})
-		cwrcGit.getDoc(this.getFullRepoPath(), 'master', this.props.path).then(
-			(result)=>{
-				this.setState({
-					checkingPath: false,
-					doesPathExist: true,
-					pathHasBeenChecked: true,
-					saving: false
+
+		if (this.props.usePR) {
+			this.save();
+		} else {
+			this.setState({checkingPath: true})
+			cwrcGit.getDoc(this.getFullRepoPath(), 'master', this.props.path).then(
+				(result)=>{
+					this.setState({
+						checkingPath: false,
+						doesPathExist: true,
+						pathHasBeenChecked: true,
+						saving: false
+					})
+					return result;
+				},
+				(error)=>{
+					error.status === 404 ? this.setState({
+						checkingPath: false,
+						doesPathExist: false,
+						pathHasBeenChecked: true,
+						saving: false
+					}): this.displayError(error)
+					return error
 				})
-				return result;
-			},
-			(error)=>{
-				error.status === 404 ? this.setState({
-					checkingPath: false,
-					doesPathExist: false,
-					pathHasBeenChecked: true,
-					saving: false
-				}): this.displayError(error)
-				return error
-			})
+		}
 	}
 
 	getFullRepoPath() {
