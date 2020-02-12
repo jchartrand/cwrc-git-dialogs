@@ -10,22 +10,6 @@ export const isAuthenticated = () => {
     return Cookies.get('cwrc-token') !== undefined;
 }
 
-const getUserInfo = async () => {
-
-    const response = await cwrcGit.getInfoForAuthenticatedUser()
-        .catch( (err) => {
-            console.log(err)
-            return err;
-        });
-
-    return {
-        userUrl: response.html_url,
-        userName: response.name,
-        userId: response.login
-    }
-
-}
-
 class AuthenticateDialog extends Component {
     constructor(props) {
         super(props);
@@ -40,10 +24,16 @@ class AuthenticateDialog extends Component {
     async doGetUserInfo() {
         this.setState({authenticating: true});
 
-        const user = await getUserInfo()
-            .catch( (err) => {
-                this.setState({authenticating: false, err})
+        const response = await cwrcGit.getInfoForAuthenticatedUser()
+            .catch( (error) => {
+                this.setState({authenticating: false, error})
             });
+
+        const user = {
+            userUrl: response.html_url,
+            userName: response.name,
+            userId: response.login
+        }
         
         this.setState({authenticating: false, error: undefined, user})
         this.props.onUserAuthentication(user);
@@ -106,6 +96,5 @@ AuthenticateDialog.propTypes = {
 };
 
 export {
-    AuthenticateDialog,
-    getUserInfo
+    AuthenticateDialog
 }
