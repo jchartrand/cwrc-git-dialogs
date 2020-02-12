@@ -1,6 +1,4 @@
 import Cookies from 'js-cookie';
-// let $ = window.cwrcQuery
-// if ($ === undefined) $ = require('jquery');
 
 let baseUrl = '';
 const setServerURL = (url) => baseUrl = url;
