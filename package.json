@@ -37,7 +37,7 @@
     "js-cookie": "^2.2.1",
     "parse-link-header": "^1.0.1",
     "prop-types": "^15.7.2",
-    "query-string": "^6.10.1",
+    "query-string": "^6.11.0",
     "react": "^16.8.6",
     "react-bootstrap": "^0.32.4",
     "react-dom": "^16.8.6"
