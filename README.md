@@ -20,11 +20,11 @@
 
 ## Overview
 
-A suite of dialogs for loading, saving, and listing files.  Meant to be used in conjunction with [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter).  Relies upon an instance of [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer) to make calls to GitHub.
+A suite of dialogs for loading, saving, and listing files. Meant to be used in conjunction with [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter). Relies upon an instance of [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer) to make calls to GitHub.
 
 ## Demo
 
-The [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca) is running an instance of [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter), which uses the NPM package published from this repository along with the code in [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase). There is a corresponding server component running [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer) and [CWRC-Git](https://github.com/cwrc/CWRC-Git). The same code is easily (for someone with modest development experience) installed on any server to run your own instance.  If you are looking to put together your own CWRC-Writer, [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) is a good place to start.
+The [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca) is running an instance of [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter), which uses the NPM package published from this repository along with the code in [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase). There is a corresponding server component running [CWRC-GitServer](https://github.com/cwrc/CWRC-GitServer) and [CWRC-Git](https://github.com/cwrc/CWRC-Git). The same code is easily (for someone with modest development experience) installed on any server to run your own instance. If you are looking to put together your own CWRC-Writer, [CWRC-GitWriter](https://github.com/cwrc/CWRC-GitWriter) is a good place to start.
 
 ## Installation
 
@@ -36,46 +36,46 @@ The [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca) is running an instance
 
 #### save(CWRC-WriterBase writer)
 
-*Spawns a popup prompting the user to save the current document to a GitHub repository.*
+_Spawns a popup prompting the user to save the current document to a GitHub repository._
 
 #### load(CWRC-WriterBase writer)
 
-*Spawns a popup prompting the user to load a document from a GitHub repository.*
+_Spawns a popup prompting the user to load a document from a GitHub repository._
 
 #### getDocumentURI()
 
-*Returns a string representing the URI of the current document.*
+_Returns a string representing the URI of the current document._
 
 #### getUserInfo()
 
-*Returns an object with the following properties: userId, userName, userUrl.*
+_Returns an object with the following properties: userId, userName, userUrl._
 
 #### logOut()
 
-*Removes the GitHub OAuth token and reloads the page.*
+_Removes the GitHub OAuth token and reloads the page._
 
-#### Additional configuration methods
+### Additional configuration methods
 
 #### setServerURL(String url)
 
-*Sets the URL for the location of the CWRC-GitServer instance.*
+_Sets the URL for the location of the CWRC-GitServer instance._
 
 #### useGitLab(Boolean useIt)
 
-*Whether to use GitLab API formatted calls. Defaults to false.*
+_Whether to use GitLab API formatted calls. Defaults to false._
 
-### Use
+## Use
 
 When setting up CWRC-Writer, you register this module with a [CWRC-WriterBase](https://github.com/cwrc/CWRC-WriterBase) instance by passing it as a property on the `config` object used when instantiating the instance. After registering the module, CWRC-WriterBase will call this module's methods as required.
 
 A simplified example:
 
-```javascript
-const GitStorageDialogs = require('cwrc-git-dialogs');
+```js
+import GitStorageDialogs from "cwrc-git-dialogs";
 const config = {
-    storageDialogs: GitStorageDialogs
-}
-const CWRCWriter = require('cwrc-writer-base');
+  storageDialogs: GitStorageDialogs
+};
+const CWRCWriter = require("cwrc-writer-base");
 const writer = new CWRCWriter(config);
 ```
 
