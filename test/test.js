@@ -1,8 +1,8 @@
-'use strict';
-
-let $ = require('jquery')
-const Cookies = require('js-cookie')
-let dialogs = require('../src/index.js')
+// 'use strict';
+import '@babel/polyfill';
+import $ from 'jquery';
+import Cookies from 'js-cookie';
+import dialogs from '../src/index.js';
 
 const sampleDoc = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -34,7 +34,7 @@ const sampleDoc = `
 let idCount = 0;
 const writerMock = {
     getUniqueId: (prefix) => {
-        let id = prefix+idCount;
+        let id = prefix + idCount;
         idCount++;
         return id;
     },

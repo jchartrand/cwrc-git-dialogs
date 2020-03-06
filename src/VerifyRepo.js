@@ -120,11 +120,7 @@ class VerifyRepo extends Component {
 			this.checkRepoExistence();
 		},
 		(error)=>{
-			if (error.status === 404) {
-				this.displayError(`The repository owner "${this.props.owner}" does not exist.`);
-			} else {
-				this.displayError(error);
-			}
+			this.displayError(`The repository owner "${this.props.owner}" does not exist.`);
 		})
 	}
 
@@ -143,10 +139,10 @@ class VerifyRepo extends Component {
 				}
 			},
 			(error)=>{
-				error.status === 404 ? this.setState({
+				this.setState({
 					checkingRepo: false,
 					doesRepoExist: false
-				}): this.displayError(error)
+				})
 			})
 	}
 
@@ -165,7 +161,11 @@ class VerifyRepo extends Component {
 				
 			},
 			(error)=>{
-				this.displayError(error);
+				this.setState({
+					checkingPermission: false,
+					doesUserHavePermission: false
+				})
+				// this.displayError(error);
 			}
 		)
 	}
@@ -190,11 +190,6 @@ class VerifyRepo extends Component {
 			errorMsg = error;
 		} else {
 			errorMsg = error.statusText;
-			// handle octokit/cwrcgit error
-			if (error.responseJSON && error.responseJSON.message) {
-				let errorJSON = JSON.parse(error.responseJSON.message);
-				errorMsg = errorJSON.message;
-			}
 		}
 		this.setState({error: errorMsg})
 	}

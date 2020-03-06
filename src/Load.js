@@ -1,57 +1,54 @@
-'use strict';
-
-import React, {Component, Fragment} from 'react'
+import React, { Component, Fragment } from 'react'
 import { Modal, Button, Tabs, Tab, Well, Grid, Row, Col, PanelGroup, Panel, ListGroup, ListGroupItem, ToggleButtonGroup, ToggleButton, ControlLabel, FormGroup, FormControl, Checkbox, Glyphicon } from 'react-bootstrap';
 import parseLinks from 'parse-link-header';
 import cwrcGit from './GitServerClient.js';
 
-import SearchResultList from "./SearchResultList.js";
-import FileUpload from "./FileUpload.js";
-import Paginator from "./Paginator.js";
-import SearchInput from "./SearchInput.js";
+import SearchResultList from './SearchResultList.js';
+import FileUpload from './FileUpload.js';
+import Paginator from './Paginator.js';
+import PropTypes from 'prop-types';
+import SearchInput from './SearchInput.js';
 import RepoResultCarousel from './RepoResultCarousel.js';
 
 const RESULTS_PER_PAGE = 100;
 
-function getReposForGithubUser(user, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
-	return cwrcGit.getReposForGithubUser(user, requestedPage, resultsPerPage).then((results)=>{
-		return Promise.resolve({
-			items: results.data,
-			lastPage: getLastPage(results, requestedPage)
-		});
-	}, (fail)=>{
-		return Promise.reject(fail);
-	});
+const getReposForGithubUser = async (user, requestedPage, resultsPerPage = RESULTS_PER_PAGE) => {
+	const response = await cwrcGit.getReposForGithubUser(user, requestedPage, resultsPerPage)
+		.catch((fail) => fail)
+
+	return {
+		items: response.data,
+		lastPage: getLastPage(response, requestedPage)
+	};
 }
 
-function getReposForAuthenticatedGithubUser(requestedPage, affiliation='owner', resultsPerPage=RESULTS_PER_PAGE) {
-	return cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, resultsPerPage, affiliation).then((results)=>{
-		return Promise.resolve({
-			items: results.data,
-			lastPage: getLastPage(results, requestedPage)
-		});
-	}, (fail)=>{
-		return Promise.reject(fail);
-	});
+const getReposForAuthenticatedGithubUser = async (requestedPage, affiliation = 'owner', resultsPerPage = RESULTS_PER_PAGE) => {
+	const response = await cwrcGit.getReposForAuthenticatedGithubUser(requestedPage, resultsPerPage, affiliation)
+		.catch((fail) => fail)
+
+	return {
+		items: response.data,
+		lastPage: getLastPage(response, requestedPage)
+	};
 }
 
-function searchFileContentsForUser(gitName, searchTerms, requestedPage, resultsPerPage=RESULTS_PER_PAGE) {
+const searchFileContentsForUser = async (gitName, searchTerms, requestedPage, resultsPerPage = RESULTS_PER_PAGE) => {
 	let queryString = 'language:xml ';
-	if (searchTerms) queryString += '"' + searchTerms + '" ';
-	if (gitName) queryString += "user:" + gitName;
-	return cwrcGit.searchCode(queryString, resultsPerPage, requestedPage).then((results)=>{
-		return Promise.resolve({
-			items: results.data.items,
-			lastPage: getLastPage(results, requestedPage)
-		});
-	}, (fail)=>{
-		return Promise.reject(fail);
-	});
+	if (searchTerms) queryString += `"${searchTerms}" `;
+	if (gitName) queryString += `user:${gitName}`;
+
+	const response = await cwrcGit.searchCode(queryString, resultsPerPage, requestedPage)
+		.catch((fail) => fail)
+
+	return {
+		items: response.data.items,
+		lastPage: getLastPage(response, requestedPage)
+	};
 }
 
-function getLastPage(results, requestedPage) {
-	var lastPage;
-	if (results.meta.link) {
+const getLastPage = (results, requestedPage) => {
+	let lastPage;
+	if (results.meta && results.meta.link) {
 		const relLinks = parseLinks(results.meta.link);
 		lastPage = relLinks.last ? parseInt(relLinks.last.page, 10) : requestedPage
 	} else {
@@ -77,7 +74,7 @@ class LoadDialog extends Component {
 			activeTab: undefined,
 			loading: false,
 			error: '',
-			
+
 			isSearch: false,
 			searchFilter: '',
 			query: undefined,
@@ -101,8 +98,8 @@ class LoadDialog extends Component {
 	}
 
 	handleTabSelect(key) {
-		this.setState({activeTab: key, loading: false});
-		switch(key) {
+		this.setState({ activeTab: key, loading: false });
+		switch (key) {
 			case 'repos':
 				if (this.state.results === undefined) {
 					this.getRepos();
@@ -110,11 +107,11 @@ class LoadDialog extends Component {
 				break;
 			case 'templates':
 				if (this.state.templates === undefined) {
-					this.setState({loading: true});
-					cwrcGit.getTemplates().then((templates)=>{
-						this.setState({templates, loading: false})
-					}, (fail)=>{
-						this.setState({error: fail.responseText, loading: false})
+					this.setState({ loading: true });
+					cwrcGit.getTemplates().then((templates) => {
+						this.setState({ templates, loading: false })
+					}, (fail) => {
+						this.setState({ error: fail, loading: false })
 					})
 				}
 				break;
@@ -123,9 +120,9 @@ class LoadDialog extends Component {
 
 	handleRepoTypeSelect(key) {
 		if (key !== null) {
-			this.setState({repoType: key, isSearch: false});
+			this.setState({ repoType: key, isSearch: false });
 			if (key === 'private') {
-				setTimeout(()=>{
+				setTimeout(() => {
 					this.getRepos();
 				});
 			}
@@ -133,72 +130,72 @@ class LoadDialog extends Component {
 	}
 
 	handleAffiliationSelect(value) {
-		this.setState({privateReposAffiliation: value, isSearch: false});
-		setTimeout(()=>{
+		this.setState({ privateReposAffiliation: value, isSearch: false });
+		setTimeout(() => {
 			this.getRepos();
 		});
 	}
 
 	handleXMLOnlyChange(event) {
 		const value = event.target.checked;
-		this.setState({xmlOnly: value});
-		setTimeout(()=>{
+		this.setState({ xmlOnly: value });
+		setTimeout(() => {
 			// this.getRepos();
 		});
 	}
 
-	doSearch(pageNum, value=this.state.query) {
-		this.setState({loading: true, error: '', isSearch: true, query: value});
+	doSearch(pageNum, value = this.state.query) {
+		this.setState({ loading: true, error: '', isSearch: true, query: value });
 		let promise;
 		if (this.state.repoType === 'private') {
 			promise = searchFileContentsForUser(this.props.user.userId, value, pageNum)
 		} else {
 			let filter = this.filterInput.value;
 			if (filter && !value) {
-				this.setState({isSearch: false});
+				this.setState({ isSearch: false });
 				promise = getReposForGithubUser(filter, pageNum);
 			} else {
 				promise = searchFileContentsForUser(filter, value, pageNum);
 			}
 		}
-		promise.then((result)=>{
-			this.setState({loading: false, results: result.items, currentPage: pageNum, lastPage: result.lastPage})
-		},(fail)=>{
-			this.setState({loading: false, error: fail.responseText})
+		promise.then((result) => {
+			this.setState({ loading: false, results: result.items, currentPage: pageNum, lastPage: result.lastPage })
+		}, (fail) => {
+			this.setState({ loading: false, error: fail.responseText })
 		})
 	}
 
 	handleSearchChange(value) {
-		this.setState({query: value});
+		this.setState({ query: value });
 	}
 
 	handleSearchClear() {
-		this.setState({isSearch: false});
-		setTimeout(()=>{
+		this.setState({ isSearch: false });
+		setTimeout(() => {
 			this.getRepos();
 		})
 	}
 
-	getRepos(pageNum=1) {
-		this.setState({loading: true, error: ''});
+	getRepos(pageNum = 1) {
+		this.setState({ loading: true, error: '' });
 		let promise;
 		if (this.state.repoType === 'public') {
 			let filter = this.filterInput.value;
 			if (filter !== '') {
 				promise = getReposForGithubUser(filter, pageNum);
 			} else {
-				this.setState({loading: false});
+				this.setState({ loading: false });
 				return false;
 			}
 		} else {
 			promise = getReposForAuthenticatedGithubUser(pageNum, this.state.privateReposAffiliation);
 		}
-		promise.then((result)=>{
-			this.setState({loading: false, results: result.items, currentPage: pageNum, lastPage: result.lastPage})
-		},(fail)=>{
-			this.setState({loading: false, error: fail.responseText})
+		promise.then((result) => {
+			this.setState({ loading: false, results: result.items, currentPage: pageNum, lastPage: result.lastPage })
+		}, (fail) => {
+			this.setState({ loading: false, error: fail.responseText })
 		})
-	}	
+	}
 
 	render() {
 		const isDocLoaded = this.props.isDocLoaded;
@@ -211,7 +208,7 @@ class LoadDialog extends Component {
 		const error = this.state.error;
 		const xmlOnly = this.state.xmlOnly;
 		const results = this.state.results || [];
-		const templates = (this.state.templates || []).map((item, key)=>(
+		const templates = (this.state.templates || []).map((item, key) => (
 			<ListGroupItem key={key} onClick={onFileUpload.bind(this, item.download_url)}>{item.name.replace(/.xml$/, '')}</ListGroupItem>
 		));
 		return (
@@ -224,25 +221,25 @@ class LoadDialog extends Component {
 						activeKey={this.state.activeTab}
 						onSelect={this.handleTabSelect}
 					>
-						<Tab eventKey="templates" title="CWRC Templates" style={{marginTop: "10px"}}>
-						{loading ?
-							<Well><h5><Glyphicon glyph="cloud-download" style={{padding: '10px'}}/>Loading...</h5></Well>
-							:
-							(error !== '' ?
-								<Well><h5>Error!</h5><p>{error}</p></Well>
+						<Tab eventKey="templates" title="CWRC Templates" style={{ marginTop: '10px' }}>
+							{loading ?
+								<Well><h5><Glyphicon glyph="cloud-download" style={{ padding: '10px' }} />Loading...</h5></Well>
 								:
-								<Fragment>
-									{/*<h5>New to CWRC-Writer? Consider having a look at <a href="https://cwrc.ca/CWRC-Writer_Documentation/" target="_blank">the documentation</a></h5>*/}
-									<Well bsSize="small">
-										<ListGroup>{templates}</ListGroup>
-									</Well>
-								</Fragment>
-							)
-						}
+								(error !== '' ?
+									<Well><h5>Error!</h5><p>{error}</p></Well>
+									:
+									<Fragment>
+										{/*<h5>New to CWRC-Writer? Consider having a look at <a href="https://cwrc.ca/CWRC-Writer_Documentation/" target="_blank">the documentation</a></h5>*/}
+										<Well bsSize="small">
+											<ListGroup>{templates}</ListGroup>
+										</Well>
+									</Fragment>
+								)
+							}
 						</Tab>
 
-						<Tab eventKey="repos" title={'GitHub Repositories'} style={{marginTop: "10px"}}>
-							<Grid fluid={true} style={{marginBottom: "10px"}}>
+						<Tab eventKey="repos" title={'GitHub Repositories'} style={{ marginTop: '10px' }}>
+							<Grid fluid={true} style={{ marginBottom: '10px' }}>
 								<Row>
 									<Col sm={5}>
 										<h4>Search</h4>
@@ -254,7 +251,7 @@ class LoadDialog extends Component {
 												<Panel.Collapse>
 													<Panel.Body>
 														<ControlLabel>Show repositories for which I am:</ControlLabel>
-														<ToggleButtonGroup type="radio" name="affiliation" defaultValue="owner"> { /* can't use onChange because of bootstrap js conflict https://github.com/react-bootstrap/react-bootstrap/issues/2774 */ }
+														<ToggleButtonGroup type="radio" name="affiliation" defaultValue="owner"> { /* can't use onChange because of bootstrap js conflict https://github.com/react-bootstrap/react-bootstrap/issues/2774 */}
 															<ToggleButton bsSize="small" value="owner" onClick={this.handleAffiliationSelect.bind(this, 'owner')}>Owner</ToggleButton>
 															<ToggleButton bsSize="small" value="collaborator" onClick={this.handleAffiliationSelect.bind(this, 'collaborator')}>Collaborator</ToggleButton>
 															<ToggleButton bsSize="small" value="organization_member" onClick={this.handleAffiliationSelect.bind(this, 'organization_member')}>Organization Member</ToggleButton>
@@ -269,23 +266,23 @@ class LoadDialog extends Component {
 												<Panel.Collapse>
 													<Panel.Body>
 														<ControlLabel>Limit to user or organization:</ControlLabel>
-														<FormControl type="text" inputRef={(ref)=>{this.filterInput = ref}} onKeyPress={(event)=>{if (event.charCode === 13) this.getRepos(1);}} />
-														<Button onClick={()=>{this.getRepos(1)}} style={{marginTop: '10px'}}>Search</Button>
+														<FormControl type="text" inputRef={(ref) => { this.filterInput = ref }} onKeyPress={(event) => { if (event.charCode === 13) this.getRepos(1); }} />
+														<Button onClick={() => { this.getRepos(1) }} style={{ marginTop: '10px' }}>Search</Button>
 													</Panel.Body>
 												</Panel.Collapse>
 											</Panel>
 										</PanelGroup>
-										<SearchInput placeholder="Search XML files within repos" style={{marginTop: '10px'}} onChange={this.handleSearchChange} onSearch={(value)=>{this.doSearch(1,value)}} onClear={this.handleSearchClear} />
-										{false ? <FormGroup style={{marginTop: '10px'}}>
+										<SearchInput placeholder="Search XML files within repos" style={{ marginTop: '10px' }} onChange={this.handleSearchChange} onSearch={(value) => { this.doSearch(1, value) }} onClear={this.handleSearchClear} />
+										{false ? <FormGroup style={{ marginTop: '10px' }}>
 											<Checkbox checked={xmlOnly} onChange={this.handleXMLOnlyChange}>
 												Only show XML repositories
 											</Checkbox>
-										</FormGroup>:''}
+										</FormGroup> : ''}
 									</Col>
 									<Col sm={7}>
 										<h4>Results</h4>
 										{loading ?
-											<Well><h5><Glyphicon glyph="cloud-download" style={{padding: '10px'}}/>Loading...</h5></Well>
+											<Well><h5><Glyphicon glyph="cloud-download" style={{ padding: '10px' }} />Loading...</h5></Well>
 											:
 											(error !== '' ?
 												<Well><h5>Error!</h5><p>{error}</p></Well>
@@ -293,12 +290,12 @@ class LoadDialog extends Component {
 												(results.length === 0 ?
 													<Well><h5>No results</h5></Well>
 													:
-													(isSearch ? 
+													(isSearch ?
 														<Well bsSize="small">
 															<SearchResultList selectCB={onFileSelect} results={results} />
 															<Paginator pagingCB={this.doSearch} currentPage={this.state.currentPage} lastPage={this.state.lastPage} />
 														</Well>
-														: 
+														:
 														<Well bsSize="small">
 															<RepoResultCarousel serverURL={this.props.serverURL} isGitLab={this.props.isGitLab} selectCB={onFileSelect} repos={results} />
 														</Well>
@@ -310,7 +307,7 @@ class LoadDialog extends Component {
 								</Row>
 							</Grid>
 						</Tab>
-						<Tab eventKey="upload" title="Upload File or Text" style={{marginTop: "10px"}}>
+						<Tab eventKey="upload" title="Upload File or Text" style={{ marginTop: '10px' }}>
 							<FileUpload fileCB={onFileUpload} />
 						</Tab>
 					</Tabs>
@@ -325,5 +322,15 @@ class LoadDialog extends Component {
 		)
 	}
 }
+
+LoadDialog.propTypes = {
+	serverURL: PropTypes.string,
+	isGitLab: PropTypes.bool,
+	user: PropTypes.object,
+	isDocLoaded: PropTypes.bool,
+	onFileSelect: PropTypes.func,
+	onFileUpload: PropTypes.func,
+	handleClose: PropTypes.func,
+};
 
 export default LoadDialog
