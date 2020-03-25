@@ -1,7 +1,4 @@
-// 'use strict';
-import '@babel/polyfill';
 import $ from 'jquery';
-import Cookies from 'js-cookie';
 import dialogs from '../src/index.js';
 
 const sampleDoc = `
