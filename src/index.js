@@ -235,7 +235,7 @@ class GitDialog extends Component {
             )
         }
 
-        if (user === undefined) {
+        if (user === undefined && (repo === undefined && path === undefined)) {
             if (!splashShown && !hasToken) {
                 return (
                     <Modal id={dialogId} show={true} animation={false}>
