@@ -11,6 +11,8 @@ import LogOutDialog from './LogOut.js';
 import LoadDialog from './Load.js';
 import SaveCmp from './Save.js';
 
+import './css/bootstrap.less';
+
 let serverURL = '';
 let isGitLab = false;
 
