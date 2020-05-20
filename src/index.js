@@ -11,6 +11,8 @@ import LogOutDialog from './LogOut.js';
 import LoadDialog from './Load.js';
 import SaveCmp from './Save.js';
 
+import './css/bootstrap.less';
+
 let serverURL = '';
 let isGitLab = false;
 
@@ -235,7 +237,7 @@ class GitDialog extends Component {
             )
         }
 
-        if (user === undefined) {
+        if (user === undefined && (repo === undefined && path === undefined)) {
             if (!splashShown && !hasToken) {
                 return (
                     <Modal id={dialogId} show={true} animation={false}>

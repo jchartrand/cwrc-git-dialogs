@@ -7,7 +7,7 @@ const Splash = (props) => {
     return (
         <Fragment>
 			<Modal.Body style={{lineHeight: '1.35em', margin: '0px 15px'}}>
-                <PageHeader>Welcome to CWRC-Writer<br/><small>The XML & RDF online editor developed by the <a href="https://cwrc.ca"  rel="noopener noreferrer">Canadian Writing Research Collaboratory</a></small></PageHeader>
+                <PageHeader>Welcome to CWRC-Writer<br/><small>The XML & RDF online editor developed by the <a href="https://cwrc.ca" rel="noopener noreferrer">Canadian Writing Research Collaboratory</a></small></PageHeader>
                 <p>CWRC-Writer provides:</p>
                 <ul>
                     <li>schema-aware document editing, including validation, against web-accessible schemas</li>
