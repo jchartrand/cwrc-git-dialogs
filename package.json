@@ -29,7 +29,8 @@
     "build-css": "lessc src/css/bootstrap.less src/css/bootstrap.css",
     "test": "jest",
     "report-coverage": "cat ./coverage/coverage-final.json | codecov",
-    "travis-deploy-once": "travis-deploy-once"
+    "travis-deploy-once": "travis-deploy-once",
+    "build-dependency-graph": "depcruise --include-only \"^src\" --output-type dot src | dot -Gsplines=ortho -T svg | depcruise-wrap-stream-in-html > ./dependency-graph/dependency-graph.html"
   },
   "dependencies": {
     "bootstrap": "^3.4.1",
@@ -49,11 +50,11 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
     "babel-jest": "^26.1.0",
-    "codecov": "^3.7.1",
+    "codecov": "^3.7.2",
     "commitizen": "^4.1.2",
     "cz-conventional-changelog": "^3.2.0",
     "eslint": "^7.5.0",
-    "eslint-plugin-react": "^7.20.3",
+    "eslint-plugin-react": "^7.20.4",
     "husky": "^4.2.5",
     "jest": "^26.1.0",
     "jest-transform-stub": "^2.0.0",
