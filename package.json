@@ -1,75 +1,76 @@
 {
-  "name": "cwrc-git-dialogs",
-  "version": "0.0.0-development",
-  "description": "Dialogs for listing, loading, and saving CWRC XML documents.",
-  "keywords": [
-    "cwrc",
-    "github",
-    "xml",
-    "annotation"
-  ],
-  "homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
-  "bugs": {
-    "url": "https://github.com/cwrc/cwrc-git-dialogs/issues"
-  },
-  "license": "GPL-2.0",
-  "contributors": [
-    "James Chartrand <jc.chartrand@gmail.com>",
-    "Andrew MacDonald <andrewjames.code@gmail.com>",
-    "Luciano Frizzera <lucaju@gmail.com>"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cwrc/cwrc-git-dialogs.git"
-  },
-  "main": "src/index.js",
-  "scripts": {
-    "semantic-release": "semantic-release",
-    "cm": "git-cz",
-    "build-css": "lessc src/css/bootstrap.less src/css/bootstrap.css",
-    "test": "jest",
-    "report-coverage": "cat ./coverage/coverage-final.json | codecov",
-    "travis-deploy-once": "travis-deploy-once",
-    "build-dependency-graph": "depcruise --include-only \"^src\" --output-type dot src | dot -Gsplines=ortho -T svg | depcruise-wrap-stream-in-html > ./dependency-graph/dependency-graph.html"
-  },
-  "dependencies": {
-    "bootstrap": "^3.4.1",
-    "jquery": "3.4.1",
-    "js-cookie": "^2.2.1",
-    "parse-link-header": "^1.0.1",
-    "prop-types": "^15.7.2",
-    "query-string": "^6.13.1",
-    "react": "^16.13.1",
-    "react-bootstrap": "^0.32.4",
-    "react-dom": "^16.13.1"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.10.5",
-    "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/plugin-transform-runtime": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
-    "@babel/preset-react": "^7.10.4",
-    "babel-jest": "^26.1.0",
-    "codecov": "^3.7.2",
-    "commitizen": "^4.1.2",
-    "cz-conventional-changelog": "^3.2.0",
-    "eslint": "^7.5.0",
-    "eslint-plugin-react": "^7.20.4",
-    "husky": "^4.2.5",
-    "jest": "^26.1.0",
-    "jest-transform-stub": "^2.0.0",
-    "less": "^3.12.2",
-    "semantic-release": "^17.1.1",
-    "travis-deploy-once": "^5.0.11"
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run test"
-    }
-  }
+	"name": "cwrc-git-dialogs",
+	"version": "0.0.0-development",
+	"description": "Dialogs for listing, loading, and saving CWRC XML documents.",
+	"keywords": [
+		"cwrc",
+		"github",
+		"xml",
+		"annotation"
+	],
+	"homepage": "https://github.com/cwrc/cwrc-git-dialogs#readme",
+	"bugs": {
+		"url": "https://github.com/cwrc/cwrc-git-dialogs/issues"
+	},
+	"license": "GPL-2.0",
+	"contributors": [
+		"James Chartrand <jc.chartrand@gmail.com>",
+		"Andrew MacDonald <andrewjames.code@gmail.com>",
+		"Luciano Frizzera <lucaju@gmail.com>"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cwrc/cwrc-git-dialogs.git"
+	},
+	"main": "src/index.js",
+	"scripts": {
+		"semantic-release": "semantic-release",
+		"cm": "git-cz",
+		"build-css": "lessc src/css/bootstrap.less src/css/bootstrap.css",
+		"test": "jest",
+		"report-coverage": "cat ./coverage/coverage-final.json | codecov",
+		"travis-deploy-once": "travis-deploy-once",
+		"build-dependency-graph": "depcruise --include-only \"^src\" --output-type dot src | dot -Gsplines=ortho -T svg | depcruise-wrap-stream-in-html > ./dependency-graph/dependency-graph.html"
+	},
+	"dependencies": {
+		"bootstrap": "^3.4.1",
+		"jquery": "3.4.1",
+		"js-cookie": "^2.2.1",
+		"parse-link-header": "^1.0.1",
+		"prop-types": "^15.7.2",
+		"query-string": "^6.13.1",
+		"react": "^16.13.1",
+		"react-bootstrap": "^0.32.4",
+		"react-dom": "^16.13.1"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.11.1",
+		"@babel/plugin-proposal-class-properties": "^7.10.4",
+		"@babel/plugin-transform-runtime": "^7.11.0",
+		"@babel/preset-env": "^7.11.0",
+		"@babel/preset-react": "^7.10.4",
+		"babel-eslint": "^10.1.0",
+		"babel-jest": "^26.2.2",
+		"codecov": "^3.7.2",
+		"commitizen": "^4.1.2",
+		"cz-conventional-changelog": "^3.2.0",
+		"eslint": "^7.6.0",
+		"eslint-plugin-react": "^7.20.5",
+		"husky": "^4.2.5",
+		"jest": "^26.2.2",
+		"jest-transform-stub": "^2.0.0",
+		"less": "^3.12.2",
+		"semantic-release": "^17.1.1",
+		"travis-deploy-once": "^5.0.11"
+	},
+	"config": {
+		"commitizen": {
+			"path": "cz-conventional-changelog"
+		}
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "npm run test"
+		}
+	}
 }
