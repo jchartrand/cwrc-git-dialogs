@@ -143,10 +143,14 @@ const VerifyRepo = ({
 		setProcessStatus('checkingRepoExistence');
 
 		const results = await cwrcGit.getRepoContents(getFullRepoPath()).catch((error) => {
-			console.log(error);
+			return setDoesRepoExist(false);
 		});
 
-		if (!results) return setDoesRepoExist(false);
+		if (!results) {
+			setDoesRepoExist(false);
+			checkPermission();
+			return;
+		}
 
 		setDoesRepoExist(true);
 
@@ -165,9 +169,10 @@ const VerifyRepo = ({
 		if (results === 'none' || results === 'read') {
 			setDoesUserHavePermission(false);
 			setProcessStatus('done');
-		} else {
-			complete();
+			return;
 		}
+
+		complete();
 	};
 
 	const getFullRepoPath = () => (`${owner}/${repo}`);
@@ -190,17 +195,18 @@ const VerifyRepo = ({
 	};
 
 	const createRepo = async () => {
-		let repo;
+		setProcessStatus('creatingRepo');
+		let newRepo;
 		if (isOwnerUser) {
-			repo = await cwrcGit.createRepo(repo, repoDesc, isPrivate).catch((error) => {
+			newRepo = await cwrcGit.createRepo(repo, repoDesc, isPrivate).catch((error) => {
 				displayError(error);
 			});
 		} else {
-			repo = await cwrcGit.createOrgRepo(owner, repo, repoDesc, isPrivate).catch((error) => {
+			newRepo = await cwrcGit.createOrgRepo(owner, repo, repoDesc, isPrivate).catch((error) => {
 				displayError(error);
 			});
 		}
-		if (repo) complete();
+		if (newRepo) complete();
 	};
 
 	// handles changes passed up from children
@@ -213,6 +219,7 @@ const VerifyRepo = ({
 			{processStatus === 'checkingOwner' && <CheckingModal body="Checking the repository owner..." />}
 			{processStatus === 'checkingRepoExistence' && <CheckingModal body="Checking the respository..." />}
 			{processStatus === 'checkingPermission' && <CheckingModal body="Checking your permissions..." />}
+			{processStatus === 'creatingRepo' && <CheckingModal body="Creating a new repository..." />}
 			{processStatus === 'done' && doesRepoExist && !doesUserHavePermission &&
 				<ErrorModal
 					error="You do not have permission to use this repository. Try saving as a pull request or save to another repository you have writing privileges for."
@@ -225,7 +232,7 @@ const VerifyRepo = ({
 					cancel={cancel}
 				/>
 			}
-			{processStatus === 'done' && doesUserHavePermission && isOwnerUser && owner === user &&
+			{processStatus === 'done' && !doesRepoExist && isOwnerUser && owner === user &&
 				<CreateModal
 					cancel={cancel}
 					handleDescriptionChange={handleDescriptionChange}
