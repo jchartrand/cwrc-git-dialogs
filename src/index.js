@@ -44,7 +44,6 @@ const getDocumentURI = () => {
 		console.warn('cwrc-git-dialogs: path started with /');
 		path = path.substring(1);
 	}
-
 	return `https://raw.githubusercontent.com/${_repo}/master/${path}`;
 };
 
@@ -84,6 +83,7 @@ const logOutWrap = (writer) => {
 const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 	const [confirmLoadState, setConfirmLoadState] = useState(confirmLoad);
 	const [error, setError] = useState(undefined);
+	const [isUserAuthenticated, SetIsUserAuthenticated] = useState(false);
 	const [repo, setRepoState] = useState(_repo);
 	const [path, setPathState] = useState(_path);
 	const [splashShown, setSplashShown] = useState(false);
@@ -93,6 +93,9 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 	const [isGitLab, setIsGitLab] = useState(false);
 
 	useEffect(() => {
+
+		if (user === undefined) SetIsUserAuthenticated (isAuthenticated());
+
 		if (action === 'load' &&
 			writer.isDocLoaded === false &&
 			repo === undefined &&
@@ -103,6 +106,7 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 				setRepo(docInfo.repo);
 				setPath(docInfo.path);
 			}
+
 		}
 
 		if (action === 'save' && repo === undefined && path === undefined) {
@@ -201,7 +205,7 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 
 	return (
 		<Fragment>
-			{!show ? null : error ? (
+			{show && (error ? (
 				<Modal id={dialogId} show={true} animation={false}>
 					<Modal.Header closeButton={false}>Error</Modal.Header>
 					<Modal.Body>
@@ -212,7 +216,7 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 					</Modal.Footer>
 				</Modal>
 			) : user === undefined ? (
-				!splashShown && !isAuthenticated() ? (
+				!splashShown && !isUserAuthenticated ? (
 					<Modal id={dialogId} show={true} animation={false}>
 						<Splash onContinue={() => setSplashShown(true)} />
 					</Modal>
@@ -280,20 +284,18 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 						handleRepoChange={setRepo}
 						handleSaved={handleSaved}
 						isGitLab={isGitLab}
-						owner={repo.split('/')[0]}
+						owner={repo ? repo.split('/')[0] : ''}
 						path={path}
-						repo={repo.split('/')[1] !== undefined ? repo.split('/')[1] : ''}
+						repo={repo && repo.split('/')[1] !== undefined ? repo.split('/')[1] : ''}
 						serverURL={serverURL}
 						user={user.userId}
 					/>
 				</Modal>
-			) : action === 'logout' ? (
+			) : action === 'logout' && (
 				<Modal id={dialogId} show={true} animation={false}>
 					<LogOutDialog handleClose={handleClose} />
 				</Modal>
-			) : (
-				''
-			)}
+			))}
 		</Fragment>
 	);
 };
