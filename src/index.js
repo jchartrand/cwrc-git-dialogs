@@ -4,7 +4,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import ReactDOM from 'react-dom';
 
-import { AuthenticateDialog, isAuthenticated } from './components/authenticate/authenticate';
+import { AuthenticateDialog, isAuthenticated } from './components/Authenticate';
 import LoadDialog from './components/load/Load';
 import LogOutDialog from './components/LogOut';
 import SaveCmp from './components/save/Save';
@@ -34,17 +34,18 @@ const initDialogs = (writer) => {
 };
 
 const getDocumentURI = () => {
-	let path;
-	if (_path !== undefined && _repo !== undefined) {
-		if (_path.charAt(0) === '/') {
-			console.warn('cwrc-git-dialogs: path started with /');
-			path = _path.substring(1);
-		}
-		return `https://raw.githubusercontent.com/${_repo}/master/${path}`;
-	} else {
+	if (_path === undefined || _repo === undefined) {
 		console.warn('cwrc-git-dialogs: no repo or path set!');
 		return window.location.href;
 	}
+
+	let path = _path;
+	if (path.charAt(0) === '/') {
+		console.warn('cwrc-git-dialogs: path started with /');
+		path = path.substring(1);
+	}
+
+	return `https://raw.githubusercontent.com/${_repo}/master/${path}`;
 };
 
 const loadWrap = (writer, shouldOverwrite = false) => {
@@ -218,9 +219,9 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 				) : (
 					<Modal id={dialogId} show={true} animation={false}>
 						<AuthenticateDialog
-							serverURL={serverURL}
 							isGitLab={isGitLab}
 							onUserAuthentication={handleAuthentication}
+							serverURL={serverURL}
 						/>
 					</Modal>
 				)
@@ -260,30 +261,30 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 				) : (
 					<Modal id={dialogId} show={true} bsSize="large" animation={false}>
 						<LoadDialog
-							serverURL={serverURL}
-							isGitLab={isGitLab}
+							handleClose={handleClose}
 							isDocLoaded={writer.isDocLoaded}
-							user={user}
+							isGitLab={isGitLab}
 							onFileSelect={handleFileSelect}
 							onFileUpload={handleFileUpload}
-							handleClose={handleClose}
+							serverURL={serverURL}
+							user={user}
 						/>
 					</Modal>
 				)
 			) : action === 'save' ? (
 				<Modal id={dialogId} show={true} animation={false}>
 					<SaveCmp
-						serverURL={serverURL}
-						isGitLab={isGitLab}
-						user={user.userId}
-						owner={repo.split('/')[0]}
-						repo={repo.split('/')[1] !== undefined ? repo.split('/')[1] : ''}
-						path={path}
-						handleClose={handleClose}
 						getDocument={getDocument}
-						handleRepoChange={setRepo}
+						handleClose={handleClose}
 						handlePathChange={setPath}
+						handleRepoChange={setRepo}
 						handleSaved={handleSaved}
+						isGitLab={isGitLab}
+						owner={repo.split('/')[0]}
+						path={path}
+						repo={repo.split('/')[1] !== undefined ? repo.split('/')[1] : ''}
+						serverURL={serverURL}
+						user={user.userId}
 					/>
 				</Modal>
 			) : action === 'logout' ? (

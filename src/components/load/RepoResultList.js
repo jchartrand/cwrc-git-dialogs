@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Glyphicon, ListGroup, ListGroupItem, Panel, PanelGroup } from 'react-bootstrap';
+
 import cwrcGit from './GitServerClient';
 
 const RepoResultList = ({ isGitLab, selectCB, serverURL, repos }) => {

@@ -33,9 +33,9 @@ import SearchResultList from './SearchResultList';
 const RESULTS_PER_PAGE = 100;
 
 const LoadDialog = ({
+	handleClose,
 	isDocLoaded,
 	isGitLab,
-	handleClose,
 	onFileSelect,
 	onFileUpload,
 	serverURL,
@@ -344,11 +344,11 @@ const LoadDialog = ({
 										</Panel>
 									</PanelGroup>
 									<SearchInput
+										onChange={handleSearchChange}
+										onClear={handleSearchClear}
+										onSearch={(value) => doSearch(1, value)}
 										placeholder="Search XML files within repos"
 										style={{ marginTop: '10px' }}
-										onChange={handleSearchChange}
-										onSearch={(value) => doSearch(1, value)}
-										onClear={handleSearchClear}
 									/>
 									{false && (
 										<FormGroup style={{ marginTop: '10px' }}>
@@ -380,22 +380,22 @@ const LoadDialog = ({
 									) : isSearch ? (
 										<div>
 											<SearchResultList
-												selectCB={onFileSelect}
 												results={results}
+												selectCB={onFileSelect}
 											/>
 											<Paginator
-												pagingCB={doSearch}
 												currentPage={currentPage}
 												lastPage={lastPage}
+												pagingCB={doSearch}
 											/>
 										</div>
 									) : (
 										<div>
 											<RepoResultCarousel
-												serverURL={serverURL}
 												isGitLab={isGitLab}
-												selectCB={onFileSelect}
 												repos={results}
+												selectCB={onFileSelect}
+												serverURL={serverURL}
 											/>
 										</div>
 									)}
@@ -423,9 +423,9 @@ const LoadDialog = ({
 };
 
 LoadDialog.propTypes = {
+	handleClose: PropTypes.func,
 	isDocLoaded: PropTypes.bool,
 	isGitLab: PropTypes.bool,
-	handleClose: PropTypes.func,
 	onFileSelect: PropTypes.func,
 	onFileUpload: PropTypes.func,
 	serverURL: PropTypes.string,

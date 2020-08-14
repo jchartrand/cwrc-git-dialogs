@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Fragment, useEffect, useState } from 'react';
 import { Alert, Button, Modal } from 'react-bootstrap';
 
-import cwrcGit from '../../GitServerClient';
+import cwrcGit from '../GitServerClient';
 
 export const isAuthenticated = () => Cookies.get('cwrc-token') !== undefined;
 

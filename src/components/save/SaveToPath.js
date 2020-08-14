@@ -37,8 +37,8 @@ const ConfirmModal = ({ cancel, title, body, ok }) => (
 );
 
 ConfirmModal.propTypes = {
-	body: PropTypes.string,
 	cancel: PropTypes.func,
+	body: PropTypes.string,
 	ok: PropTypes.func,
 	title: PropTypes.string,
 };
@@ -60,19 +60,19 @@ const SaveToPath = ({
 	cancelCB,
 	getDocument,
 	isGitLab,
-	usePR,
 	owner,
 	path,
 	repo,
 	savedCB,
 	serverURL,
+	usePR,
 }) => {
-	const [processStatus, setProcessStatus] = useState(null);
-	const [error, setError] = useState(null);
 	const [branch, setBranch] = useState('master');
 	const [commitMessage, setCommitMessage] = useState('Saved by CWRC-Writer');
-	const [prTitle, setPrTitle] = useState('Request made from CWRC-Writer');
+	const [error, setError] = useState(null);
+	const [processStatus, setProcessStatus] = useState(null);
 	const [prBranch, setPrBranch] = useState('cwrc-writer-pr');
+	const [prTitle, setPrTitle] = useState('Request made from CWRC-Writer');
 
 	const resetComponent = () => {
 		setProcessStatus(null);
@@ -194,12 +194,12 @@ SaveToPath.propTypes = {
 	cancelCB: PropTypes.func,
 	getDocument: PropTypes.func,
 	isGitLab: PropTypes.bool,
-	usePR: PropTypes.bool,
 	owner: PropTypes.string,
 	path: PropTypes.string,
 	repo: PropTypes.string,
 	savedCB: PropTypes.func,
 	serverURL: PropTypes.string,
+	usePR: PropTypes.bool,
 };
 
 export default SaveToPath;

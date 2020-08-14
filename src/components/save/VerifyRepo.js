@@ -71,10 +71,10 @@ const CreateModal = ({
 CreateModal.propTypes = {
 	cancel: PropTypes.func,
 	ok: PropTypes.func,
-	repoDesc: PropTypes.string,
-	isPrivate: PropTypes.bool,
+	handleDescriptionChange: PropTypes.func,
 	handlePrivateChange: PropTypes.func,
-	handleDescriptionChange: PropTypes.func
+	isPrivate: PropTypes.bool,
+	repoDesc: PropTypes.string,
 };
 
 const CheckingModal = ({body}) => (
@@ -101,22 +101,22 @@ const VerifyRepo = ({
 	verifiedCB
 }) => {
 
-	const [processStatus, setProcessStatus] = useState(null);
-	const [doesUserHavePermission, setDoesUserHavePermission] = useState(null);
 	const [doesRepoExist, setDoesRepoExist] = useState(null);
+	const [doesUserHavePermission, setDoesUserHavePermission] = useState(null);
 	const [error, setError] = useState(null);
 	const [isOwnerUser, setIsOwnerUser] = useState(null);
 	const [isPrivate, setIsPrivate] = useState(false);
+	const [processStatus, setProcessStatus] = useState(null);
 	const [repoDesc, setRepoDesc] = useState('Automagically created by CWRC');
 
 
 	const resetComponent = () => {
-		setProcessStatus(null);
 		setDoesRepoExist(null);
 		setDoesUserHavePermission(null);
 		setError(null);
 		setIsOwnerUser(null);
 		setIsPrivate(false);
+		setProcessStatus(null);
 		setRepoDesc('Automagically created by CWRC');
 	};
 
@@ -227,11 +227,11 @@ const VerifyRepo = ({
 			}
 			{processStatus === 'done' && doesUserHavePermission && isOwnerUser && owner === user &&
 				<CreateModal
-					ok={createRepo}
 					cancel={cancel}
-					handlePrivateChange={handlePrivateChange}
 					handleDescriptionChange={handleDescriptionChange}
+					handlePrivateChange={handlePrivateChange}
 					isPrivate={isPrivate}
+					ok={createRepo}
 					repoDesc={repoDesc}
 				/>
 			}

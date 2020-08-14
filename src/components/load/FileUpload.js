@@ -9,18 +9,17 @@ import {
 	Grid,
 	HelpBlock,
 	Label,
-	Row,
-	Well,
+	Row
 } from 'react-bootstrap';
 
 const FileUpload = ({ fileCB }) => {
 	const [xmlText, setXmlText] = useState('');
 	const [showWarning, setShowWarning] = useState(false);
 
-	const getValidationState = () => {
-		if (showWarning) return 'error';
-		return null;
-	};
+	// const getValidationState = () => {
+	// 	if (showWarning) return 'error';
+	// 	return null;
+	// };
 
 	const handleTextChange = (e) => {
 		if (xmlText.length > 0) setShowWarning(false);

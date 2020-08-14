@@ -17,8 +17,8 @@ import SaveToPath from './SaveToPath';
 import VerifyRepo from './VerifyRepo';
 
 const SaveCmp = ({
-	handleClose,
 	getDocument,
+	handleClose,
 	handlePathChange,
 	handleRepoChange,
 	handleSaved,
@@ -209,28 +209,28 @@ const SaveCmp = ({
 			}
 			{submitted && !isRepoVerified &&
 				<VerifyRepo
-					serverURL={serverURL}
-					isGitLab={isGitLab}
-					user={user}
-					owner={ownerState}
-					repo={repoState}
-					path={pathState}
-					usePR={usePR}
-					verifiedCB={repoVerified}
 					cancelCB={repoOrPathCancelled}
+					isGitLab={isGitLab}
+					owner={ownerState}
+					path={pathState}
+					repo={repoState}
+					serverURL={serverURL}
+					usePR={usePR}
+					user={user}
+					verifiedCB={repoVerified}
 				/>
 			}
 			{submitted && isRepoVerified &&
 				<SaveToPath
-					serverURL={serverURL}
+					cancelCB={repoOrPathCancelled}
+					getDocument={getDocument}
 					isGitLab={isGitLab}
 					owner={ownerState}
-					repo={repoState}
 					path={pathState}
-					getDocument={getDocument}
-					usePR={usePR}
+					repo={repoState}
 					savedCB={saved}
-					cancelCB={repoOrPathCancelled}
+					serverURL={serverURL}
+					usePR={usePR}
 				/>
 			}
 		</Fragment>
@@ -239,8 +239,8 @@ const SaveCmp = ({
 };
 
 SaveCmp.propTypes = {
-	handleClose: PropTypes.func,
 	getDocument: PropTypes.func,
+	handleClose: PropTypes.func,
 	handlePathChange: PropTypes.func,
 	handleRepoChange: PropTypes.func,
 	handleSaved: PropTypes.func,

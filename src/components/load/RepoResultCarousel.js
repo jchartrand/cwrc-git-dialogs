@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Carousel, Glyphicon, ListGroup, ListGroupItem } from 'react-bootstrap';
+
 import cwrcGit from '../../GitServerClient.js';
 import SearchInput from './SearchInput.js';
 
@@ -222,10 +223,10 @@ const RepoResultCarousel = ({ isGitLab, repos, selectCB, serverURL }) => {
 				</Breadcrumb>
 				<SearchInput
 					placeholder="Filename filter"
-					style={{ marginTop: '10px' }}
 					onChange={doSearch}
-					onSearch={doSearch}
 					onClear={handleSearchClear}
+					onSearch={doSearch}
+					style={{ marginTop: '10px' }}
 				/>
 				{index === 1 && selectedRepo !== null ? showRepoStructure(selectedRepo) : ''}
 			</Carousel.Item>
