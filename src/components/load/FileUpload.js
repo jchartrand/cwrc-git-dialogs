@@ -54,7 +54,7 @@ const FileUpload = ({ fileCB }) => {
 					<Col sm={3}>
 						<FormGroup>
 							<ControlLabel htmlFor="fileUpload" style={{ cursor: 'pointer', paddingRight: '40px'}}>
-								<h3><Label bsStyle="success">Choose File</Label></h3>
+								<h4><Label bsStyle="success" style={{ padding: '15px' }}>Choose File</Label></h4>
 								<FormControl
 									id="fileUpload"
 									type="file"

@@ -44,7 +44,7 @@
 		"react-dom": "^16.13.1"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.11.1",
+		"@babel/core": "^7.11.4",
 		"@babel/plugin-proposal-class-properties": "^7.10.4",
 		"@babel/plugin-transform-runtime": "^7.11.0",
 		"@babel/preset-env": "^7.11.0",
@@ -54,10 +54,10 @@
 		"codecov": "^3.7.2",
 		"commitizen": "^4.1.2",
 		"cz-conventional-changelog": "^3.2.0",
-		"eslint": "^7.6.0",
+		"eslint": "^7.7.0",
 		"eslint-plugin-react": "^7.20.6",
 		"husky": "^4.2.5",
-		"jest": "^26.4.0",
+		"jest": "^26.4.1",
 		"jest-transform-stub": "^2.0.0",
 		"less": "^3.12.2",
 		"semantic-release": "^17.1.1",
