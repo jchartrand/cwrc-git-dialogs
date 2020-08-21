@@ -1,20 +1,13 @@
 import PropTypes from 'prop-types';
 import React, { Fragment, useState } from 'react';
-import {
-	Button,
-	Col,
-	ControlLabel,
-	Form,
-	FormControl,
-	FormGroup,
-	Grid,
-	Label,
-	Modal,
-	Row,
-} from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 
-import SaveToPath from './SaveToPath';
-import VerifyRepo from './VerifyRepo';
+import CreateRepoModal from './CreateRepoModal';
+import FileModal from './FileModal';
+import ForkModal from './ForkModal';
+import PathModal from './PathModal';
+import PullRequestModal from './PullRequestModal';
+import VerifyModal from './VerifyModal';
 
 const SaveCmp = ({
 	getDocument,
@@ -27,26 +20,23 @@ const SaveCmp = ({
 	path,
 	repo,
 	serverURL,
-	user
+	username,
 }) => {
-
-	let ownerInput = null;
-	let repoInput = null;
-	let pathInput = null;
-
-	const [ownerState, setOwnerState] = useState(owner);
-	const [repoState, setRepoState] = useState(repo);
-	const [pathState, setPathState] = useState(path);
-	const [usePR, setUsePR] = useState(false);
-	const [submitted, setSubmitted] = useState(false);
-	const [isRepoVerified, setIsRepoVerified] = useState(false);
-	const [formMessage, setFormMessage] = useState(undefined);
+	const [action, setAction] = useState();
+	const [currentFile] = useState({ owner, repo, path });
+	const [doesUserHavePermission, setDoesUserHavePermission] = useState();
+	const [fromFork, setFromFork] = useState();
+	const [isRepoVerified, setIsRepoVerified] = useState();
 	const [isSaved, setIsSaved] = useState(false);
+	const [ownerState, setOwnerState] = useState(owner);
+	const [ownerType, setOwnerType] = useState();
+	const [pathState, setPathState] = useState(path);
+	const [repoState, setRepoState] = useState(repo);
+	const [submitted, setSubmitted] = useState(false);
+	const [usePR, setUsePR] = useState(false);
 
 	// handles changes passed up from the form
 	const handleChange = (name, value) => {
-		setFormMessage(undefined);
-
 		switch (name) {
 		case 'path':
 			setPathState(value);
@@ -63,61 +53,57 @@ const SaveCmp = ({
 		}
 	};
 
-	const validateControl = (value) => {
-		if (value === undefined || value.length === 0) return 'error';
-		return null;
-	};
-
-	const isFormValid = () => {
-		if (ownerInput.value !== undefined &&
-			ownerInput.value !== '' &&
-			repoInput.value !== undefined &&
-			repoInput.value !== '' &&
-			pathInput.value !== undefined &&
-			pathInput.value !== ''
-		) {
-			return true;
-		}
-		return false;
-	};
-
 	// action on button click in form
 	const saveFile = () => {
-		if (isFormValid()) {
-			setSubmitted(true);
-			setUsePR(false);
-		} else {
-			setFormMessage('Form values cannot be blank');
-		}
+		setUsePR(false);
+		setSubmitted(true);
 	};
 
 	// action on button click in form
 	const saveFileAsPR = () => {
-		if (isFormValid()) {
-			setSubmitted(true);
-			setUsePR(true);
-		} else {
-			setFormMessage('Form values cannot be blank');
-		}
+		setUsePR(true);
+		setSubmitted(true);
+	};
+
+	// callback when hit cancel button
+	const repoOrPathCancelled = () => {
+		setOwnerType(null);
+		setDoesUserHavePermission(null);
+		setIsRepoVerified(null);
+		setSubmitted(false);
+	};
+
+	// callback passed to VerifyRepo
+	const repoVerified = (result) => {
+		setDoesUserHavePermission(result.doesUserHavePermission);
+		setOwnerType(result.ownerType);
+		setAction(result.action);
+		setIsRepoVerified(true);
+	};
+
+	const repoCreated = () => {
+		setAction('save');
+	};
+
+	const forked = (result) => {
+		if (result.fromFork) setFromFork(result.fromFork);
+		setAction(result.action);
 	};
 
 	const saved = () => {
+		if (fromFork) return setAction('pr');
 		handleSaved(`${ownerState}/${repoState}`, pathState);
 		setIsSaved(true);
 	};
 
-	// callback passed to VerifyRepo
-	const repoVerified = () => setIsRepoVerified(true);
-
-	// callback passed to VerifyRepo and SaveToPath
-	const repoOrPathCancelled = () => {
-		setIsRepoVerified(false);
-		setSubmitted(false);
+	const pullRequested = () => {
+		handleSaved(`${ownerState}/${repoState}`, pathState);
+		setIsSaved(true);
 	};
 
 	return (
 		<Fragment>
-			{isSaved &&
+			{isSaved && (
 				<Fragment>
 					<Modal.Header>Save to Repository</Modal.Header>
 					<Modal.Body>
@@ -125,90 +111,25 @@ const SaveCmp = ({
 						<p>Your document has been saved.</p>
 					</Modal.Body>
 					<Modal.Footer>
-						<Button onClick={handleClose} bsStyle="success">Ok</Button>
+						<Button onClick={handleClose} bsStyle="success">
+							Ok
+						</Button>
 					</Modal.Footer>
 				</Fragment>
-			}
-			{!submitted &&
-				<Fragment>
-					<Modal.Header>Save to Repository</Modal.Header>
-					<Modal.Body>
-						<Form>
-							<Grid fluid>
-								<Row>
-									<h4>Repository Path</h4>
-									<Col sm={6}>
-										<FormGroup
-											controlId="owner"
-											validationState={validateControl(ownerState)}
-										>
-											<ControlLabel>GitHub User/Organization</ControlLabel>
-											<FormControl
-												type="text"
-												value={ownerState}
-												onChange={(e) => handleChange('owner', e.target.value)}
-												inputRef={(ref) => ownerInput = ref}
-											/>
-										</FormGroup>
-									</Col>
-									<Col sm={6}>
-										<FormGroup
-											controlId="repo"
-											validationState={validateControl(repoState)}
-										>
-											<ControlLabel>Repository Name</ControlLabel>
-											<FormControl
-												type="text"
-												value={repoState}
-												onChange={(e) => handleChange('repo', e.target.value)}
-												inputRef={(ref) => repoInput = ref}
-											/>
-										</FormGroup>
-									</Col>
-								</Row>
-								<Row>
-									<h4>File Path</h4>
-									<Col sm={12}>
-										<FormGroup
-											controlId="path"
-											validationState={validateControl(pathState)}
-										>
-											<FormControl
-												type="text"
-												value={pathState}
-												onChange={(e) => handleChange('path', e.target.value)}
-												inputRef={(ref) => pathInput = ref}
-											/>
-											<div style={{ marginTop: '5px', color: '#737373' }}>
-												The file (and folder) path to which to save (e.g.,
-												french/basque/SaintSauveur.xml)
-											</div>
-										</FormGroup>
-									</Col>
-								</Row>
-								{formMessage !== undefined ? (
-									<Row>
-										<Col sm={12}>
-											<h4>
-												<Label bsStyle="danger">{formMessage}</Label>
-											</h4>
-										</Col>
-									</Row>
-								) : (
-									''
-								)}
-							</Grid>
-						</Form>
-					</Modal.Body>
-					<Modal.Footer>
-						<Button onClick={handleClose}>Cancel</Button>
-						<Button onClick={saveFile} bsStyle="success">Save</Button>
-						<Button onClick={saveFileAsPR} bsStyle="success">Save As Pull Request</Button>
-					</Modal.Footer>
-				</Fragment>
-			}
-			{submitted && !isRepoVerified &&
-				<VerifyRepo
+			)}
+			{!submitted && (
+				<PathModal
+					handleClose={handleClose}
+					handleChange={handleChange}
+					handleSaveFile={saveFile}
+					handleSaveFileAsPR={saveFileAsPR}
+					repo={repo}
+					path={path}
+					owner={owner}
+				/>
+			)}
+			{submitted && !isRepoVerified && (
+				<VerifyModal
 					cancelCB={repoOrPathCancelled}
 					isGitLab={isGitLab}
 					owner={ownerState}
@@ -216,13 +137,34 @@ const SaveCmp = ({
 					repo={repoState}
 					serverURL={serverURL}
 					usePR={usePR}
-					user={user}
+					username={username}
 					verifiedCB={repoVerified}
 				/>
-			}
-			{submitted && isRepoVerified &&
-				<SaveToPath
+			)}
+			{submitted && isRepoVerified && action === 'createRepo' && (
+				<CreateRepoModal
+					cancel={repoOrPathCancelled}
+					complete={repoCreated}
+					owner={ownerState}
+					ownerType={ownerType}
+					repo={repoState}
+				/>
+			)}
+			{submitted && isRepoVerified && action === 'fork' && (
+				<ForkModal
+					cancel={repoOrPathCancelled}
+					complete={forked}
+					doesUserHavePermission={doesUserHavePermission}
+					owner={owner}
+					repo={repo}
+					username={username}
+				/>
+			)}
+			{submitted && isRepoVerified && action === 'save' && (
+				<FileModal
 					cancelCB={repoOrPathCancelled}
+					currentFile={currentFile}
+					fromFork={fromFork}
 					getDocument={getDocument}
 					isGitLab={isGitLab}
 					owner={ownerState}
@@ -230,12 +172,25 @@ const SaveCmp = ({
 					repo={repoState}
 					savedCB={saved}
 					serverURL={serverURL}
-					usePR={usePR}
+					username={username}
 				/>
-			}
+			)}
+			{submitted && isRepoVerified && action === 'pr' && (
+				<PullRequestModal
+					cancelCB={repoOrPathCancelled}
+					fromFork={fromFork}
+					getDocument={getDocument}
+					isGitLab={isGitLab}
+					owner={ownerState}
+					path={pathState}
+					repo={repoState}
+					savedCB={pullRequested}
+					serverURL={serverURL}
+					username={username}
+				/>
+			)}
 		</Fragment>
 	);
-
 };
 
 SaveCmp.propTypes = {
@@ -249,7 +204,7 @@ SaveCmp.propTypes = {
 	path: PropTypes.string,
 	repo: PropTypes.string,
 	serverURL: PropTypes.string,
-	user: PropTypes.string,
+	username: PropTypes.string,
 };
 
 export default SaveCmp;

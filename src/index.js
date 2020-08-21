@@ -90,7 +90,7 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 	const [show, setShow] = useState(true);
 	const [user, setUser] = useState(_user);
 
-	const [isGitLab, setIsGitLab] = useState(false);
+	const [isGitLab] = useState(false);
 
 	useEffect(() => {
 
@@ -171,8 +171,12 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 		cwrcGit.setServerURL(serverURL);
 		cwrcGit.useGitLab(isGitLab);
 
-		const response = await cwrcGit.getDoc(repo, 'master', path).catch((error) => {
-			console.log(error);
+		const response = await cwrcGit.getDoc({
+			repoName: repo,
+			branch: 'master',
+			path
+		}).catch(() => {
+			// console.log(error);
 			setDocumentInfo(undefined, undefined);
 			setError(`There was an error loading the document from: ${repo}/${path}`);
 		});
@@ -288,7 +292,7 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 						path={path}
 						repo={repo && repo.split('/')[1] !== undefined ? repo.split('/')[1] : ''}
 						serverURL={serverURL}
-						user={user.userId}
+						username={user.userId}
 					/>
 				</Modal>
 			) : action === 'logout' && (
