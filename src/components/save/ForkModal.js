@@ -59,7 +59,7 @@ const ForkModal = ({ cancel, complete, doesUserHavePermission, owner, repo, user
 					<Modal.Body>
 						<h4>Fork and Pull Request Repository</h4>
 						{doesUserHavePermission
-							? "You do have permission to create a Pull Request, but you do not own this repository. If you would like a copy of this repository's content, fork it and create a Pull Request of your chages to the original repository"
+							? "You do have permission to create a Pull Request, but you do not own this repository. If you would like a copy of this repository's content, fork it and create a Pull Request of your changes to the original repository"
 							: `You do not have permission to use this repository: "${repo}". Try saving to another repository or fork the repository to make a pull request.`}
 					</Modal.Body>
 					<Modal.Footer>

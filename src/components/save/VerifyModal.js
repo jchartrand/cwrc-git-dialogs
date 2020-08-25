@@ -161,7 +161,7 @@ const VerifyModal = ({
 					</p>
 					<p>
 						{ownerType === 'Organization'
-							? "You must be a member of this organization to create a new repository create a new repository for another user's account."
+							? `You must be a member of ${owner} organization to create a repository on its behave.`
 							: "You cannot create a new repository for another user's account."}
 					</p>
 				</ErrorModal>
