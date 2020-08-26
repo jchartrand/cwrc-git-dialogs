@@ -9,16 +9,19 @@ import {
 	FormControl,
 	HelpBlock,
 } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 import cwrcGit from '../../GitServerClient';
 import ErrorModal from './ErrorModal';
 import StatusModal from './StatusModal';
 
 const CreateRepoModal = ({ cancel, complete, owner, ownerType, repo }) => {
+	const { t } = useTranslation(['common, save']);
+
 	const [error, setError] = useState(null);
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [processStatus, setProcessStatus] = useState(null);
-	const [repoDesc, setRepoDesc] = useState('Created by CWRC');
+	const [repoDesc, setRepoDesc] = useState(t('save:createRepoForm.description.defaultValue'));
 
 	const handleDescriptionChange = (e) => setRepoDesc(e.target.value);
 	const handlePrivateChange = (e) => setIsPrivate(e.target.checked);
@@ -49,38 +52,37 @@ const CreateRepoModal = ({ cancel, complete, owner, ownerType, repo }) => {
 			{error ? (
 				<ErrorModal cancel={cancel}>{error}</ErrorModal>
 			) : processStatus === 'creatingRepo' ? (
-				<StatusModal status="Creating a new repository..." />
+				<StatusModal status={t('save:status.creatingNewRepo')} />
 			) : (
 				<Fragment>
-					<Modal.Header>Save to Repository</Modal.Header>
+					<Modal.Header>{t('save:header')}</Modal.Header>
 					<Modal.Body>
-						<h4>Create Repository</h4>
-						<p>This repository does not yet exist, would you like to create it?</p>
+						<h4>{t('save:createRepoForm.heading')}</h4>
+						<p>{t('save:createRepoForm.wouldYouLikeToCreate')}</p>
 						<FormGroup controlId="repoTitle">
-							<ControlLabel>Repository</ControlLabel>
+							<ControlLabel>{t('save:createRepoForm.repo.label')}</ControlLabel>
 							<FormControl type="text" value={repo} disabled />
 						</FormGroup>
 						<FormGroup controlId="repoDesc">
-							<ControlLabel style={{ marginTop: '10px' }}>Description</ControlLabel>
+							<ControlLabel style={{ marginTop: '10px' }}>
+								{t('save:createRepoForm.description.label')}
+							</ControlLabel>
 							<FormControl
 								type="text"
-								placeholder="A short description of your repository."
+								placeholder={t('save:createRepoForm.description.placeholder')}
 								value={repoDesc}
 								onChange={handleDescriptionChange}
 							/>
-							<HelpBlock>
-								The description will appear in the GitHub page for your new
-								repository.
-							</HelpBlock>
+							<HelpBlock>{t('save:createRepoForm.description.helpText')}</HelpBlock>
 						</FormGroup>
 						<Checkbox checked={isPrivate} onChange={handlePrivateChange}>
-							Make Private
+							{t('save:createRepoForm.makePrivate')}
 						</Checkbox>
 					</Modal.Body>
 					<Modal.Footer>
-						<Button onClick={cancel}>Cancel</Button>
+						<Button onClick={cancel}>{t('common:cancel')}</Button>
 						<Button onClick={createRepo} bsStyle="success">
-							Create
+							{t('common:create')}
 						</Button>
 					</Modal.Footer>
 				</Fragment>

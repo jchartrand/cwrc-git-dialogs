@@ -1,33 +1,11 @@
 import PropTypes from 'prop-types';
 import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Modal } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 import cwrcGit from '../../GitServerClient';
+import ConfirmModal from './ConfirmModal';
 import ErrorModal from './ErrorModal';
 import StatusModal from './StatusModal';
-
-const ConfirmModal = ({ cancel, title, body, ok }) => (
-	<Fragment>
-		<Modal.Header>Save to Repository</Modal.Header>
-		<Modal.Body>
-			<h4>{title}</h4>
-			<p>{body}</p>
-		</Modal.Body>
-		<Modal.Footer>
-			<Button onClick={cancel}>Cancel</Button>
-			<Button onClick={ok} bsStyle="success">
-				Yes
-			</Button>
-		</Modal.Footer>
-	</Fragment>
-);
-
-ConfirmModal.propTypes = {
-	cancel: PropTypes.func,
-	body: PropTypes.string,
-	ok: PropTypes.func,
-	title: PropTypes.string,
-};
 
 const FileModal = ({
 	branch,
@@ -44,6 +22,8 @@ const FileModal = ({
 	serverURL,
 	username,
 }) => {
+	const { t } = useTranslation(['common, save']);
+
 	const [error, setError] = useState(null);
 	const [processStatus, setProcessStatus] = useState(null);
 
@@ -125,8 +105,7 @@ const FileModal = ({
 			})
 			.catch((error) => {
 				if (error.status === 404) {
-					error.statusText =
-						'You do not have writing permissions for the selected repository. Try saving as a pull request or save to another repository you have writing privileges for.';
+					error.statusText = t('save:error.repoNoPermission');
 				}
 				return displayError(error);
 			});
@@ -138,26 +117,28 @@ const FileModal = ({
 		<Fragment>
 			{processStatus === 'error' && (
 				<ErrorModal cancel={cancel}>
-					<h4>An error occurred</h4>
+					<h4>{t('common:anErrorOccurred')}</h4>
 					<p>{error}</p>
 				</ErrorModal>
 			)}
-			{processStatus === 'checkingFile' && <StatusModal status="Checking your file..." />}
-			{processStatus === 'saving' && <StatusModal status="Saving your file..." />}
+			{processStatus === 'checkingFile' && (
+				<StatusModal status={t('save:status.checkingFile')} />
+			)}
+			{processStatus === 'saving' && <StatusModal status={t('save:status.savingFile')} />}
 			{processStatus === 'confirmOverwrite' && (
 				<ConfirmModal
-					title="File Exists"
-					body="This file exists - would you like to overwrite it?"
-					buttonText="Yes"
+					title={t('save:fileForm.overwrite.heading')}
+					body={t('save:fileForm.overwrite.body')}
+					buttonText={t('common:yes')}
 					ok={save}
 					cancel={cancel}
 				/>
 			)}
 			{processStatus === 'confirmCreate' && (
 				<ConfirmModal
-					title="Create File"
-					body="This file doesn't yet exist, would you like to create it?"
-					buttonText="Create"
+					title={t('save:fileForm.createFile.heading')}
+					body={t('save:fileForm.createFile.body')}
+					buttonText={t('common:create')}
 					ok={save}
 					cancel={cancel}
 				/>

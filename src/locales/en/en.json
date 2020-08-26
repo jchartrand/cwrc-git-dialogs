@@ -1,0 +1,80 @@
+{
+	"common": {
+		"anErrorOccurred": "An error occurred",
+		"cancel": "Cancel",
+		"create": "Create",
+		"forkSaveAsPullRequest": "Fork and Pull Request",
+		"ok": "Ok",
+		"save": "Save",
+		"saveAsPullRequest": "Save As Pull Request",
+		"yes": "Yes"
+	},
+	"load": {
+		"header": "Load a Document"
+	},
+	"save": {
+		"header": "Save to Repository",
+		"saveForm": {
+			"heading" : "Repository Path",
+			"owner": {
+				"label": "GitHub User/Organization"
+			},
+			"repo": {
+				"label": "Repository Name"
+			},
+			"path": {
+				"label": "File Path",
+				"helpText": "The file (and folder) path to which to save (<italic>e.g.</italic>, french/basque/SaintSauveur.xml)."
+			}
+		},
+		"createRepoForm":{
+			"heading" : "Create Repository",
+			"wouldYouLikeToCreate": "This repository does not yet exist, would you like to create it?",
+			"repo": {
+				"label": "Repository"
+			},
+			"description": {
+				"label":  "Description",
+				"placeholder": "A short description of your repository.",
+				"defaultValue": "Created by CWRC",
+				"helpText": "The description will appear in the GitHub page for your new repository."
+			},
+			"makePrivate": "Make Private"
+		},
+		"forkRepoForm": {
+			"heading" : "Fork and Pull Request Repository",
+			"hasPermission": "You do have permission to create a Pull Request, but you do not own this repository. If you would like a copy of this repository's content, fork it and create a Pull Request of your changes to the original repository",
+			"noPermission": "You do not have permission to use this repository: \"{{repo}}\". Try saving to another repository or fork the repository to make a pull request."
+		},
+		"fileForm": {
+			"createFile": {
+				"heading": "Create File",
+				"body": "This file doesn't yet exist, would you like to create it?"
+			},
+			"overwrite": {
+				"heading": "File Exists",
+				"body": "This file exists - would you like to overwrite it?"
+			}
+		},
+		"saved": {
+			"heading": "Document Saved",
+			"body": "Your document has been saved."
+		},
+		"status": {
+			"checkingPermissions": "Checking your permissions...",
+			"creatingNewRepo": "Creating new Repository...",
+			"forkingRepo": "Forking repository...",
+			"checkingFile": "Checking your file...",
+			"savingFile": "Saving your file..."
+		},
+		"error": {
+			"repoNoPermission": "You do not have permissions for the selected repository.",
+			"repoNotExist": "The repository <strong>{{repo}}</strong> you are trying to save does not exists.",
+			"repoNotExistForPR": "The repository you are trying to create a Pull Request does not exist",
+			"notAuthorizeCreateForOtherUser": "You cannot create a new repository for another user's account.",
+			"notOrgMemberCreate": "You must be a member of <strong>{{owner}}</strong> organization to create a repository on their behave.",
+			"ownerNotExist": "The repository's owner {{owner}} does not exist.",
+			"noBlankFields": "Form values cannot be blank"
+		}
+	}
+}

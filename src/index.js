@@ -3,6 +3,7 @@ import queryString from 'query-string';
 import React, { Fragment, useEffect, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import ReactDOM from 'react-dom';
+import './i18next';
 
 import { AuthenticateDialog, isAuthenticated } from './components/Authenticate';
 import LoadDialog from './components/load/Load';
@@ -93,8 +94,7 @@ const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
 	const [isGitLab] = useState(false);
 
 	useEffect(() => {
-
-		if (user === undefined) SetIsUserAuthenticated (isAuthenticated());
+		if (user === undefined) SetIsUserAuthenticated(isAuthenticated());
 
 		if (action === 'load' &&
 			writer.isDocLoaded === false &&

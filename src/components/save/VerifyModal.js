@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 import React, { Fragment, useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
-
+import { Trans, useTranslation } from 'react-i18next';
 import ErrorModal from './ErrorModal';
 import cwrcGit from '../../GitServerClient';
 
@@ -16,6 +16,8 @@ const VerifyModal = ({
 	username,
 	verifiedCB,
 }) => {
+	const { t } = useTranslation(['common, save']);
+
 	const [doesRepoExist, setDoesRepoExist] = useState();
 	const [doesUserHavePermission, setDoesUserHavePermission] = useState();
 	const [error, setError] = useState();
@@ -56,9 +58,7 @@ const VerifyModal = ({
 		if (!results) {
 			setDoesRepoExist(false);
 			if (usePR) {
-				displayError(
-					`The repository "${repo}" you are trying to create a Pull Request does not exist.`
-				);
+				displayError(t('save:error.repoNotExistForPR'));
 				setProcessStatus(null);
 				return;
 			}
@@ -95,7 +95,7 @@ const VerifyModal = ({
 
 		// owner doesn't exists
 		if (!results) {
-			displayError(`The repository owner "${owner}" does not exist.`);
+			displayError(t('save:error.ownerNotExist', { owner }));
 			setProcessStatus(null);
 			return;
 		}
@@ -148,21 +148,33 @@ const VerifyModal = ({
 			{error && <ErrorModal cancel={cancel}>{error}</ErrorModal>}
 			{processStatus === 'checking' && (
 				<Fragment>
-					<Modal.Header>Save to Repository</Modal.Header>
+					<Modal.Header>{t('save:header')}</Modal.Header>
 					<Modal.Body>
-						<p>Checking your permissions...</p>
+						<p>{t('save:status.checkingPermissions')}</p>
 					</Modal.Body>
 				</Fragment>
 			)}
 			{processStatus === 'error' && !doesRepoExist && !doesUserHavePermission && (
 				<ErrorModal cancel={cancel}>
 					<p>
-						The repository <b>{repo}</b> you are trying to save does not exists.
+						<Trans
+							i18nKey="save:error.repoNotExist" // optional -> fallbacks to defaults if not provided
+							defaults="The repository <strong>{repo}</strong> you are trying to save does not exists." // optional defaultValue
+							values={{ repo }}
+							components={{ bold: <strong /> }}
+						/>
 					</p>
 					<p>
-						{ownerType === 'Organization'
-							? `You must be a member of ${owner} organization to create a repository on its behave.`
-							: "You cannot create a new repository for another user's account."}
+						{ownerType === 'Organization' ? (
+							<Trans
+								i18nKey="save:error.notAuthorizeCreateForOtherUser" // optional -> fallbacks to defaults if not provided
+								defaults="You must be a member of <strong>{{owner}}</strong> organization to create a repository on their behave." // optional defaultValue
+								values={{ owner }}
+								components={{ bold: <strong /> }}
+							/>
+						) : (
+							t('save:error.notAuthorizeCreateForOtherUser')
+						)}
 					</p>
 				</ErrorModal>
 			)}

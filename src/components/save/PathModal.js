@@ -12,6 +12,7 @@ import {
 	Modal,
 	Row,
 } from 'react-bootstrap';
+import { Trans, useTranslation } from 'react-i18next';
 
 const PathModal = ({
 	handleClose,
@@ -22,6 +23,8 @@ const PathModal = ({
 	path,
 	owner,
 }) => {
+	const { t } = useTranslation(['common, save']);
+
 	const [formMessage, setFormMessage] = useState(undefined);
 
 	let ownerInput = null;
@@ -49,7 +52,7 @@ const PathModal = ({
 
 	// action on button click in form
 	const saveFile = () => {
-		if (!isFormValid()) return setFormMessage('Form values cannot be blank');
+		if (!isFormValid()) return setFormMessage(t('save:error.noBlankFields'));
 		handleSaveFile();
 	};
 
@@ -60,18 +63,18 @@ const PathModal = ({
 
 	return (
 		<Fragment>
-			<Modal.Header>Save to Repository</Modal.Header>
+			<Modal.Header>{t('save:header')}</Modal.Header>
 			<Modal.Body>
 				<Form>
 					<Grid fluid>
 						<Row>
-							<h4>Repository Path</h4>
+							<h4>{t('save:saveForm.heading')}</h4>
 							<Col sm={6}>
 								<FormGroup
 									controlId="owner"
 									validationState={validateControl(owner)}
 								>
-									<ControlLabel>GitHub User/Organization</ControlLabel>
+									<ControlLabel>{t('save:saveForm.owner.label')}</ControlLabel>
 									<FormControl
 										type="text"
 										value={owner}
@@ -85,7 +88,7 @@ const PathModal = ({
 							</Col>
 							<Col sm={6}>
 								<FormGroup controlId="repo" validationState={validateControl(repo)}>
-									<ControlLabel>Repository Name</ControlLabel>
+									<ControlLabel>{t('save:saveForm.repo.label')}</ControlLabel>
 									<FormControl
 										type="text"
 										value={repo}
@@ -99,7 +102,7 @@ const PathModal = ({
 							</Col>
 						</Row>
 						<Row>
-							<h4>File Path</h4>
+							<h4>{t('save:saveForm.path.label')}</h4>
 							<Col sm={12}>
 								<FormGroup controlId="path" validationState={validateControl(path)}>
 									<FormControl
@@ -112,7 +115,11 @@ const PathModal = ({
 										inputRef={(ref) => (pathInput = ref)}
 									/>
 									<div style={{ marginTop: '5px', color: '#737373' }}>
-										The file (and folder) path to which to save (<i>e.g.</i>, french/basque/SaintSauveur.xml).
+										<Trans
+											i18nKey="save:saveForm.path.helpText" // optional -> fallbacks to defaults if not provided
+											defaults="The file (and folder) path to which to save (<i>e.g.</i>, french/basque/SaintSauveur.xml)." // optional defaultValue
+											components={{ italic: <i /> }}
+										/>
 									</div>
 								</FormGroup>
 							</Col>
@@ -130,12 +137,12 @@ const PathModal = ({
 				</Form>
 			</Modal.Body>
 			<Modal.Footer>
-				<Button onClick={handleClose}>Cancel</Button>
+				<Button onClick={handleClose}>{t('common:cancel')}</Button>
 				<Button onClick={saveFile} bsStyle="success">
-					Save
+					{t('common:save')}
 				</Button>
 				<Button onClick={saveFileAsPR} bsStyle="success">
-					Save As Pull Request
+					{t('common:saveAsPullRequest')}
 				</Button>
 			</Modal.Footer>
 		</Fragment>
