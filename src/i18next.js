@@ -15,7 +15,7 @@ const options = {
 	fallbackLng: 'en',
 	ns: ['common'],
 	defaultNS: 'common',
-	debug: true,
+	// debug: true,
 	react: {
 		wait: false,
 		bindI18n: 'languageChanged loaded',
