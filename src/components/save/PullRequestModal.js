@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import cwrcGit from '../../GitServerClient';
 import ErrorModal from './ErrorModal';
@@ -19,6 +20,8 @@ const PullRequestModal = ({
 	serverURL,
 	username,
 }) => {
+	const { t } = useTranslation(['common, save']);
+
 	const [error, setError] = useState(null);
 	const [processStatus, setProcessStatus] = useState(null);
 	const [prBranch, setPrBranch] = useState('cwrc-writer-pr');
@@ -76,7 +79,8 @@ const PullRequestModal = ({
 			})
 			.catch((error) => {
 				if (error.status === 500 || error.status === 404) {
-					return displayError('You do not have pull request permissions for the selected repository. Try saving to another repository you have pull request privileges for.');
+					displayError(t('save:error.repoNoPermission'));
+					return;
 				}
 				setProcessStatus(null);
 				displayError(error);
@@ -91,7 +95,7 @@ const PullRequestModal = ({
 	return (
 		<Fragment>
 			{error && <ErrorModal cancel={cancel}>{error}</ErrorModal>}
-			{processStatus === 'saving' && <StatusModal status="Saving your file..." />}
+			{processStatus === 'saving' && <StatusModal status={t('save:status.savingFile')} />}
 		</Fragment>
 	);
 };

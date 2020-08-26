@@ -29,7 +29,6 @@ import RepoResultCarousel from './RepoResultCarousel';
 import SearchInput from './SearchInput';
 import SearchResultList from './SearchResultList';
 
-
 const RESULTS_PER_PAGE = 100;
 
 const LoadDialog = ({
@@ -216,18 +215,17 @@ const LoadDialog = ({
 			promise = getReposForAuthenticatedGithubUser(pageNum, privateReposAffiliation);
 		}
 
-		promise.then(
-			(result) => {
+		promise
+			.then((result) => {
 				setResults(result.items);
 				setCurrentPage(pageNum);
 				setLastPage(result.lastPage);
 				setLoading(false);
-			},
-			(fail) => {
+			})
+			.catch((fail) => {
 				setError(fail.responseText);
 				setLoading(false);
-			}
-		);
+			});
 	};
 
 	return (

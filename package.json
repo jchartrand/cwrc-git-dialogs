@@ -34,6 +34,9 @@
 	},
 	"dependencies": {
 		"bootstrap": "^3.4.1",
+		"i18next": "^19.7.0",
+		"i18next-browser-languagedetector": "^6.0.1",
+		"i18next-http-backend": "^1.0.18",
 		"jquery": "3.4.1",
 		"js-cookie": "^2.2.1",
 		"parse-link-header": "^1.0.1",
@@ -41,7 +44,8 @@
 		"query-string": "^6.13.1",
 		"react": "^16.13.1",
 		"react-bootstrap": "^0.32.4",
-		"react-dom": "^16.13.1"
+		"react-dom": "^16.13.1",
+		"react-i18next": "^11.7.1"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.11.4",
@@ -53,7 +57,7 @@
 		"babel-jest": "^26.3.0",
 		"codecov": "^3.7.2",
 		"commitizen": "^4.2.0",
-		"cz-conventional-changelog": "^3.2.1",
+		"cz-conventional-changelog": "^3.3.0",
 		"eslint": "^7.7.0",
 		"eslint-plugin-react": "^7.20.6",
 		"husky": "^4.2.5",

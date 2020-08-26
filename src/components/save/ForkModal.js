@@ -2,12 +2,15 @@
 import PropTypes from 'prop-types';
 import React, { Fragment, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import { Trans, useTranslation } from 'react-i18next';
 
 import ErrorModal from './ErrorModal';
 import cwrcGit from '../../GitServerClient';
 import StatusModal from './StatusModal';
 
 const ForkModal = ({ cancel, complete, doesUserHavePermission, owner, repo, username }) => {
+	const { t } = useTranslation(['common, save']);
+
 	const [error, setError] = useState(null);
 	const [processStatus, setProcessStatus] = useState(null);
 
@@ -21,9 +24,7 @@ const ForkModal = ({ cancel, complete, doesUserHavePermission, owner, repo, user
 		setProcessStatus('forking');
 
 		//check if repo is already forked
-		let forkedRepo = await cwrcGit
-			.getRepoContents(`${username}/${repo}`)
-			.catch(() => null);
+		let forkedRepo = await cwrcGit.getRepoContents(`${username}/${repo}`).catch(() => null);
 
 		// fork repo if it doesn't exist
 		if (!forkedRepo) {
@@ -52,25 +53,31 @@ const ForkModal = ({ cancel, complete, doesUserHavePermission, owner, repo, user
 			{error ? (
 				<ErrorModal cancel={cancel}>{error}</ErrorModal>
 			) : processStatus === 'forking' ? (
-				<StatusModal status="Forking repository..." />
+				<StatusModal status={t('save:status.forkingRepo')} />
 			) : (
 				<Fragment>
-					<Modal.Header>Save to Repository</Modal.Header>
+					<Modal.Header>{t('save:header')}</Modal.Header>
 					<Modal.Body>
-						<h4>Fork and Pull Request Repository</h4>
-						{doesUserHavePermission
-							? "You do have permission to create a Pull Request, but you do not own this repository. If you would like a copy of this repository's content, fork it and create a Pull Request of your changes to the original repository"
-							: `You do not have permission to use this repository: "${repo}". Try saving to another repository or fork the repository to make a pull request.`}
+						<h4>{t('save:forkRepoForm.heading')}</h4>
+						{doesUserHavePermission ? (
+							t('save:forkRepoForm.hasPermission')
+						) : (
+							<Trans
+								i18nKey="save:forkRepoForm.noPermission"
+								defaults="You do not have permission to use this repository: {{repo}}. Try saving to another repository or fork the repository to make a pull request."
+								values={{ repo }}
+							/>
+						)}
 					</Modal.Body>
 					<Modal.Footer>
-						<Button onClick={cancel}>Cancel</Button>
+						<Button onClick={cancel}>{t('common:cancel')}</Button>
 						{doesUserHavePermission && owner !== username && (
 							<Button onClick={handlePR} bsStyle="success">
-								Pull Request
+								{t('common:saveAsPullRequest')}
 							</Button>
 						)}
 						<Button onClick={handleFork} bsStyle="success">
-							Fork and Pull Request
+							{t('common:forkSaveAsPullRequest')}
 						</Button>
 					</Modal.Footer>
 				</Fragment>

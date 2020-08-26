@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Fragment, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 import CreateRepoModal from './CreateRepoModal';
 import FileModal from './FileModal';
@@ -22,6 +23,8 @@ const SaveCmp = ({
 	serverURL,
 	username,
 }) => {
+	const { t } = useTranslation(['common, save']);
+
 	const [action, setAction] = useState();
 	const [currentFile] = useState({ owner, repo, path });
 	const [doesUserHavePermission, setDoesUserHavePermission] = useState();
@@ -105,14 +108,14 @@ const SaveCmp = ({
 		<Fragment>
 			{isSaved && (
 				<Fragment>
-					<Modal.Header>Save to Repository</Modal.Header>
+					<Modal.Header>{t('save:header')}</Modal.Header>
 					<Modal.Body>
-						<h4>Document Saved</h4>
-						<p>Your document has been saved.</p>
+						<h4>{t('save:saved.heading')}</h4>
+						<p>{t('save:saved.body')}</p>
 					</Modal.Body>
 					<Modal.Footer>
 						<Button onClick={handleClose} bsStyle="success">
-							Ok
+							{t('common:ok')}
 						</Button>
 					</Modal.Footer>
 				</Fragment>
