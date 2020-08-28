@@ -29,30 +29,30 @@
 		},
 		"createRepoForm":{
 			"heading" : "Create Repository",
-			"wouldYouLikeToCreate": "This repository does not yet exist, would you like to create it?",
+			"wouldYouLikeToCreate": "This repository does not exist yet, would you like to create it?",
 			"repo": {
 				"label": "Repository"
 			},
 			"description": {
 				"label":  "Description",
 				"placeholder": "A short description of your repository.",
-				"defaultValue": "Created by CWRC",
-				"helpText": "The description will appear in the GitHub page for your new repository."
+				"defaultValue": "Created with CWRC-Writer",
+				"helpText": "The description will appear in the readme file of your new repository."
 			},
 			"makePrivate": "Make Private"
 		},
 		"forkRepoForm": {
-			"heading" : "Fork and Pull Request Repository",
-			"hasPermission": "You do have permission to create a Pull Request, but you do not own this repository. If you would like a copy of this repository's content, fork it and create a Pull Request of your changes to the original repository",
-			"noPermission": "You do not have permission to use this repository: \"{{repo}}\". Try saving to another repository or fork the repository to make a pull request."
+			"heading" : "Fork Repository and Submit Pull Request to Original Repository",
+			"hasPermission": "You have the ability to create a Pull Request to this repository, but you do not own it. Your proposed changes may be rejected by the repository owner(s). If you would like to preserve the changes you've made to this version of this file, we recommend you make a copy (fork) of the  original repository and create a Pull Request with your changes to the original repository",
+			"noPermission": "You do not have permission to use this repository: \"{{repo}}\". Try saving to another repository or fork the repository and make a pull request."
 		},
 		"fileForm": {
 			"createFile": {
 				"heading": "Create File",
-				"body": "This file doesn't yet exist, would you like to create it?"
+				"body": "This file doesn't exist yet, would you like to create it?"
 			},
 			"overwrite": {
-				"heading": "File Exists",
+				"heading": "File Found",
 				"body": "This file exists - would you like to overwrite it?"
 			}
 		},
@@ -68,13 +68,13 @@
 			"savingFile": "Saving your file..."
 		},
 		"error": {
-			"repoNoPermission": "You do not have permissions for the selected repository.",
-			"repoNotExist": "The repository <strong>{{repo}}</strong> you are trying to save does not exists.",
-			"repoNotExistForPR": "The repository you are trying to create a Pull Request does not exist",
-			"notAuthorizeCreateForOtherUser": "You cannot create a new repository for another user's account.",
+			"repoNoPermission": "You do not have writing permissions for the selected repository.",
+			"repoNotExist": "The repository <strong>{{repo}}</strong> you are trying to save the file to does not exist.",
+			"repoNotExistForPR": "The repository you are trying to create a Pull Request to does not exist",
+			"notAuthorizeCreateForOtherUser": "You cannot create a new repository inside another user's account.",
 			"notOrgMemberCreate": "You must be a member of <strong>{{owner}}</strong> organization to create a repository on their behave.",
-			"ownerNotExist": "The repository's owner {{owner}} does not exist.",
-			"noBlankFields": "Form values cannot be blank"
+			"ownerNotExist": "The repository owner {{owner}} you selected does not exist.",
+			"noBlankFields": "Form values cannot be blank."
 		}
 	}
 }
