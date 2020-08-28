@@ -37,7 +37,7 @@
 				"label":  "Description",
 				"placeholder": "A short description of your repository.",
 				"defaultValue": "Created with CWRC-Writer",
-				"helpText": "The description will appear in the readme file of your new repository."
+				"helpText": "The description will appear on the GitHub page for your new repository."
 			},
 			"makePrivate": "Make Private"
 		},
