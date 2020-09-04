@@ -117,7 +117,7 @@ const PathModal = ({
 									<div style={{ marginTop: '5px', color: '#737373' }}>
 										<Trans
 											i18nKey="save:saveForm.path.helpText" // optional -> fallbacks to defaults if not provided
-											defaults="The file (and folder) path to which to save (<i>e.g.</i>, french/basque/SaintSauveur.xml)." // optional defaultValue
+											defaults="The file (and folder) path to which to save (<italic>e.g.</italic>, french/basque/SaintSauveur.xml)." // optional defaultValue
 											components={{ italic: <i /> }}
 										/>
 									</div>
