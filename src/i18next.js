@@ -12,6 +12,7 @@ const options = {
 		en,
 		pt,
 	},
+	lng: 'en',
 	fallbackLng: 'en',
 	ns: ['common'],
 	defaultNS: 'common',
