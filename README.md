@@ -36,7 +36,7 @@ The [CWRC-GitWriter Sandbox](https://cwrc-writer.cwrc.ca) is running an instance
 
 #### save(CWRC-WriterBase writer)
 
-_Spawns a popup prompting the user to save the current document to a GitHub repository._
+_Spawns a popup prompting the user to save or pull request the current document to a GitHub repository._
 
 #### load(CWRC-WriterBase writer)
 

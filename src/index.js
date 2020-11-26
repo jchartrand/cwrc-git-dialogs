@@ -1,326 +1,327 @@
-import React, {Component} from 'react'
-import ReactDOM from 'react-dom';
-import { Modal, Button } from 'react-bootstrap';
-import cwrcGit from './GitServerClient.js';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Button, Modal } from 'react-bootstrap';
+import ReactDOM from 'react-dom';
+import './i18next';
 
-import Splash from './Splash.js';
-import { AuthenticateDialog, isAuthenticated } from './authenticate.js';
-import LogOutDialog from './LogOut.js';
-import LoadDialog from './Load.js';
-import SaveCmp from './Save.js';
+import { AuthenticateDialog, isAuthenticated } from './components/Authenticate';
+import LoadDialog from './components/load/Load';
+import LogOutDialog from './components/LogOut';
+import SaveCmp from './components/save/Save';
+import Splash from './components/Splash';
+
+import cwrcGit from './GitServerClient';
 
 import './css/bootstrap.less';
 
-let serverURL = '';
-let isGitLab = false;
-
 let _writer;
-let dialogId;
-let renderId;
+let _dialogId;
+let _renderId;
 
-let _userInfo;
+let _user;
 let _repo;
 let _path;
+let _serverURL = '';
 
-let dialogInstance;
-
-const setServerURL = (url) => serverURL = url;
-const useGitLab = (useIt) => isGitLab = useIt;
-const getUserInfo = () => _userInfo;
+const setServerURL = (url) => (_serverURL = url);
+const getUserInfo = () => _user;
 
 const initDialogs = (writer) => {
-    _writer = writer;
-    dialogId = _writer.getUniqueId('git-dialogs-');
-    renderId = _writer.getUniqueId('git-dialogs-');
-    _writer.dialogManager.getDialogWrapper().append(`<div id=${renderId} />`);
-}
+	_writer = writer;
+	_dialogId = writer.getUniqueId('git-dialogs-');
+	_renderId = writer.getUniqueId('git-dialogs-');
+	writer.dialogManager.getDialogWrapper().append(`<div id=${_renderId} />`);
+};
 
 const getDocumentURI = () => {
-    if (_path !== undefined && _repo !== undefined) {
-        if (_path.charAt(0) === '/') {
-            console.warn('cwrc-git-dialogs: path started with /');
-            _path = _path.substring(1);
-        }
-        return 'https://raw.githubusercontent.com/'+_repo+'/master/'+_path;
-        
-    } else {
-        console.warn('cwrc-git-dialogs: no repo or path set!');
-        return window.location.href;
-    }
-}
+	if (_path === undefined || _repo === undefined) {
+		console.warn('cwrc-git-dialogs: no repo or path set!');
+		return window.location.href;
+	}
 
-const getDocument = () => {
-    return new Promise((resolve, reject) => {
-        _writer.getDocumentString((content) => {
-            resolve(content);
-        });
-    })
-}
-
-const getDocumentInfoFromLocation = () => {
-    const doc = queryString.parse(window.location.search);
-    if (doc.githubRepo && doc.githubPath) {
-        return {repo: doc.githubRepo, path: doc.githubPath};
-    } 
-    return null;
-}
-
-const setRepo = (repo) => _repo = repo;
-
-const setPath = (path) => {
-    if (path !== undefined) {
-        // path should not start with /
-        if (path.charAt(0) === '/') {
-            path = path.substring(1);
-        }
-    }
-    _path = path;
-}
-
-const saveWrap = (writer) => {
-    if (_writer === undefined) initDialogs(writer)
-
-    if (_repo === undefined && _path === undefined) {
-        if (_userInfo && _userInfo.userId) {
-            _repo = _userInfo.userId;
-        } else {
-            _repo = ''; // shouldn't end up here ever
-        }
-        _path = '';
-    }
-
-    ReactDOM.render(
-        <GitDialog action="save" />,
-        document.querySelector('#'+renderId)
-    );
-    dialogInstance.setState({show: true});
-    document.querySelector('#'+dialogId).classList.add('cwrc');
-}
+	let path = _path;
+	if (path.charAt(0) === '/') {
+		console.warn('cwrc-git-dialogs: path started with /');
+		path = path.substring(1);
+	}
+	return `https://raw.githubusercontent.com/${_repo}/master/${path}`;
+};
 
 const loadWrap = (writer, shouldOverwrite = false) => {
-    if (_writer === undefined) initDialogs(writer);
+	initDialogs(writer);
+	ReactDOM.render(
+		<GitDialog
+			action="load"
+			confirmLoad={true}
+			dialogId={_dialogId}
+			serverURL={_serverURL}
+			writer={_writer}
+		/>,
+		document.querySelector(`#${_renderId}`)
+	);
+	document.querySelector(`#${_dialogId}`).classList.add('cwrc');
+};
 
-    if (_writer.isDocLoaded === false && _repo === undefined && _path === undefined) {
-        let docInfo = getDocumentInfoFromLocation();
-        if (docInfo !== null) {
-            _repo = docInfo.repo;
-            _path = docInfo.path;
-        }
-    }
+const saveWrap = (writer) => {
+	initDialogs(writer);
+	ReactDOM.render(
+		<GitDialog action="save" dialogId={_dialogId} serverURL={_serverURL} writer={_writer} />,
+		document.querySelector(`#${_renderId}`)
+	);
+	document.querySelector(`#${_dialogId}`).classList.add('cwrc');
+};
 
-    ReactDOM.render(
-        <GitDialog action="load" />,
-        document.querySelector('#'+renderId)
-    );
-    dialogInstance.setState({show: true, confirmLoad: true});
-    document.querySelector('#'+dialogId).classList.add('cwrc');
-}
+const logOutWrap = (writer) => {
+	initDialogs(writer);
+	ReactDOM.render(
+		<GitDialog action="logout" dialogId={_dialogId} serverURL={_serverURL} writer={_writer} />,
+		document.querySelector(`#${_renderId}`)
+	);
+	document.querySelector(`#${_dialogId}`).classList.add('cwrc');
+};
 
-const logOutWrap = () => {
-    ReactDOM.render(
-        <GitDialog action="logout" />,
-        document.querySelector('#'+renderId)
-    );
-    dialogInstance.setState({show: true,});
-    document.querySelector('#'+dialogId).classList.add('cwrc');
-}
+const GitDialog = ({ action, confirmLoad, dialogId, serverURL, writer }) => {
+	const [confirmLoadState, setConfirmLoadState] = useState(confirmLoad);
+	const [error, setError] = useState(undefined);
+	const [isUserAuthenticated, SetIsUserAuthenticated] = useState(false);
+	const [repo, setRepoState] = useState(_repo);
+	const [path, setPathState] = useState(_path);
+	const [splashShown, setSplashShown] = useState(false);
+	const [show, setShow] = useState(true);
+	const [user, setUser] = useState(_user);
 
-const setDocumentInfo = (repo, path, updateLocation = true) => {
-    setRepo(repo);
-    setPath(path);
-    if (updateLocation) {
-        const githubDoc = queryString.stringify({githubRepo: _repo, githubPath: _path});
-        window.history.replaceState({}, undefined, '?'+githubDoc);
-    }
-}
+	const [isGitLab] = useState(false);
 
-class GitDialog extends Component {
-    constructor(props) {
-        super(props);
-        this.handleAuthentication = this.handleAuthentication.bind(this);
-        this.handleFileSelect = this.handleFileSelect.bind(this);
-        this.handleFileUpload = this.handleFileUpload.bind(this);
-        this.handleSaved = this.handleSaved.bind(this);
-        this.handleClose = this.handleClose.bind(this);
-        this.handleConfirmLoad = this.handleConfirmLoad.bind(this);
-        this.state = {
-            error: undefined,
-            show: true,
-            splashShown: false,
-            confirmLoad: true
-        }
-    }
+	useEffect(() => {
+		if (user === undefined) SetIsUserAuthenticated(isAuthenticated());
 
-    componentDidMount() {
-        dialogInstance = this;
-    }
+		if (action === 'load' &&
+			writer.isDocLoaded === false &&
+			repo === undefined &&
+			path === undefined
+		) {
+			let docInfo = getDocumentInfoFromLocation();
+			if (docInfo !== null) {
+				setRepo(docInfo.repo);
+				setPath(docInfo.path);
+			}
 
-    componentWillUnmount() {
-        dialogInstance = undefined;
-    }
+		}
 
-    handleAuthentication(userInfo) {
-        _userInfo = userInfo;
-        this.forceUpdate();
-    }
+		if (action === 'save' && repo === undefined && path === undefined) {
+			if (user && user.userId) {
+				setRepo(user.userId);
+			} else {
+				setRepo(''); // shouldn't end up here ever
+			}
+			setPath('');
+		}
+	}, []);
 
-    async handleFileSelect(repo, path) {
-        cwrcGit.setServerURL(serverURL);
-        cwrcGit.useGitLab(isGitLab);
+	useEffect(() => {
+		// console.log(user);
+	}, [user, confirmLoadState]);
 
-        const response = await cwrcGit.getDoc(repo, 'master', path)
-            .catch((err)=>{
-                setDocumentInfo(undefined, undefined);
-                this.setState({error: `There was an error loading the document from: ${repo}/${path}`});
-			})
+	const handleAuthentication = (userInfo) => {
+		_user = userInfo; // updte outside variable;
+		setUser(userInfo);
+	};
 
-        if (response !== undefined) {
-            setDocumentInfo(repo, path);
-            this.handleClose();
-            setTimeout(() => {
-                _writer.setDocument(response.doc);
-            }, 50)
-        }
-    }
+	const getDocument = () => {
+		return new Promise((resolve) => {
+			writer.getDocumentString((content) => {
+				resolve(content);
+			});
+		});
+	};
 
-    handleFileUpload(doc) {
-        setDocumentInfo(undefined, undefined);
-        this.handleClose();
-        setTimeout(()=>{
-            _writer.setDocument(doc);
-        }, 50)
-    }
+	const setPath = (value) => {
+		if (value !== undefined) {
+			// path should not start with /
+			if (value.charAt(0) === '/') value = value.substring(1);
+		}
+		_path = value;
+		setPathState(value);
+	};
 
-    handleSaved(repo, path) {
-        setDocumentInfo(repo, path);
-        _writer.event('documentSaved').publish();
-    }
+	const setRepo = (value) => {
+		_repo = value;
+		setRepoState(value);
+	};
 
-    handleClose() {
-        this.setState({show: false});
-    }
+	const getDocumentInfoFromLocation = () => {
+		const doc = queryString.parse(window.location.search);
+		if (doc.githubRepo && doc.githubPath) {
+			return { repo: doc.githubRepo, path: doc.githubPath };
+		}
+		return null;
+	};
 
-    handleConfirmLoad() {
-        this.setState({confirmLoad: false});
-    }
+	const setDocumentInfo = (repo_, path_, updateLocation = true) => {
+		setRepo(repo_);
+		setPath(path_);
+		if (updateLocation) {
+			const githubDoc = queryString.stringify({ githubRepo: repo_, githubPath: path_ });
+			window.history.replaceState({}, undefined, `?${githubDoc}`);
+		}
+	};
 
-    render() {
-        const action = this.props.action;
-        
-        const user = _userInfo;
-        const repo = _repo;
-        const path = _path;
-        const isDocLoaded = _writer.isDocLoaded;
+	const handleFileSelect = async (repo, path) => {
+		cwrcGit.setServerURL(serverURL);
+		cwrcGit.useGitLab(isGitLab);
 
-        const show = this.state.show;
-        const confirmLoad = this.state.confirmLoad;
-        const splashShown = this.state.splashShown;
-        const error = this.state.error;
+		const response = await cwrcGit.getDoc({
+			repoName: repo,
+			branch: 'master',
+			path
+		}).catch(() => {
+			// console.log(error);
+			setDocumentInfo(undefined, undefined);
+			setError(`There was an error loading the document from: ${repo}/${path}`);
+		});
 
-        const hasToken = isAuthenticated();
-        
-        if (!show) return null;
+		if (response !== undefined) {
+			setDocumentInfo(repo, path);
+			handleClose();
+			setTimeout(() => writer.setDocument(response.doc), 50);
+		}
+	};
 
-        if (error !== undefined) {
-            return (
-                <Modal id={dialogId} show={true} animation={false}>
-                    <Modal.Header closeButton={false}>Error</Modal.Header>
-                    <Modal.Body>
-                        <p>{error}</p>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button onClick={()=>{this.setState({error: undefined})}}>Ok</Button>
-                    </Modal.Footer>
-                </Modal>
-            )
-        }
+	const handleFileUpload = (doc) => {
+		setDocumentInfo(undefined, undefined);
+		handleClose();
+		setTimeout(() => writer.setDocument(doc), 50);
+	};
 
-        // if (user === undefined && (repo === undefined && path === undefined)) {
-        if (user === undefined) {
-            if (!splashShown && !hasToken) {
-                return (
-                    <Modal id={dialogId} show={true} animation={false}>
-                        <Splash onContinue={()=>{this.setState({splashShown: true})}}/>
-                    </Modal>
-                )
-            } else {
-                return (
-                    <Modal id={dialogId} show={true} animation={false}>
-                        <AuthenticateDialog serverURL={serverURL} isGitLab={isGitLab} onUserAuthentication={this.handleAuthentication} />
-                    </Modal>
-                )
-            }
-        } else {
-            switch(action) {
-                case 'load':
-                    if (!isDocLoaded && repo !== undefined && path !== undefined) {
-                        return (
-                            <Modal id={dialogId} show={true} animation={false}>
-                                <Modal.Header closeButton={false}>Load Document from URL</Modal.Header>
-                                <Modal.Body>
-                                    <p>The following document is specified in the URL:<br/><strong>{repo}/{path}</strong></p>
-                                    <p>Would you like to load it?</p>
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <Button onClick={()=>{setDocumentInfo(undefined, undefined); this.forceUpdate();}}>No, Load a Different Document</Button>
-                                    <Button bsStyle="success" onClick={()=>{this.handleFileSelect(repo, path)}}>Yes, Load this Document</Button>
-                                </Modal.Footer>
-                            </Modal>
-                        )
-                    }
+	const handleSaved = (repo, path) => {
+		setDocumentInfo(repo, path);
+		writer.event('documentSaved').publish();
+	};
 
-                    if (isDocLoaded && confirmLoad) {
-                        return (
-                            <Modal id={dialogId} show={true} animation={false}>
-                                <Modal.Header onHide={this.handleClose}>Existing Document</Modal.Header>
-                                <Modal.Body>
-                                    <p>You have a document loaded in the editor. Would you like to load a new document, and close your existing document?</p>
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <Button onClick={this.handleClose}>Return to Existing Document</Button>
-                                    <Button bsStyle="success" onClick={this.handleConfirmLoad}>Continue to Load New Document</Button>
-                                </Modal.Footer>
-                            </Modal>
-                        )
-                    } else {
-                        return (
-                            <Modal id={dialogId} show={true} bsSize="large" animation={false}>
-                                <LoadDialog serverURL={serverURL} isGitLab={isGitLab} isDocLoaded={isDocLoaded} user={user} onFileSelect={this.handleFileSelect} onFileUpload={this.handleFileUpload} handleClose={this.handleClose} />
-                            </Modal>
-                        )
-                    }
-                case 'save':
-                    let [owner, repoName] = repo.split('/');
-                    if (repoName === undefined) repoName = '';
-                    return (
-                        <Modal id={dialogId} show={true} animation={false}>
-                            <SaveCmp serverURL={serverURL} isGitLab={isGitLab} user={user.userId} owner={owner} repo={repoName} path={path} handleClose={this.handleClose} getDocument={getDocument} handleRepoChange={setRepo} handlePathChange={setPath} handleSaved={this.handleSaved} />
-                        </Modal>
-                    )
+	const handleConfirmLoadState = () => {
+		setConfirmLoadState(false);
+	};
 
-                case 'logout':
-                    return (
-                        <Modal id={dialogId} show={true} animation={false}>
-                            <LogOutDialog handleClose={this.handleClose} />
-                        </Modal>
-                    )
-            }
-        }
-    }
-}
+	const handleClose = () => {
+		setShow(false);
+	};
+
+	return (
+		<Fragment>
+			{show && (error ? (
+				<Modal id={dialogId} show={true} animation={false}>
+					<Modal.Header closeButton={false}>Error</Modal.Header>
+					<Modal.Body>
+						<p>{error}</p>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button onClick={() => setError(undefined)}>Ok</Button>
+					</Modal.Footer>
+				</Modal>
+			) : user === undefined ? (
+				!splashShown && !isUserAuthenticated ? (
+					<Modal id={dialogId} show={true} animation={false}>
+						<Splash onContinue={() => setSplashShown(true)} />
+					</Modal>
+				) : (
+					<Modal id={dialogId} show={true} animation={false}>
+						<AuthenticateDialog
+							isGitLab={isGitLab}
+							onUserAuthentication={handleAuthentication}
+							serverURL={serverURL}
+						/>
+					</Modal>
+				)
+			) : action === 'load' ? (
+				!writer.isDocLoaded && repo !== undefined && path !== undefined ? (
+					<Modal id={dialogId} show={true} animation={false}>
+						<Modal.Header closeButton={false}>Load Document from URL</Modal.Header>
+						<Modal.Body>
+							<p>
+								The following document is specified in the URL:<br />
+								<strong>{repo}/{path}</strong>
+							</p>
+							<p>Would you like to load it?</p>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button onClick={() => setDocumentInfo(undefined, undefined)}>
+								No, Load a Different Document
+							</Button>
+							<Button bsStyle="success" onClick={() => handleFileSelect(repo, path)}>
+								Yes, Load this Document
+							</Button>
+						</Modal.Footer>
+					</Modal>
+				) : writer.isDocLoaded && confirmLoadState ? (
+					<Modal id={dialogId} show={true} animation={false}>
+						<Modal.Header onHide={handleClose}>Existing Document</Modal.Header>
+						<Modal.Body>
+							<p>You have a document loaded in the editor. Would you like to load a new document, and close your existing document?</p>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button onClick={handleClose}>Return to Existing Document</Button>
+							<Button bsStyle="success" onClick={handleConfirmLoadState}>
+								Continue to Load New Document
+							</Button>
+						</Modal.Footer>
+					</Modal>
+				) : (
+					<Modal id={dialogId} show={true} bsSize="large" animation={false}>
+						<LoadDialog
+							handleClose={handleClose}
+							isDocLoaded={writer.isDocLoaded}
+							isGitLab={isGitLab}
+							onFileSelect={handleFileSelect}
+							onFileUpload={handleFileUpload}
+							serverURL={serverURL}
+							user={user}
+						/>
+					</Modal>
+				)
+			) : action === 'save' ? (
+				<Modal id={dialogId} show={true} animation={false}>
+					<SaveCmp
+						getDocument={getDocument}
+						handleClose={handleClose}
+						handlePathChange={setPath}
+						handleRepoChange={setRepo}
+						handleSaved={handleSaved}
+						isGitLab={isGitLab}
+						owner={repo ? repo.split('/')[0] : ''}
+						path={path}
+						repo={repo && repo.split('/')[1] !== undefined ? repo.split('/')[1] : ''}
+						serverURL={serverURL}
+						username={user.userId}
+					/>
+				</Modal>
+			) : action === 'logout' && (
+				<Modal id={dialogId} show={true} animation={false}>
+					<LogOutDialog handleClose={handleClose} />
+				</Modal>
+			))}
+		</Fragment>
+	);
+};
 
 GitDialog.propTypes = {
-    action: PropTypes.string,
+	action: PropTypes.string,
+	confirmLoad: PropTypes.bool,
+	dialogId: PropTypes.string,
+	serverURL: PropTypes.string,
+	writer: PropTypes.any,
+};
+
+GitDialog.defaultProps = {
+	confirmLoad: false,
 };
 
 export default {
-    setServerURL,
-    useGitLab,
+	getDocumentURI,
+	getUserInfo,
+	// useGitLab,
+	load: loadWrap,
+	logOut: logOutWrap,
 	save: saveWrap,
-    load: loadWrap,
-    getUserInfo,
-    getDocumentURI,
-    logOut: logOutWrap
-}
+	setServerURL,
+};
