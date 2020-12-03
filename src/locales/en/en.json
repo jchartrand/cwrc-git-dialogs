@@ -15,7 +15,7 @@
 	"save": {
 		"header": "Save to Repository",
 		"saveForm": {
-			"heading" : "Repository Path",
+			"heading": "Repository Path",
 			"owner": {
 				"label": "GitHub User/Organization"
 			},
@@ -27,14 +27,14 @@
 				"helpText": "The file (and folder) path to which to save (<italic>e.g.</italic>, french/basque/SaintSauveur.xml)."
 			}
 		},
-		"createRepoForm":{
-			"heading" : "Create Repository",
+		"createRepoForm": {
+			"heading": "Create Repository",
 			"wouldYouLikeToCreate": "This repository does not exist yet, would you like to create it?",
 			"repo": {
 				"label": "Repository"
 			},
 			"description": {
-				"label":  "Description",
+				"label": "Description",
 				"placeholder": "A short description of your repository.",
 				"defaultValue": "Created with CWRC-Writer",
 				"helpText": "The description will appear on the GitHub page for your new repository."
@@ -42,7 +42,7 @@
 			"makePrivate": "Make Private"
 		},
 		"forkRepoForm": {
-			"heading" : "Fork Repository and Submit Pull Request to Original Repository",
+			"heading": "Fork Repository and Submit Pull Request to Original Repository",
 			"hasPermission": "You have the ability to create a Pull Request to this repository, but you do not own it. Your proposed changes may be rejected by the repository owner(s). If you would like to preserve the changes you've made to this version of this file, we recommend you make a copy (fork) of the  original repository and create a Pull Request with your changes to the original repository",
 			"noPermission": "You do not have permission to use this repository: \"{{repo}}\". Try saving to another repository or fork the repository and make a pull request."
 		},
