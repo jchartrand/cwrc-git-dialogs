@@ -1,7 +1,7 @@
 {
 	"common": {
 		"ok": "Ok",
-		"cancel": "Cancelar", 
+		"cancel": "Cancelar",
 		"anErrorOccurred": "Ocorreu um erro",
 		"save": "Salvar",
 		"saveAsPullRequest": "Salvar como Pull Request",
@@ -15,7 +15,7 @@
 	"save": {
 		"header": "Salvar no repositório",
 		"saveForm": {
-			"heading" : "Endereço do repositório",
+			"heading": "Endereço do repositório",
 			"owner": {
 				"label": "Usuário/Organização GitHub"
 			},
@@ -27,22 +27,22 @@
 				"helpText": "O arquivo (e pasta) onde salvar. (<italic>ex:</italic>, portugues/brasil/machadoDeAssis.xml)."
 			}
 		},
-		"createRepoForm":{
-			"heading" : "Criar repositório",
+		"createRepoForm": {
+			"heading": "Criar repositório",
 			"wouldYouLikeToCreate": "Esse repositório não existe, deseja cria-lo?",
 			"repo": {
 				"label": "Repositório"
 			},
 			"description": {
-				"label":  "Descrição",
+				"label": "Descrição",
 				"placeholder": "Uma breve descrição para seu repositório.",
 				"defaultValue": "Criado pelo CWRC",
-				"helpText": "A descrição do repositório vai aparecer na página do GitHub."	
+				"helpText": "A descrição do repositório vai aparecer na página do GitHub."
 			},
 			"makePrivate": "Privado"
 		},
 		"forkRepoForm": {
-			"heading" : "Fork e Pull Request",
+			"heading": "Fork e Pull Request",
 			"hasPermission": "Você tem permissão para criar um Pull Request nesse repositórtio, mas ele pertence a outro usuário. Se quiser obter uma cópia do conteudo desse repositório, faça um Fork e crie um Pull Request com suas mudanças para o repositório Original.",
 			"noPermission": "Você não tem permissão para usar esse repositório: \"{{repo}}\". Tente salvar em outro repositório, ou faça um for e crie um Pull Request."
 		},
