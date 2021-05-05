@@ -4,10 +4,10 @@ module.exports = {
   coverageDirectory: './coverage',
   coverageThreshold: {
     global: {
-      branches: 10,
-      functions: 10,
-      lines: 10,
-      statements: 10,
+      branches: 20,
+      functions: 15,
+      lines: 40,
+      statements: 40,
     },
   },
   testMatch: ['**/test/**/*.[jt]s?(x)'],
