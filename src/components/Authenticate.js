@@ -60,18 +60,21 @@ const AuthenticateDialog = ({ isGitLab, onUserAuthentication, serverURL }) => {
               </Alert>
             ) : (
               <Fragment>
-                <p>You must first authenticate through GitHub to allow CWRC-Writer to make calls on your behalf.</p>
                 <p>
-                  CWRC does not keep any of your GitHub information. The GitHub token issued by GitHub is not stored on
-                  a CWRC server, but is only submitted as a{' '}
+                  You must first authenticate through GitHub to allow CWRC-Writer to make calls on
+                  your behalf.
+                </p>
+                <p>
+                  CWRC does not keep any of your GitHub information. The GitHub token issued by
+                  GitHub is not stored on a CWRC server, but is only submitted as a{' '}
                   <a href="https://jwt.io/" rel="noopener noreferrer" target="_blank">
                     JSON Web Token
                   </a>{' '}
                   for each request you make.
                 </p>
                 <p>
-                  Click below to authenticate with GitHub. Once you have completed the process you will be returned to
-                  CWRC-Writer.
+                  Click below to authenticate with GitHub. Once you have completed the process you
+                  will be returned to CWRC-Writer.
                 </p>
               </Fragment>
             )}

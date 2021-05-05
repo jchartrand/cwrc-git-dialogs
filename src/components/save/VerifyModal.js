@@ -6,7 +6,16 @@ import { Trans, useTranslation } from 'react-i18next';
 import ErrorModal from './ErrorModal';
 import cwrcGit from '../../GitServerClient';
 
-const VerifyModal = ({ cancelCB, isGitLab, owner, repo, serverURL, usePR, username, verifiedCB }) => {
+const VerifyModal = ({
+  cancelCB,
+  isGitLab,
+  owner,
+  repo,
+  serverURL,
+  usePR,
+  username,
+  verifiedCB,
+}) => {
   const { t } = useTranslation(['common, save']);
 
   const [doesRepoExist, setDoesRepoExist] = useState();
@@ -80,7 +89,9 @@ const VerifyModal = ({ cancelCB, isGitLab, owner, repo, serverURL, usePR, userna
   };
 
   const checkOwnerType = async () => {
-    const results = await cwrcGit.getDetailsForGithubUser(owner).catch((error) => console.log(error));
+    const results = await cwrcGit
+      .getDetailsForGithubUser(owner)
+      .catch((error) => console.log(error));
 
     // owner doesn't exists
     if (!results) {

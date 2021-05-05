@@ -55,7 +55,9 @@ const FileModal = ({
   };
 
   const isCurrentDocument = () => {
-    return `${currentFile.owner}/${currentFile.repo}/${currentFile.path}` === `${owner}/${repo}/${path}`;
+    return (
+      `${currentFile.owner}/${currentFile.repo}/${currentFile.path}` === `${owner}/${repo}/${path}`
+    );
   };
 
   const checkDocumentExists = async () => {

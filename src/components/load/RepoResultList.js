@@ -26,7 +26,11 @@ const RepoResultList = ({ isGitLab, selectCB, serverURL, repos }) => {
     return structure.map((item, i) => {
       return item.type === 'folder' ? (
         <div key={i}>
-          <ListGroupItem bsStyle="info" onClick={() => toggleFolder(item.path)} style={{ padding: '10px' }}>
+          <ListGroupItem
+            bsStyle="info"
+            onClick={() => toggleFolder(item.path)}
+            style={{ padding: '10px' }}
+          >
             <div style={{ paddingLeft: `${indent * 10}px` }}>
               <Glyphicon
                 glyph={openFolders.includes(item.path) ? 'chevron-down' : 'chevron-right'}
@@ -38,7 +42,11 @@ const RepoResultList = ({ isGitLab, selectCB, serverURL, repos }) => {
           {openFolders.includes(item.path) && showTree(item.contents, repo, indent + 2)}
         </div>
       ) : (
-        <ListGroupItem key={i} onClick={() => selectCB(repo, item.path)} style={{ padding: '10px' }}>
+        <ListGroupItem
+          key={i}
+          onClick={() => selectCB(repo, item.path)}
+          style={{ padding: '10px' }}
+        >
           <div style={{ paddingLeft: `${indent * 10}px` }}>{item.name}</div>
         </ListGroupItem>
       );
@@ -72,7 +80,9 @@ const RepoResultList = ({ isGitLab, selectCB, serverURL, repos }) => {
           <Panel.Heading>
             <Panel.Title toggle>
               <span style={{ fontWeight: '900' }}>{repoDetails.full_name}</span>
-              <span style={{ fontSize: '0.8em' }}>{repoDetails.description && ` ︱ ${repoDetails.description}`}</span>
+              <span style={{ fontSize: '0.8em' }}>
+                {repoDetails.description && ` ︱ ${repoDetails.description}`}
+              </span>
             </Panel.Title>
           </Panel.Heading>
           <Panel.Collapse>

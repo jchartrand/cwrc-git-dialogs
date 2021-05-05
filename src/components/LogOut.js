@@ -15,8 +15,8 @@ const LogOutDialog = ({ handleClose }) => {
       <Modal.Body>
         <Fragment>
           <p>
-            You are about to log out of CWRC-Writer (i.e. revoke the GitHub authentication). Any unsaved changes will be
-            lost.
+            You are about to log out of CWRC-Writer (i.e. revoke the GitHub authentication). Any
+            unsaved changes will be lost.
           </p>
           <p>Do you want to continue?</p>
         </Fragment>

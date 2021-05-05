@@ -42,7 +42,10 @@ const Paginator = ({ pagingCB, currentPage, lastPage }) => {
 
   return (
     <Pagination>
-      <Pagination.Prev onClick={() => currentPage > 1 && pagingCB(currentPage - 1)} disabled={currentPage == 1} />
+      <Pagination.Prev
+        onClick={() => currentPage > 1 && pagingCB(currentPage - 1)}
+        disabled={currentPage == 1}
+      />
       {addLinks(currentPage, lastPage, pagingCB)}
       <Pagination.Next
         onClick={() => currentPage != lastPage && pagingCB(currentPage + 1)}
@@ -58,7 +61,13 @@ Paginator.propTypes = {
   lastPage: PropTypes.number,
 };
 
-const showPagination = (targetElement, currentPage, lastPage, pagingCallback, reactResultComponentReference) => {
+const showPagination = (
+  targetElement,
+  currentPage,
+  lastPage,
+  pagingCallback,
+  reactResultComponentReference
+) => {
   ReactDOM.render(
     <Paginator
       pagingCB={pagingCallback}

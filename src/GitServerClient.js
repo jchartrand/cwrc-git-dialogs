@@ -146,7 +146,17 @@ const saveDoc = async ({ repo, path, content, branch, message, sha }) => {
   });
 };
 
-const saveAsPullRequest = async ({ owner, repo, path, content, branch, message, title, crossRepository, sha }) => {
+const saveAsPullRequest = async ({
+  owner,
+  repo,
+  path,
+  content,
+  branch,
+  message,
+  title,
+  crossRepository,
+  sha,
+}) => {
   return await callCWRCGitWithToken(`${baseUrl}/repos/${owner}/${repo}/pr`, {
     method: 'POST',
     body: JSON.stringify({ path, content, branch, message, title, crossRepository, sha }),

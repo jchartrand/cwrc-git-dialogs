@@ -21,7 +21,9 @@ const RepoResultCarousel = ({ isGitLab, repos, selectCB, serverURL }) => {
 
   const toggleFolder = (path) => {
     setOpenFolders((prevState) => {
-      return openFolders.includes(path) ? prevState.filter((item) => item !== path) : [...prevState, path];
+      return openFolders.includes(path)
+        ? prevState.filter((item) => item !== path)
+        : [...prevState, path];
     });
   };
 
@@ -46,7 +48,11 @@ const RepoResultCarousel = ({ isGitLab, repos, selectCB, serverURL }) => {
             let isFolderOpen = openFolders.includes(item.path);
             return (
               <div key={i}>
-                <ListGroupItem bsStyle="info" onClick={() => toggleFolder(item.path)} style={{ padding: '10px' }}>
+                <ListGroupItem
+                  bsStyle="info"
+                  onClick={() => toggleFolder(item.path)}
+                  style={{ padding: '10px' }}
+                >
                   <div style={{ paddingLeft: `${indent * 10}px` }}>
                     <Glyphicon
                       glyph={isFolderOpen ? 'chevron-down' : 'chevron-right'}
@@ -61,7 +67,11 @@ const RepoResultCarousel = ({ isGitLab, repos, selectCB, serverURL }) => {
           } else {
             if (_isSearch === false) {
               return (
-                <ListGroupItem key={i} onClick={() => selectCB(repo, item.path)} style={{ padding: '10px' }}>
+                <ListGroupItem
+                  key={i}
+                  onClick={() => selectCB(repo, item.path)}
+                  style={{ padding: '10px' }}
+                >
                   <div style={{ paddingLeft: `${indent * 10}px` }}>{item.name}</div>
                 </ListGroupItem>
               );
@@ -69,7 +79,11 @@ const RepoResultCarousel = ({ isGitLab, repos, selectCB, serverURL }) => {
               const queryIndex = item.name.toLowerCase().indexOf(searchQuery);
               if (queryIndex !== -1) {
                 return (
-                  <ListGroupItem key={i} onClick={() => selectCB(repo, item.path)} style={{ padding: '10px' }}>
+                  <ListGroupItem
+                    key={i}
+                    onClick={() => selectCB(repo, item.path)}
+                    style={{ padding: '10px' }}
+                  >
                     <div style={{ paddingLeft: `${indent * 10}px` }}>
                       {item.name.substring(0, queryIndex)}
                       <span style={{ fontWeight: 'bold' }}>
@@ -123,7 +137,9 @@ const RepoResultCarousel = ({ isGitLab, repos, selectCB, serverURL }) => {
       return (
         <ListGroupItem key={i} eventkey={repoDetails.full_name} onClick={handleRepoSelect}>
           <span style={{ fontWeight: '900' }}>{repoDetails.full_name}</span>
-          <span style={{ fontSize: '0.8em' }}>{repoDetails.description && ` ︱ ${repoDetails.description}`}</span>
+          <span style={{ fontSize: '0.8em' }}>
+            {repoDetails.description && ` ︱ ${repoDetails.description}`}
+          </span>
         </ListGroupItem>
       );
     });
@@ -190,11 +206,15 @@ const RepoResultCarousel = ({ isGitLab, repos, selectCB, serverURL }) => {
         <Breadcrumb style={{ marginBottom: '10px' }}>
           <Breadcrumb.Item active={true}>Repos</Breadcrumb.Item>
         </Breadcrumb>
-        <ListGroup style={{ maxHeight: '500px', overflowY: 'scroll' }}>{showRepoList(repos)}</ListGroup>
+        <ListGroup style={{ maxHeight: '500px', overflowY: 'scroll' }}>
+          {showRepoList(repos)}
+        </ListGroup>
       </Carousel.Item>
       <Carousel.Item>
         <Breadcrumb style={{ marginBottom: '10px' }}>
-          <Breadcrumb.Item onClick={() => handleCarouselSelect(0, { direction: 'prev' })}>Repos</Breadcrumb.Item>
+          <Breadcrumb.Item onClick={() => handleCarouselSelect(0, { direction: 'prev' })}>
+            Repos
+          </Breadcrumb.Item>
           <Breadcrumb.Item active={true}>{selectedRepo}</Breadcrumb.Item>
         </Breadcrumb>
         <SearchInput

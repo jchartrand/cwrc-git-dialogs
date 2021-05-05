@@ -8,7 +8,9 @@ const HighlightedMatch = ({ text_match }) => {
       <span>{text_match.fragment.slice(0, text_match.matches[0].indices[0])}</span>
       {text_match.matches.map((currentMatch, currentIndex, allMatches) => {
         const startOfNextMatch =
-          currentIndex + 1 == allMatches.length ? text_match.fragment.length : allMatches[currentIndex + 1].indices[0];
+          currentIndex + 1 == allMatches.length
+            ? text_match.fragment.length
+            : allMatches[currentIndex + 1].indices[0];
         const endOfThisMatch = currentMatch.indices[1];
         return (
           <span key={currentIndex.toString()}>
@@ -30,7 +32,10 @@ const Item = ({ selectCB, result }) => {
   const header = `${repoDetails.full_name}/${result.path}`;
 
   return (
-    <ListGroupItem onClick={() => selectCB(repoDetails.full_name, result.path)} style={{ cursor: 'pointer' }}>
+    <ListGroupItem
+      onClick={() => selectCB(repoDetails.full_name, result.path)}
+      style={{ cursor: 'pointer' }}
+    >
       <div
         style={{
           fontSize: '16px',

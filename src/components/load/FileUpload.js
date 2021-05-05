@@ -1,6 +1,16 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
-import { Button, Col, ControlLabel, FormControl, FormGroup, Grid, HelpBlock, Label, Row } from 'react-bootstrap';
+import {
+  Button,
+  Col,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+  Grid,
+  HelpBlock,
+  Label,
+  Row,
+} from 'react-bootstrap';
 
 const FileUpload = ({ fileCB }) => {
   const [xmlText, setXmlText] = useState('');
@@ -43,13 +53,21 @@ const FileUpload = ({ fileCB }) => {
         <Row>
           <Col sm={3}>
             <FormGroup>
-              <ControlLabel htmlFor="fileUpload" style={{ cursor: 'pointer', paddingRight: '40px' }}>
+              <ControlLabel
+                htmlFor="fileUpload"
+                style={{ cursor: 'pointer', paddingRight: '40px' }}
+              >
                 <h4>
                   <Label bsStyle="success" style={{ padding: '15px' }}>
                     Choose File
                   </Label>
                 </h4>
-                <FormControl id="fileUpload" type="file" onChange={handleUpload} style={{ display: 'none' }} />
+                <FormControl
+                  id="fileUpload"
+                  type="file"
+                  onChange={handleUpload}
+                  style={{ display: 'none' }}
+                />
               </ControlLabel>
               or
             </FormGroup>

@@ -19,54 +19,70 @@ const Splash = ({ onContinue }) => {
         </PageHeader>
         <p>CWRC-Writer provides:</p>
         <ul>
-          <li>schema-aware document editing, including validation, against web-accessible schemas</li>
           <li>
-            support for cascading stylesheets (CSS) to provide a WYSIWYG view of documents, as well as a view showing
-            tags
+            schema-aware document editing, including validation, against web-accessible schemas
           </li>
           <li>
-            ability to look up and select identifiers for named entity tags (persons, organization, places, or titles)
-            from a range of Linked Open Data authorities
+            support for cascading stylesheets (CSS) to provide a WYSIWYG view of documents, as well
+            as a view showing tags
           </li>
           <li>
-            generation (if desired) of Linked Data annotations corresponding to tags for named entities and document
-            annotations (notes, citations, corrections, links) in XML-RDF or JSON-LD conforming to the Web Annotation
-            Data Model, for both pre-existing and newly added tags
+            ability to look up and select identifiers for named entity tags (persons, organization,
+            places, or titles) from a range of Linked Open Data authorities
           </li>
           <li>
-            ability to detect candidate named entities (persons, places, or organizations) within a document for tagging
-            and/or Web Annotation, to evaluate and refine those suggestions, and to associate the entities with LOD
-            identifiers
+            generation (if desired) of Linked Data annotations corresponding to tags for named
+            entities and document annotations (notes, citations, corrections, links) in XML-RDF or
+            JSON-LD conforming to the Web Annotation Data Model, for both pre-existing and newly
+            added tags
+          </li>
+          <li>
+            ability to detect candidate named entities (persons, places, or organizations) within a
+            document for tagging and/or Web Annotation, to evaluate and refine those suggestions,
+            and to associate the entities with LOD identifiers
           </li>
         </ul>
         <p>
-          This version of CWRC-Writer, <em>Git-Writer</em>, uses the GitHub repository for document storage, versioning,
-          and sharing. You need to be logged into a GitHub account to use it.
+          This version of CWRC-Writer, <em>Git-Writer</em>, uses the GitHub repository for document
+          storage, versioning, and sharing. You need to be logged into a GitHub account to use it.
         </p>
         <p>
-          Git-Writer is designed to work with customizations of the Text Encoding Initiative (TEI) schema provided by
-          the TEI Consortium. (Schemas/CSS must be available at an https:// location and have CORS enabled.)
+          Git-Writer is designed to work with customizations of the Text Encoding Initiative (TEI)
+          schema provided by the TEI Consortium. (Schemas/CSS must be available at an https://
+          location and have CORS enabled.)
         </p>
         <p>
-          You can use CWRC-Writer to edit XML documents or produce new documents from templates. There are templates and
-          sample documents here for getting started. Producing Linked Open Data annotations is optional.
+          You can use CWRC-Writer to edit XML documents or produce new documents from templates.
+          There are templates and sample documents here for getting started. Producing Linked Open
+          Data annotations is optional.
         </p>
         <p>
           To learn more about how to use CWRC-Writer, see{' '}
-          <a href="https://cwrc.ca/Documentation/CWRC-Writer" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://cwrc.ca/Documentation/CWRC-Writer"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             cwrc.ca/Documentation/CWRC-Writer
           </a>
-          . We recommend starting with the <em>video tutorial</em> and the <em>quick start guide</em>.
+          . We recommend starting with the <em>video tutorial</em> and the{' '}
+          <em>quick start guide</em>.
         </p>
         <p>
-          If you run into a bug or there is a feature you would like to see added, please submit a ticket to{' '}
-          <a href="https://github.com/cwrc/CWRC-WriterBase/issues" target="_blank" rel="noopener noreferrer">
+          If you run into a bug or there is a feature you would like to see added, please submit a
+          ticket to{' '}
+          <a
+            href="https://github.com/cwrc/CWRC-WriterBase/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             github.com/cwrc/CWRC-WriterBase/issues
           </a>
           .
         </p>
         <p>
-          If you are interested in adopting/adapting the Writer to a different environment, please consult{' '}
+          If you are interested in adopting/adapting the Writer to a different environment, please
+          consult{' '}
           <a
             href="https://github.com/cwrc/tech_documentation/blob/master/Tools-reference.md#cwrc-writer"
             target="_blank"
@@ -77,8 +93,8 @@ const Splash = ({ onContinue }) => {
           . You can contact us through a GitHub ticket on any of the CWRC-Writer code repositories.
         </p>
         <p>
-          Finally, if you have found CWRC-Writer useful for your research or teaching, please let us know! We'd love to
-          hear it.
+          Finally, if you have found CWRC-Writer useful for your research or teaching, please let us
+          know! We'd love to hear it.
         </p>
         <hr />
         <h4>Core Team</h4>

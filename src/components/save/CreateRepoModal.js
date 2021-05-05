@@ -1,6 +1,14 @@
 import PropTypes from 'prop-types';
 import React, { Fragment, useState } from 'react';
-import { Modal, Button, FormGroup, Checkbox, ControlLabel, FormControl, HelpBlock } from 'react-bootstrap';
+import {
+  Modal,
+  Button,
+  FormGroup,
+  Checkbox,
+  ControlLabel,
+  FormControl,
+  HelpBlock,
+} from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import cwrcGit from '../../GitServerClient';
@@ -28,7 +36,9 @@ const CreateRepoModal = ({ cancel, complete, owner, ownerType, repo }) => {
     let newRepo;
 
     if (ownerType === 'User') {
-      newRepo = await cwrcGit.createRepo({ repo, repoDesc, isPrivate }).catch((error) => displayError(error));
+      newRepo = await cwrcGit
+        .createRepo({ repo, repoDesc, isPrivate })
+        .catch((error) => displayError(error));
     } else if (ownerType === 'Organization') {
       newRepo = await cwrcGit
         .createOrgRepo({ org: owner, repo, repoDesc, isPrivate })
@@ -54,7 +64,9 @@ const CreateRepoModal = ({ cancel, complete, owner, ownerType, repo }) => {
               <FormControl type="text" value={repo} disabled />
             </FormGroup>
             <FormGroup controlId="repoDesc">
-              <ControlLabel style={{ marginTop: '10px' }}>{t('save:createRepoForm.description.label')}</ControlLabel>
+              <ControlLabel style={{ marginTop: '10px' }}>
+                {t('save:createRepoForm.description.label')}
+              </ControlLabel>
               <FormControl
                 type="text"
                 placeholder={t('save:createRepoForm.description.placeholder')}

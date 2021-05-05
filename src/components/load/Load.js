@@ -31,7 +31,15 @@ import SearchResultList from './SearchResultList';
 
 const RESULTS_PER_PAGE = 100;
 
-const LoadDialog = ({ handleClose, isDocLoaded, isGitLab, onFileSelect, onFileUpload, serverURL, user }) => {
+const LoadDialog = ({
+  handleClose,
+  isDocLoaded,
+  isGitLab,
+  onFileSelect,
+  onFileUpload,
+  serverURL,
+  user,
+}) => {
   const [activeTab, setActiveTab] = useState(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -64,7 +72,9 @@ const LoadDialog = ({ handleClose, isDocLoaded, isGitLab, onFileSelect, onFileUp
   }, [privateReposAffiliation, searchFilter]);
 
   const getReposForGithubUser = async (user, requestedPage, resultsPerPage = RESULTS_PER_PAGE) => {
-    const response = await cwrcGit.getReposForGithubUser(user, requestedPage, resultsPerPage).catch((fail) => fail);
+    const response = await cwrcGit
+      .getReposForGithubUser(user, requestedPage, resultsPerPage)
+      .catch((fail) => fail);
 
     return {
       items: response.data,
@@ -87,12 +97,19 @@ const LoadDialog = ({ handleClose, isDocLoaded, isGitLab, onFileSelect, onFileUp
     };
   };
 
-  const searchFileContentsForUser = async (gitName, searchTerms, requestedPage, resultsPerPage = RESULTS_PER_PAGE) => {
+  const searchFileContentsForUser = async (
+    gitName,
+    searchTerms,
+    requestedPage,
+    resultsPerPage = RESULTS_PER_PAGE
+  ) => {
     let queryString = 'language:xml';
     if (searchTerms) queryString += ` "${searchTerms}"`;
     if (gitName) queryString += ` user:${gitName}`;
 
-    const response = await cwrcGit.searchCode(queryString, resultsPerPage, requestedPage).catch((fail) => fail);
+    const response = await cwrcGit
+      .searchCode(queryString, resultsPerPage, requestedPage)
+      .catch((fail) => fail);
 
     return {
       items: response.data.items,
@@ -272,7 +289,11 @@ const LoadDialog = ({ handleClose, isDocLoaded, isGitLab, onFileSelect, onFileUp
                         <Panel.Body>
                           <ControlLabel>Show repositories for which I am:</ControlLabel>
                           <ToggleButtonGroup type="radio" name="affiliation" defaultValue="owner">
-                            <ToggleButton bsSize="small" value="owner" onClick={() => handleAffiliationSelect('owner')}>
+                            <ToggleButton
+                              bsSize="small"
+                              value="owner"
+                              onClick={() => handleAffiliationSelect('owner')}
+                            >
                               Owner
                             </ToggleButton>
                             <ToggleButton
@@ -307,7 +328,10 @@ const LoadDialog = ({ handleClose, isDocLoaded, isGitLab, onFileSelect, onFileUp
                               if (event.charCode === 13) setSearchFilter(filterInput.value);
                             }}
                           />
-                          <Button onClick={() => setSearchFilter(filterInput.value)} style={{ marginTop: '10px' }}>
+                          <Button
+                            onClick={() => setSearchFilter(filterInput.value)}
+                            style={{ marginTop: '10px' }}
+                          >
                             Search
                           </Button>
                         </Panel.Body>
@@ -350,7 +374,11 @@ const LoadDialog = ({ handleClose, isDocLoaded, isGitLab, onFileSelect, onFileUp
                   ) : isSearch ? (
                     <div>
                       <SearchResultList results={results} selectCB={onFileSelect} />
-                      <Paginator currentPage={currentPage} lastPage={lastPage} pagingCB={doSearch} />
+                      <Paginator
+                        currentPage={currentPage}
+                        lastPage={lastPage}
+                        pagingCB={doSearch}
+                      />
                     </div>
                   ) : (
                     <div>

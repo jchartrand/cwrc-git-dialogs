@@ -1,9 +1,28 @@
 import PropTypes from 'prop-types';
 import React, { Fragment, useState } from 'react';
-import { Button, Col, ControlLabel, Form, FormControl, FormGroup, Grid, Label, Modal, Row } from 'react-bootstrap';
+import {
+  Button,
+  Col,
+  ControlLabel,
+  Form,
+  FormControl,
+  FormGroup,
+  Grid,
+  Label,
+  Modal,
+  Row,
+} from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 
-const PathModal = ({ handleClose, handleChange, handleSaveFile, handleSaveFileAsPR, repo, path, owner }) => {
+const PathModal = ({
+  handleClose,
+  handleChange,
+  handleSaveFile,
+  handleSaveFileAsPR,
+  repo,
+  path,
+  owner,
+}) => {
   const { t } = useTranslation(['common, save']);
 
   const [formMessage, setFormMessage] = useState(undefined);
