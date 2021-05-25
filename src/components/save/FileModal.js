@@ -94,7 +94,7 @@ const FileModal = ({
     // if request from fork action, check file on forked repo
     if (fromFork) owner = username;
 
-    await cwrcGit
+    const response = await cwrcGit
       .saveDoc({
         repo: `${owner}/${repo}`,
         path,
@@ -102,12 +102,12 @@ const FileModal = ({
         branch,
         message: commitMessage,
       })
+      // eslint-disable-next-line no-unused-vars
       .catch((error) => {
-        if (error.status === 404) {
-          error.statusText = t('save:error.repoNoPermission');
-        }
-        return displayError(error);
+        displayError(t('save:error.repoNoPermission'));
       });
+
+    if (!response) return;
 
     complete();
   };
