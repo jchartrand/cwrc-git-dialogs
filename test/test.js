@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import $ from 'jquery';
 import dialogs from '../src/index.js';
 
